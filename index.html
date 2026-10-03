@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#e6f0e9">
+  <meta name="description" content="Práctica Profesional Supervisada 2026 del Colegio Técnico Profesional de Liberia.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="PPS Liberia">
+  <title>PPS 2026 · CTP Liberia</title>
+  <link rel="manifest" href="./manifest.webmanifest" crossorigin="use-credentials">
+  <link rel="icon" type="image/png" href="./icons/icon-192.png">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <main id="welcome" class="welcome">
+    <header class="brand"><img src="./icons/escudo.png" width="78" height="66" alt="Escudo del CTP Liberia"><div><span class="eyebrow">CTP LIBERIA</span><p>Coordinación con la Empresa</p></div></header>
+    <section class="intro">
+      <span class="pill">Práctica Profesional Supervisada</span>
+      <h1>Su práctica,<br>siempre a mano.</h1>
+      <p class="lead">Acceda a su empresa, itinerario y documentos desde un solo lugar.</p>
+      <div class="actions"><button id="openApp" class="primary" type="button">Entrar a PPS 2026 <span aria-hidden="true">→</span></button><button id="install" class="secondary" type="button">Instalar en mi dispositivo</button></div>
+      <p id="installStatus" class="small" role="status" aria-live="polite">Agregue PPS 2026 a su pantalla de inicio para abrirla con un toque.</p>
+    </section>
+    <section class="features" aria-label="Lo que puede consultar"><div><span class="feature-icon" aria-hidden="true">⌂</span><h2>Su empresa</h2><p>Asignación y contacto.</p></div><div><span class="feature-icon" aria-hidden="true">↗</span><h2>Su itinerario</h2><p>Indicaciones de ingreso.</p></div><div><span class="feature-icon" aria-hidden="true">▤</span><h2>Sus documentos</h2><p>Expediente y currículum.</p></div></section>
+    <aside class="reminder"><span aria-hidden="true">✓</span><p>Complete el video y las cinco preguntas de inducción antes del domingo 4 de octubre de 2026, en la tarde-noche.</p></aside>
+    <footer>PPS 2026 · CTP Liberia<br><span>Conexión a Internet requerida para consultar y guardar sus datos.</span></footer>
+  </main>
+  <section id="portal" class="portal" aria-label="Aplicación PPS 2026" hidden>
+    <header class="portal-bar"><button id="backHome" class="home-button" type="button" aria-label="Volver a la pantalla de instalación">←</button><img src="./icons/escudo.png" width="30" height="26" alt="Escudo CTP Liberia"><strong>PPS 2026</strong><a id="directLink" href="https://script.google.com/macros/s/AKfycbwQ9x6TxoBpIgh1u15-5anOOsLEGmP2mypSJp3SU8qNYkFaG5KsOE639YhoZzcRNWz_XA/exec" target="_blank" rel="noopener noreferrer">Abrir aparte ↗</a></header>
+    <div id="frameLoading" class="loading" role="status"><span class="spinner" aria-hidden="true"></span>Abriendo PPS 2026…</div>
+    <iframe id="appFrame" title="Portal de Práctica Profesional PPS 2026" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    <div id="frameHelp" class="frame-help" hidden>Si el portal no aparece, use «Abrir aparte» en la barra superior.</div>
+  </section>
+  <div id="offline" class="offline" role="status" aria-live="polite" hidden>Sin conexión. Reconéctese para consultar o guardar sus datos. <button id="retry" type="button">Reintentar</button></div>
+  <dialog id="installHelp" aria-labelledby="helpTitle"><button id="closeHelp" class="close" type="button" aria-label="Cerrar instrucciones">×</button><img src="./icons/escudo.png" width="62" height="52" alt="Escudo CTP Liberia"><h2 id="helpTitle">PPS en su pantalla de inicio</h2><p id="helpText"></p><p class="small">Si aún no aparece la opción de instalación, abra este enlace directamente en Chrome o Safari.</p><button id="doneHelp" class="primary" type="button">Entendido</button></dialog>
+  <noscript><p>Para usar PPS 2026, active JavaScript o <a href="https://script.google.com/macros/s/AKfycbwQ9x6TxoBpIgh1u15-5anOOsLEGmP2mypSJp3SU8qNYkFaG5KsOE639YhoZzcRNWz_XA/exec">abra el portal directamente</a>.</p></noscript>
+</body>
+</html>
