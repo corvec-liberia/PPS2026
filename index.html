@@ -1,184 +1,999 @@
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="utf-8">
-
+  <base target="_top">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#e6f0e9">
-  <meta name="description" content="Práctica Profesional Supervisada 2026 del Colegio Técnico Profesional de Liberia. Consulte su empresa, itinerario y documentos desde un solo lugar.">
+  <title>CTP Liberia - Práctica Profesional 2026</title>
+  <script>
+    /* PPS2026 v19.12 · detección defensiva de teléfono.
+       Permite aplicar la vista móvil aunque el navegador solicite sitio de escritorio. */
+    (function () {
+      try {
+        var ua = navigator.userAgent || '';
+        var mobileUA = /Android|iPhone|iPad|iPod|IEMobile|Opera Mini|Mobile/i.test(ua);
+        var sw = Math.min(
+          Number((window.screen && window.screen.width) || 9999),
+          Number((window.screen && window.screen.height) || 9999)
+        );
+        if (mobileUA || sw <= 900) {
+          document.documentElement.classList.add('mobile-device');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <!-- PPS2026 v19.3: credenciales obligatorias + retroalimentación visual no bloqueante -->
 
-  <title>PPS 2026 · CTP Liberia</title>
+  <style>
+    :root {
+      --bg: #f7fbf8;
+      --panel: #ffffff;
+      --panel-soft: #fbfefd;
+      --primary: #9ccbb0;
+      --primary-dark: #6f9f83;
+      --primary-deep: #355944;
+      --primary-soft: #edf7f1;
+      --secondary: #c9e2d2;
+      --secondary-soft: #f3faf5;
+      --accent: #e6d58f;
+      --accent-soft: #fbf6e3;
+      --text: #31473a;
+      --muted: #6f8576;
+      --border: #dbe9df;
+      --success: #7fb892;
+      --warning: #c8aa4c;
+      --danger: #cf8f8f;
+      --shadow: 0 14px 32px rgba(128, 175, 148, 0.14);
+      --radius: 22px;
+    }
 
-  <!-- URL canónica -->
-  <link rel="canonical" href="https://corvec-liberia.github.io/PPS2026/">
+    * { box-sizing: border-box; }
 
-  <!-- PWA -->
-  <link rel="manifest" href="./manifest.webmanifest">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="PPS Liberia">
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
-  <!-- Iconos -->
-  <link rel="icon" type="image/svg+xml" href="./icon.svg">
-  <link rel="apple-touch-icon" href="./icon.svg">
+    .loader {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(201, 226, 210, 0.50), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(230, 213, 143, 0.22), transparent 25%),
+        linear-gradient(180deg, #f9fdfb 0%, #f2faf5 100%);
+      padding: 24px;
+    }
 
-  <!-- Vista previa al compartir en WhatsApp / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="es_CR">
-  <meta property="og:site_name" content="PPS 2026 · CTP Liberia">
-  <meta property="og:title" content="PPS 2026 · CTP Liberia">
-  <meta property="og:description" content="Toda la información de su práctica profesional en un solo lugar. Abra e instale la aplicación en su teléfono.">
-  <meta property="og:url" content="https://corvec-liberia.github.io/PPS2026/">
-  <meta property="og:image" content="https://corvec-liberia.github.io/PPS2026/preview-app.png">
-  <meta property="og:image:secure_url" content="https://corvec-liberia.github.io/PPS2026/preview-app.png">
-  <meta property="og:image:type" content="image/png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="PPS 2026 del Colegio Técnico Profesional de Liberia">
+    .loader-card {
+      width: min(440px, 92vw);
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      text-align: center;
+    }
 
-  <!-- Vista previa adicional -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="PPS 2026 · CTP Liberia">
-  <meta name="twitter:description" content="Toda la información de su práctica profesional en un solo lugar. Abra e instale la aplicación en su teléfono.">
-  <meta name="twitter:image" content="https://corvec-liberia.github.io/PPS2026/preview-app.png">
+    .loader-logo {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: white;
+      margin: 0 auto 16px;
+      padding: 8px;
+      border: 3px solid #edf6f0;
+      box-shadow: 0 8px 22px rgba(128, 175, 148, 0.15);
+      object-fit: contain;
+    }
 
-  <!-- Recursos de la aplicación -->
-  <link rel="stylesheet" href="./styles.css?v=20261003-1">
-  <script src="./app.js?v=20261003-1" defer></script>
-</head>
+    .loader-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--primary-deep);
+      margin-bottom: 8px;
+    }
 
-<body>
-  <main id="welcome" class="welcome">
-    <header class="brand">
-      <img src="./icon.svg" width="78" height="66" alt="Escudo del CTP Liberia">
-      <div>
-        <span class="eyebrow">CTP LIBERIA</span>
-        <p>Coordinación con la Empresa</p>
-      </div>
-    </header>
+    .loader-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 22px;
+    }
 
-    <section class="intro">
-      <span class="pill">Práctica Profesional Supervisada</span>
+    .loader-progress-shell {
+      height: 12px;
+      background: #eef6f1;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
 
-      <h1>Su práctica,<br>siempre a mano.</h1>
+    .loader-progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #9ccbb0, #c9e2d2, #e6d58f);
+      transition: width 0.22s ease;
+    }
 
-      <p class="lead">
-        Acceda a su empresa, itinerario y documentos desde un solo lugar.
-      </p>
+    .loader-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
 
-      <div class="actions">
-        <button id="openApp" class="primary" type="button">
-          Entrar a PPS 2026 <span aria-hidden="true">→</span>
-        </button>
+    .app { display: none; min-height: 100vh; }
 
-        <button id="install" class="secondary" type="button">
-          Instalar en mi dispositivo
-        </button>
-      </div>
+    .sidebar {
+      width: 290px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      overflow-y: auto;
+      padding: 24px 18px;
+      background: linear-gradient(180deg, #edf7f1 0%, #e6f2ea 52%, #dcebe1 100%);
+      border-right: 1px solid rgba(128, 175, 148, 0.18);
+    }
 
-      <p id="installStatus" class="small" role="status" aria-live="polite">
-        Agregue PPS 2026 a su pantalla de inicio para abrirla con un toque.
-      </p>
-    </section>
+    .brand {
+      text-align: center;
+      margin-bottom: 26px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(128, 175, 148, 0.22);
+    }
 
-    <section class="features" aria-label="Lo que puede consultar">
-      <div>
-        <span class="feature-icon" aria-hidden="true">⌂</span>
-        <h2>Su empresa</h2>
-        <p>Asignación y contacto.</p>
-      </div>
+    .brand-logo-box {
+      width: 118px;
+      height: 118px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: white;
+      display: grid;
+      place-items: center;
+      padding: 8px;
+      box-shadow: 0 10px 22px rgba(128, 175, 148, 0.18);
+      border: 3px solid #f3f8f5;
+    }
 
-      <div>
-        <span class="feature-icon" aria-hidden="true">↗</span>
-        <h2>Su itinerario</h2>
-        <p>Indicaciones de ingreso.</p>
-      </div>
+    .brand-logo { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-      <div>
-        <span class="feature-icon" aria-hidden="true">▤</span>
-        <h2>Sus documentos</h2>
-        <p>Expediente y currículum.</p>
-      </div>
-    </section>
+    .brand h1 { margin: 0 0 8px; font-size: 21px; color: var(--text); }
+    .brand p { margin: 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
 
-    <aside class="reminder">
-      <span aria-hidden="true">✓</span>
-      <p>
-        Complete el video y las cinco preguntas de inducción antes del domingo
-        4 de octubre de 2026, en la tarde-noche.
-      </p>
-    </aside>
+    .brand-mini {
+      margin-top: 10px;
+      display: inline-block;
+      padding: 5px 10px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(128, 175, 148, 0.18);
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--primary-dark);
+      font-weight: bold;
+    }
 
-    <footer>
-      PPS 2026 · CTP Liberia<br>
-      <span>Conexión a Internet requerida para consultar y guardar sus datos.</span>
-    </footer>
-  </main>
+    .nav { margin-top: 8px; }
 
-  <section id="portal" class="portal" aria-label="Aplicación PPS 2026" hidden>
-    <header class="portal-bar">
-      <button id="backHome" class="home-button" type="button"
-              aria-label="Volver a la pantalla de instalación">←</button>
+    .nav button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      padding: 13px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 15px;
+      margin-bottom: 6px;
+      transition: all 0.18s ease;
+    }
 
-      <img src="./icon.svg" width="30" height="26" alt="Escudo CTP Liberia">
-      <strong>PPS 2026</strong>
+    .nav button:hover { background: rgba(255,255,255,0.64); }
 
-      <a
-        id="directLink"
-        href="https://script.google.com/macros/s/AKfycbwQ9x6TxoBpIgh1u15-5anOOsLEGmP2mypSJp3SU8qNYkFaG5KsOE639YhoZzcRNWz_XA/exec"
-        target="_blank"
-        rel="noopener noreferrer">
-        Abrir aparte ↗
-      </a>
-    </header>
+    .nav button.active {
+      background: rgba(255,255,255,0.92);
+      font-weight: bold;
+      color: var(--primary-dark);
+      box-shadow: inset 0 0 0 1px rgba(128,175,148,0.18);
+    }
 
-    <div id="frameLoading" class="loading" role="status">
-      <span class="spinner" aria-hidden="true"></span>
-      Abriendo PPS 2026…
-    </div>
+    .footer-note {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
 
-    <iframe
-      id="appFrame"
-      title="Portal de Práctica Profesional PPS 2026"
-      referrerpolicy="strict-origin-when-cross-origin">
-    </iframe>
+    .main { margin-left: 290px; padding: 28px; }
 
-    <div id="frameHelp" class="frame-help" hidden>
-      Si el portal no aparece, use «Abrir aparte» en la barra superior.
-    </div>
-  </section>
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fcf9 62%, #f2f8f4 100%);
+      border-radius: 24px;
+      padding: 26px 28px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
 
-  <div id="offline" class="offline" role="status" aria-live="polite" hidden>
-    Sin conexión. Reconéctese para consultar o guardar sus datos.
-    <button id="retry" type="button">Reintentar</button>
-  </div>
+    .hero::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 20px;
+      bottom: 20px;
+      width: 8px;
+      border-radius: 0 10px 10px 0;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+    }
 
-  <dialog id="installHelp" aria-labelledby="helpTitle">
-    <button id="closeHelp" class="close" type="button"
-            aria-label="Cerrar instrucciones">×</button>
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -55px;
+      top: -55px;
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      background: rgba(201, 226, 210, 0.30);
+    }
 
-    <img src="./icon.svg" width="62" height="52" alt="Escudo CTP Liberia">
+    .hero-left, .hero-actions { position: relative; z-index: 1; }
 
-    <h2 id="helpTitle">PPS en su pantalla de inicio</h2>
+    .hero-chip {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      border: 1px solid rgba(128, 175, 148, 0.18);
+    }
 
-    <p id="helpText"></p>
+    .hero h2 { margin: 0 0 8px; font-size: 23px; color: var(--text); letter-spacing: 0.2px; }
+    .hero-main-title { margin: 0 0 6px; font-size: 16px; font-weight: bold; color: var(--primary-dark); }
+    .hero p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
 
-    <p class="small">
-      Si aún no aparece la opción de instalación, abra este enlace directamente
-      en Chrome o Safari.
-    </p>
+    .hero-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-    <button id="doneHelp" class="primary" type="button">Entendido</button>
-  </dialog>
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: all 0.18s ease;
+      box-shadow: 0 6px 16px rgba(128, 175, 148, 0.14);
+    }
 
-  <noscript>
-    <p>
-      Para usar PPS 2026, active JavaScript o
-      <a href="https://script.google.com/macros/s/AKfycbwQ9x6TxoBpIgh1u15-5anOOsLEGmP2mypSJp3SU8qNYkFaG5KsOE639YhoZzcRNWz_XA/exec">
-        abra el portal directamente
-      </a>.
-    </p>
-  </noscript>
-</body>
-</html>
+    .btn:hover { transform: translateY(-1px); filter: brightness(0.98); }
+    .btn.primary { background: var(--primary); color: #294136; }
+    .btn.secondary { background: #ffffff; color: var(--primary-dark); border: 1px solid var(--border); }
+    .btn.warning { background: var(--accent); color: #665926; }
+    .btn.danger { background: #ebd0d0; color: #7a5252; }
+    .btn.small { padding: 7px 10px; font-size: 12px; }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .card .label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .card .number { font-size: 32px; font-weight: bold; color: var(--text); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .panel {
+      background: var(--panel);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel h3 {
+      margin-top: 0;
+      color: var(--text);
+      border-left: 5px solid var(--primary);
+      padding-left: 10px;
+      font-size: 18px;
+    }
+
+    .toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      background: #fcfefd;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(156, 203, 176, 0.14);
+    }
+
+    textarea { min-height: 90px; resize: vertical; }
+    .input-sm { max-width: 330px; }
+
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--border); padding: 10px; text-align: left; font-size: 13px; vertical-align: top; }
+    th { background: #eef6f1; color: var(--text); font-weight: bold; }
+    tr:hover td { background: #f9fcfa; }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+    }
+
+    .badge.warning { background: var(--accent-soft); color: #947933; }
+    .badge.success { background: #eef7f1; color: #5e8c70; }
+    .badge.danger { background: #f9ecec; color: #ad6f6f; }
+
+    .bar-row { margin-bottom: 12px; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; gap: 12px; }
+    .bar-bg { height: 10px; background: #edf4ef; border-radius: 999px; overflow: hidden; }
+    .bar { height: 10px; background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%); border-radius: 999px; }
+
+    .notice {
+      padding: 12px 14px;
+      background: #f5faf6;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .empty-state {
+      padding: 18px;
+      background: #fbfefd;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(90, 112, 96, 0.18);
+      z-index: 1000;
+      padding: 30px;
+      overflow-y: auto;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal {
+      background: white;
+      max-width: 780px;
+      margin: 0 auto;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .modal h3 { margin-top: 0; color: var(--text); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 13px; color: var(--text); }
+    .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+    .chat-box {
+      white-space: pre-wrap;
+      background: #fbfefd;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 140px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .helper-text { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+
+
+    .cv-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .cv-link {
+      display: inline-block;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border: 1px solid rgba(128, 175, 148, 0.22);
+    }
+
+    .upload-status {
+      display: none;
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fbfefd;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .upload-status.active {
+      display: block;
+    }
+
+    .compact-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+
+
+    .student-practice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .student-info-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg,#ffffff 0%,#f8fcf9 100%);
+      min-height: 118px;
+    }
+    .student-info-card .mini-label { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: bold; letter-spacing: .4px; }
+    .student-info-card .big-value { font-size: 18px; color: var(--primary-deep); font-weight: bold; margin-top: 7px; line-height: 1.3; }
+    .student-task {
+      border-radius: 18px;
+      padding: 17px;
+      margin: 14px 0;
+      border: 1px solid var(--border);
+      background: #fbfefd;
+    }
+    .student-task.required { background: var(--accent-soft); border-color: rgba(200,170,76,.35); }
+    .student-task.completed { background: #f2faf5; border-color: rgba(127,184,146,.36); }
+    .student-task h4 { margin: 0 0 6px; color: var(--primary-deep); font-size: 16px; }
+    .student-task p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .student-status-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .student-section-title { margin: 24px 0 12px; color: var(--text); border-left: 5px solid var(--primary); padding-left: 10px; }
+
+    /* v19.7 · retroalimentación visible durante registro/PIN */
+    .registro-save-feedback {
+      display:none;
+      margin:14px 0 2px;
+      padding:14px 15px;
+      border-radius:16px;
+      border:1px solid #bfdac9;
+      background:#f4fbf6;
+      color:#365746;
+    }
+    .registro-save-feedback.active { display:block; }
+    .registro-save-feedback.error { background:#fff3f3; border-color:#efc9c9; color:#8a4d4d; }
+    .registro-save-feedback.success { background:#eef9f1; border-color:#b8d9c2; color:#2f6645; }
+    .registro-save-head { display:flex; align-items:center; justify-content:space-between; gap:12px; font-weight:700; }
+    .registro-save-status { display:flex; align-items:center; gap:9px; }
+    .registro-spinner { width:16px; height:16px; border-radius:50%; border:2px solid #cfe2d5; border-top-color:#5e9f79; animation:registroSpin .85s linear infinite; flex:0 0 auto; }
+    .registro-save-feedback.success .registro-spinner, .registro-save-feedback.error .registro-spinner { display:none; }
+    .registro-save-track { height:9px; margin-top:11px; border-radius:999px; background:#e3eee6; overflow:hidden; }
+    .registro-save-bar { height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#9ccbb0,#c9e2d2,#e6d58f); transition:width .28s ease; }
+    .registro-save-detail { margin-top:8px; font-size:12px; line-height:1.45; opacity:.92; }
+    @keyframes registroSpin { to { transform:rotate(360deg); } }
+
+    @media (max-width: 900px) { .student-practice-grid { grid-template-columns: 1fr; } }
+
+
+
+    /* PPS 2026 v19.6 · Ruta guiada del estudiante */
+    .student-route-shell{display:grid;gap:18px;margin-top:18px}
+    .student-route-hero{border:1px solid #dce8e0;border-radius:22px;padding:20px;background:linear-gradient(135deg,#f6fbf8 0%,#fffdf7 100%);box-shadow:0 10px 24px rgba(76,110,91,.06)}
+    .student-route-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+    .student-route-title{margin:0;color:var(--primary-deep);font-size:21px;line-height:1.25}
+    .student-route-subtitle{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5;max-width:760px}
+    .student-route-progress{min-width:190px;text-align:right}
+    .student-route-progress strong{display:block;color:var(--primary-deep);font-size:14px}
+    .student-route-progress span{font-size:12px;color:var(--muted)}
+    .student-route-track{height:10px;border-radius:999px;background:#eaf2ed;overflow:hidden;margin-top:8px;border:1px solid #dce8e0}
+    .student-route-track>div{height:100%;background:linear-gradient(90deg,#83b99b,#b9d7c5,#e6d58f);transition:width .3s ease}
+    .student-route-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:16px}
+    .student-route-link{border:1px solid #dce8e0;background:#fff;border-radius:15px;padding:10px 9px;cursor:pointer;text-align:left;color:var(--text);transition:.18s ease;min-height:62px}
+    .student-route-link:hover{transform:translateY(-1px);box-shadow:0 7px 16px rgba(62,91,74,.08)}
+    .student-route-link .num{display:inline-flex;width:24px;height:24px;border-radius:50%;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-right:6px;background:#eef5f0;color:var(--primary-deep)}
+    .student-route-link .route-label{display:block;margin-top:5px;font-size:11px;color:var(--muted);font-weight:700}
+    .student-priority{border-radius:18px;padding:16px 17px;border:1px solid #e8cf79;background:linear-gradient(135deg,#fff9df,#fffdf5);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .student-priority.done{border-color:#b9d9c4;background:linear-gradient(135deg,#eef9f2,#f9fdfb)}
+    .student-priority h4{margin:0 0 4px;font-size:16px;color:#5f542b}
+    .student-priority.done h4{color:var(--primary-deep)}
+    .student-priority p{margin:0;color:#6c6650;font-size:13px;line-height:1.45}
+    .student-step{border-radius:22px;border:1px solid var(--border);overflow:hidden;background:#fff;box-shadow:0 8px 20px rgba(66,91,77,.05)}
+    .student-step-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:17px 18px;border-bottom:1px solid rgba(210,225,216,.8)}
+    .student-step-head-left{display:flex;gap:12px;align-items:flex-start}
+    .student-step-number{flex:0 0 34px;width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+    .student-step-title{margin:0;font-size:17px;color:var(--primary-deep);line-height:1.25}
+    .student-step-help{margin:4px 0 0;color:var(--muted);font-size:12.5px;line-height:1.45}
+    .student-step-body{padding:18px}
+    .student-step.cv{border-color:#c9e3d2}.student-step.cv .student-step-head{background:#eff9f3}.student-step.cv .student-step-number{background:#d7eddf;color:#285a3b}
+    .student-step.letter{border-color:#cedde9}.student-step.letter .student-step-head{background:#f0f6fb}.student-step.letter .student-step-number{background:#dbe8f2;color:#365c78}
+    .student-step.itinerary{border-color:#eadfb7}.student-step.itinerary .student-step-head{background:#fff9e9}.student-step.itinerary .student-step-number{background:#f3e9be;color:#776322}
+    .student-step.personal{border-color:#ddd8eb}.student-step.personal .student-step-head{background:#f7f4fb}.student-step.personal .student-step-number{background:#e9e3f3;color:#5c4b79}
+    .student-step.supervisor{border-color:#cde1dd}.student-step.supervisor .student-step-head{background:#eff8f6}.student-step.supervisor .student-step-number{background:#d7ebe7;color:#315f57}
+    .student-step-status{white-space:nowrap;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:800;border:1px solid transparent}
+    .student-step-status.ok{background:#eaf7ef;color:#2f6541;border-color:#c8e4d2}
+    .student-step-status.pending{background:#fff5d8;color:#78621e;border-color:#ead996}
+    .student-step-status.info{background:#edf5fa;color:#3e6077;border-color:#cedeeb}
+    .student-step .notice{margin:0 0 14px}
+    .student-step .actions{margin-bottom:0}
+    .student-step .student-task{margin:0}
+    .student-step .document-action-card{margin:0;border:0;background:transparent;padding:0}
+    .student-step .student-section-title{display:none}
+    .student-data-toggle{border:0;background:transparent;padding:0;color:var(--primary-deep);font-weight:800;cursor:pointer;font-size:12px}
+    .student-collapsible{display:block}
+    .student-kicker{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;background:#edf6f0;color:#47705a;font-size:11px;font-weight:800;margin-bottom:7px}
+    .student-info-card.primary-company{border-color:#bcd8c7;background:linear-gradient(180deg,#f6fbf8,#edf7f1)}
+    .student-info-card.primary-company .big-value{font-size:20px}
+    .student-guide-note{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.5}
+    @media(max-width:1050px){.student-route-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.student-route-link:last-child{grid-column:1/-1}}
+    @media(max-width:700px){.student-route-nav{grid-template-columns:1fr}.student-route-link:last-child{grid-column:auto}.student-route-progress{text-align:left;min-width:100%}.student-step-head{align-items:flex-start}.student-step-status{white-space:normal;text-align:center}.student-step-body{padding:15px}.student-route-hero{padding:16px}}
+
+    @media (max-width: 1100px) {
+      .sidebar { position: static; width: 100%; }
+      .main { margin-left: 0; padding: 18px; }
+      .cards, .grid-2, .form-grid { grid-template-columns: 1fr; }
+      .hero { display: block; }
+      .hero-actions { margin-top: 14px; }
+    }
+
+    .security-banner {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #7c6828;
+      font-size: 12px;
+      font-weight: bold;
+      border: 1px solid rgba(200,170,76,0.25);
+      margin-top: 10px;
+    }
+
+    .contact-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--panel-soft);
+      padding: 14px;
+      margin: 10px 0 14px;
+      line-height: 1.5;
+    }
+
+    .contact-card strong { color: var(--primary-deep); }
+
+    .agenda-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 18px;
+    }
+
+    .readonly-field {
+      background: #f3f7f4;
+      color: var(--muted);
+    }
+
+    .role-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    @media (max-width: 1100px) {
+      .agenda-grid { grid-template-columns: 1fr; }
+    }
+
+
+    /*******************************************************
+     * LOGIN INTERNO - VERSIÓN VISUAL MEJORADA
+     *******************************************************/
+    .login-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 34px;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(156, 203, 176, 0.42), transparent 28%),
+        radial-gradient(circle at 88% 16%, rgba(230, 213, 143, 0.34), transparent 28%),
+        radial-gradient(circle at 48% 92%, rgba(196, 224, 207, 0.50), transparent 30%),
+        linear-gradient(135deg, #f7fbf8 0%, #eef8f2 45%, #fbf7e8 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(111,159,131,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(111,159,131,0.055) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: radial-gradient(circle at center, black 0%, transparent 78%);
+      pointer-events: none;
+    }
+
+    .login-card {
+      width: min(1120px, 96vw);
+      min-height: 575px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(219, 233, 223, 0.90);
+      border-radius: 34px;
+      box-shadow: 0 26px 60px rgba(88, 132, 105, 0.18);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 0.98fr 1.22fr;
+      backdrop-filter: blur(8px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-brand {
+      padding: 42px 38px;
+      background:
+        radial-gradient(circle at 26% 18%, rgba(255,255,255,0.88), transparent 28%),
+        linear-gradient(160deg, #e8f5ed 0%, #dbeee3 64%, #f7f0cf 135%);
+      border-right: 1px solid rgba(219, 233, 223, 0.92);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-brand::after {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      right: -96px;
+      bottom: -84px;
+      background: rgba(230, 213, 143, 0.28);
+    }
+
+    .login-logo-shell {
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      margin: 0 auto 22px;
+      border: 4px solid rgba(255,255,255,0.95);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 15px 34px rgba(93, 142, 113, 0.19);
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-logo-img {
+      width: 122px;
+      height: 122px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .login-brand h1 {
+      margin: 0 0 10px;
+      color: var(--primary-deep);
+      font-size: 30px;
+      letter-spacing: -0.3px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-brand p {
+      margin: 0;
+      color: #587466;
+      line-height: 1.55;
+      font-size: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-brand .brand-mini {
+      margin-top: 18px;
+      position: relative;
+      z-index: 1;
+      background: rgba(255,255,255,0.76);
+      color: var(--primary-dark);
+      border: 1px solid rgba(111,159,131,0.18);
+    }
+
+    .login-highlights {
+      margin-top: 26px;
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-highlight {
+      padding: 11px 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.62);
+      border: 1px solid rgba(219, 233, 223, 0.86);
+      color: #476656;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .login-content {
+      padding: 38px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(230,213,143,0.55);
+      color: #766529;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
+
+    .login-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .login-tab {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--primary-dark);
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(128,175,148,0.08);
+    }
+
+    .login-tab.active {
+      background: linear-gradient(180deg, #edf7f1, #e4f2e9);
+      box-shadow: inset 0 0 0 1px rgba(128,175,148,0.18), 0 6px 14px rgba(128,175,148,0.10);
+    }
+
+    .login-panel { display: none; }
+    .login-panel.active { display: block; }
+
+    .login-panel h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      color: var(--primary-deep);
+      letter-spacing: -0.2px;
+    }
+
+    .login-panel .helper-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 16px;
+    }
+
+    .login-input-wrap input {
+      height: 46px;
+      background: rgba(252, 254, 253, 0.95);
+    }
+
+    .login-message {
+      display: none;
+      margin: 12px 0 16px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      color: var(--text);
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .login-message.active { display: block; }
+    .login-message.error { background: #fff3f3; border-color: #efc9c9; color: #8a4d4d; }
+    .login-message.ok { background: #f2faf5; border-color: var(--border); color: var(--primary-deep); }
+
+    .login-role-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 18px 0 12px;
+    }
+
+    .login-role-card {
+      padding: 12px;
+      border-radius: 16px;
+      background: #fbfefd;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .login-role-card strong {
+      display: block;
+      color: var(--primary-deep);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .login-safe-note {
+      margin-top: 16px;
+      padding: 13px 14px;
+      border-radius: 16px;
+      background: #f5faf6;
+      border: 1px solid var(--border);
+      color: #4d6a5a;
+      line-height: 1.48;
+      font-size: 13px;
+    }
+
+    .readonly-card {
+      border: 1px dashed var(--border);
+      background: #fbfefd;
+      border-radius: 16px;
+      padding: 14px;
+      margin: 14px 0;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 900px) {
+      .login-screen { padding: 18px; }
+      .login-card { grid-template-columns: 1fr; }
+      .login-brand { border-right: 0; border-bottom: 1px solid var(--border); padding: 30px 22px; }
+      .login-content { padding: 26px 22px; }
+      .login-role-grid { grid-template-columns: 1fr; }
+    }
+
+  
+    /* PPS 2026 v19.2 · retroalimentación visual no bloqueante */
+    .global-action-feedback{position:fixed;left:0;right:0;top:0;z-index:5000;pointer-events:none;display:none}
+    .global-action-feedback.active{display:block}
+    .global-action-track{height:5px;background:rgba(219,233,223,.72);overflow:hidden}
+    .global-action-bar{height:100%;width:0%;background:linear-gradient(90deg,#9ccbb0,#c9e2d2,#e6d58f);transition:width .22s ease}
+    .global-action-label{position:absolute;right:18px;top:12px;background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:999px;padding:7px 12px;font-size:12px;color:var(--primary-deep);box-shadow:var(--shadow)}
+    .inline-progress{height:9px;background:#edf4ef;border-radius:999px;overflow:hidden;margin-top:9px;border:1px solid var(--border)}
+    .inline-progress>div{height:100%;width:0%;background:linear-gradient(90deg,#9ccbb0,#c9e2d2,#e6d58f);transition:width .22s ease}
+    .login-progress-wrap{display:none;margin-top:9px}
+    .login-progress-wrap.active{display:block}
+    .login-progress-track{height:9px;background:#edf4ef;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+    .login-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#8fc2a4,#bfdcca,#e5d48d);transition:width .24s ease}
+    .login-progress-meta{display:flex;justify-content:space-between;gap:12px;margin-top:6px;font-size:12px;color:var(--muted)}
+    .login-progress-meta strong{color:var(--primary-deep)}
+    .itinerary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
+    .itinerary-item{padding:13px;border:1px solid var(--border);border-radius:14px;background:#fbfefd}
+    .itinerary-item .k{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:bold;margin-bottom:5px}
+    .itinerary-item .v{font-size:14px;line-height:1.45;color:var(--text)}
+    .itinerary-details{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .document-action-card{padding:17px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(135deg,#f8fcf9,#fffdf4);margin:16px 0}
+    .document-action-card h4{margin:0 0 7px;color:var(--primary-deep);font-size:16px}
+    @media(max-width:900px){.itinerary-grid,.itinerary-details{grid-template-columns:1fr}}
+
+
+    /* PPS 2026 v19.9 · optimización móvil sin alterar escritorio */
+    @media (max-width: 700px) {
+      html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+      body { -webkit-text-size-adjust: 100%; }
+
+      .main { margin-left: 0; padding: 10px; width: 100%; }
+      .hero { padding: 16px 14px; border-radius: 18px; margin-bottom: 14px; gap: 10px; }
+      .hero::after { width: 120px; height: 120px; right: -42px; top: -42px; }
+      .hero h2 { font-size: 20px; line-height: 1.25; }
+      .hero-main-title { font-size: 15px; }
+      .hero p { font-size: 13px; }
+      .hero-chip { font-size: 11px; padding: 5px 9px; }
+      .hero-actions { width: 100%; gap: 8px; }
+      .hero-actions .btn { flex: 1 1 100%; width: 100%; }
+
+      .panel, .card { padding: 14px; border-radius: 16px; box-shadow: 0 8px 20px rgba(128,175,148,.10); }
+      .panel { margin-bottom: 14px; }
+      .panel h3 { font-size: 16px; }
+      .cards, .grid-2, .form-grid, .student-practice-grid, .itinerary-grid, .itinerary-details { grid-template-columns: 1fr !important; gap: 10px; }
+
+      .student-practice-grid { margin-bottom: 12px; }
+      .student-info-card { min-height: 0; padding: 13px; border-radius: 15px; }
+      .student-info-card .big-value { font-size: 17px; }
+      .student-info-card.primary-company .big-value { font-size: 18px; }
+
+      .student-route-shell { gap: 12px; margin-top: 12px; }
+      .student-route-hero { padding: 14px; border-radius: 17px; }
+      .student-route-title { font-size: 18px; }
+      .student-route-subtitle { font-size: 12.5px; }
+      .student-route-progress { min-width: 0; width: 100%; text-align: left; }
+      .student-route-track { height: 9px; }
+
+      .student-route-nav { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+      .student-route-link { min-height: 58px; padding: 9px 8px; border-radius: 13px; }
+      .student-route-link:last-child { grid-column: 1 / -1; }
+      .student-route-link .route-label { font-size: 10.5px; }
+
+      .student-priority { padding: 13px; border-radius: 15px; align-items: stretch; }
+      .student-priority .btn { width: 100%; }
+
+      .student-step { border-radius: 17px; }
+      .student-step-head { padding: 13px; flex-direction: column; align-items: stretch; gap: 9px; }
+      .student-step-head-left { gap: 9px; }
+      .student-step-number { width: 31px; height: 31px; flex-basis: 31px; border-radius: 10px; }
+      .student-step-title { font-size: 16px; }
+      .student-step-help { font-size: 12px; }
+      .student-step-status { align-self: flex-start; white-space: normal; text-align: left; }
+      .student-step-body { padding: 13px; }
+      .student-task { padding: 13px; border-radius: 15px; }
+      .student-task h4, .document-action-card h4 { font-size: 15px; }
+      .student-task p, .compact-note, .notice { font-size: 12.5px; }
+
+      .actions { justify-content: stretch; gap: 8px; }
+      .actions .btn { flex: 1 1 100%; width: 100%; min-height: 44px; }
+      .btn { min-height: 44px; font-size: 14px; }
+
+      input, select, textarea { font-size: 16px; min-height: 44px; }
+      textarea { min-height: 96px; }
