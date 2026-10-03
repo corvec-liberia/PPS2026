@@ -6,10 +6,13 @@ let frameHasStarted=false;
 let slowTimer;
 const standalone=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
 function openPortal(){
-  $('welcome').hidden=true;
-  $('portal').hidden=false;
-  if(!frameHasStarted&&navigator.onLine)loadPortal();
-  $('backHome').focus();
+  if(!navigator.onLine){
+    $('offline').hidden=false;
+    return;
+  }
+  // Abrir Apps Script como navegación principal evita que google.script.run
+  // quede atrapado dentro de un iframe de GitHub Pages en algunos móviles.
+  window.location.assign(PORTAL_URL);
 }
 function loadPortal(){
   clearTimeout(slowTimer);
@@ -65,7 +68,11 @@ window.addEventListener('offline',connectionState);
 window.matchMedia('(display-mode: standalone)').addEventListener('change',installState);
 installState();
 connectionState();
-if(standalone())openPortal();
+if(standalone()){
+  // En modo instalado entramos directamente al portal real para mantener
+  // la comunicación nativa de Google Apps Script.
+  openPortal();
+}
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{
     $('installStatus').textContent='Puede entrar al portal. La preparación de la instalación no se completó; recargue cuando tenga conexión.';
