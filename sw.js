@@ -1,5 +1,5 @@
 'use strict';
-const CACHE='pps-liberia-shell-v5';
+const CACHE='pps-liberia-shell-v6';
 const ASSETS=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon.svg'];
 const ASSET_URLS=new Set(ASSETS.map(path=>new URL(path,self.registration.scope).href));
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));});
