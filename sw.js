@@ -1,25 +1,52 @@
 'use strict';
-const CACHE='pps-liberia-shell-v7';
-const ASSETS=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon.svg'];
-const ASSET_URLS=new Set(ASSETS.map(path=>new URL(path,self.registration.scope).href));
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('pps-liberia-shell-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
+const CACHE='pps-liberia-pwa-v8';
+const SHELL=['./','./index.html','./styles.css','./app.js','./manifest.webmanifest','./icon.svg','./icon-maskable.svg'];
+const SHELL_PATHS=new Set(SHELL.map(p=>new URL(p,self.registration.scope).pathname));
+
+self.addEventListener('install',event=>{
+  self.skipWaiting();
+  event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)));
+});
+
+self.addEventListener('activate',event=>{
+  event.waitUntil(
+    caches.keys()
+      .then(keys=>Promise.all(keys.filter(k=>k.startsWith('pps-liberia-')&&k!==CACHE).map(k=>caches.delete(k))))
+      .then(()=>self.clients.claim())
+  );
+});
+
 self.addEventListener('fetch',event=>{
-  const request=event.request;
-  if(request.method!=='GET')return;
-  const url=new URL(request.url);
+  const req=event.request;
+  if(req.method!=='GET')return;
+  const url=new URL(req.url);
   if(url.origin!==self.location.origin)return;
-  if(request.mode==='navigate'){
-    if(url.pathname!==new URL('./',self.registration.scope).pathname&&url.pathname!==new URL('./index.html',self.registration.scope).pathname)return;
-    event.respondWith(fetch(request).catch(()=>caches.match(new URL('./index.html',self.registration.scope).href)));
+
+  if(req.mode==='navigate'){
+    event.respondWith(
+      fetch(req).then(res=>{
+        if(res.ok){
+          const copy=res.clone();
+          event.waitUntil(caches.open(CACHE).then(cache=>cache.put('./index.html',copy)));
+        }
+        return res;
+      }).catch(()=>caches.match('./index.html'))
+    );
     return;
   }
-  if(!ASSET_URLS.has(url.href))return;
-  event.respondWith(fetch(request).then(response=>{
-    if(response.ok&&response.type==='basic'){
-      const copy=response.clone();
-      event.waitUntil(caches.open(CACHE).then(cache=>cache.put(request,copy)));
-    }
-    return response;
-  }).catch(()=>caches.match(request)));
+
+  if(!SHELL_PATHS.has(url.pathname))return;
+
+  event.respondWith(
+    caches.match(req,{ignoreSearch:true}).then(cached=>{
+      const network=fetch(req).then(res=>{
+        if(res.ok&&res.type==='basic'){
+          const copy=res.clone();
+          event.waitUntil(caches.open(CACHE).then(cache=>cache.put(req,copy)));
+        }
+        return res;
+      }).catch(()=>cached);
+      return cached||network;
+    })
+  );
 });
