@@ -10,9 +10,13 @@ function openPortal(){
     $('offline').hidden=false;
     return;
   }
-  // Producción PPS 2026: GitHub Pages funciona como lanzador PWA.
-  // El portal operativo se ejecuta directamente en Apps Script para conservar google.script.run.
-  window.location.assign(PORTAL_URL);
+  // Mantener la navegación dentro del origen de la PWA.
+  // El portal de Apps Script corre dentro del iframe, por lo que la app instalada
+  // conserva display: standalone y no salta al navegador externo.
+  $('welcome').hidden=true;
+  $('portal').hidden=false;
+  if(!frameHasStarted) loadPortal();
+  $('backHome').focus();
 }
 function loadPortal(){
   clearTimeout(slowTimer);
@@ -69,8 +73,8 @@ window.matchMedia('(display-mode: standalone)').addEventListener('change',instal
 installState();
 connectionState();
 if(standalone()){
-  // En modo instalado entramos directamente al portal real para mantener
-  // la comunicación nativa de Google Apps Script.
+  // Al abrir desde el ícono instalado, mostrar directamente la interfaz interna
+  // sin abandonar el contexto standalone de la PWA.
   openPortal();
 }
 if('serviceWorker' in navigator){
