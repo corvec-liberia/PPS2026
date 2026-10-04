@@ -11,7 +11,7 @@
     "standalone"
   ],
   "orientation": "portrait-primary",
-  "background_color": "#f5f8f6",
+  "background_color": "#f4f8f5",
   "theme_color": "#e6f0e9",
   "categories": [
     "education",
@@ -35,7 +35,7 @@
   "shortcuts": [
     {
       "name": "Abrir PPS 2026",
-      "short_name": "Abrir",
+      "short_name": "PPS 2026",
       "url": "./?pwa=1",
       "icons": [
         {
