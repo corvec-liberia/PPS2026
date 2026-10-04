@@ -10,8 +10,8 @@ function openPortal(){
     $('offline').hidden=false;
     return;
   }
-  // Abrir Apps Script como navegación principal evita que google.script.run
-  // quede atrapado dentro de un iframe de GitHub Pages en algunos móviles.
+  // Producción PPS 2026: GitHub Pages funciona como lanzador PWA.
+  // El portal operativo se ejecuta directamente en Apps Script para conservar google.script.run.
   window.location.assign(PORTAL_URL);
 }
 function loadPortal(){
