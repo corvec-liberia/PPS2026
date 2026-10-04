@@ -1,15 +1,49 @@
 {
-  "id": "./",
+  "id": "/PPS2026/",
   "name": "PPS 2026 · CTP Liberia",
-  "short_name": "PPS Liberia",
-  "description": "Práctica Profesional Supervisada del CTP Liberia.",
+  "short_name": "PPS 2026",
+  "description": "Práctica Profesional Supervisada 2026 del Colegio Técnico Profesional de Liberia.",
   "lang": "es-CR",
-  "start_url": "./",
+  "start_url": "./?pwa=1",
   "scope": "./",
   "display": "standalone",
+  "display_override": [
+    "standalone"
+  ],
+  "orientation": "portrait-primary",
   "background_color": "#f5f8f6",
   "theme_color": "#e6f0e9",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
   "icons": [
-    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Abrir PPS 2026",
+      "short_name": "Abrir",
+      "url": "./?pwa=1",
+      "icons": [
+        {
+          "src": "./icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
   ]
 }
