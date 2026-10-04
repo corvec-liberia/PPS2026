@@ -4,58 +4,65 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#e6f0e9">
-  <meta name="description" content="Aplicación PPS 2026 del Colegio Técnico Profesional de Liberia.">
+  <meta name="description" content="Instale PPS 2026 del CTP Liberia y consulte su práctica profesional desde una sola aplicación.">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="PPS 2026">
   <title>PPS 2026 · CTP Liberia</title>
   <link rel="canonical" href="https://corvec-liberia.github.io/PPS2026/">
-  <link rel="manifest" href="./manifest.webmanifest?v=8">
+  <link rel="manifest" href="./manifest.webmanifest?v=9">
   <link rel="icon" type="image/svg+xml" href="./icon.svg">
-  <link rel="stylesheet" href="./styles.css?v=8">
-  <script src="./app.js?v=8" defer></script>
+  <link rel="stylesheet" href="./styles.css?v=9">
+  <script src="./app.js?v=9" defer></script>
 </head>
 <body>
-  <main id="welcome" class="welcome">
-    <section class="welcome-card">
-      <header class="brand">
-        <div class="brand-icon"><img src="./icon.svg" alt="Escudo CTP Liberia"></div>
+  <main id="installer" class="installer">
+    <section class="installer-card" aria-labelledby="installerTitle">
+      <div class="app-identity">
+        <div class="app-icon-shell"><img src="./icon.svg" alt="Escudo CTP Liberia"></div>
         <div>
-          <div class="eyebrow">CTP LIBERIA</div>
-          <div class="brand-sub">Coordinación con la Empresa</div>
+          <span class="eyebrow">CTP LIBERIA</span>
+          <h1 id="installerTitle">PPS 2026</h1>
+          <p>Práctica Profesional Supervisada</p>
         </div>
-        <span id="modeBadge" class="mode-badge">Modo navegador</span>
-      </header>
-
-      <div class="hero-copy">
-        <span class="pill">Práctica Profesional Supervisada 2026</span>
-        <h1>Su práctica,<br>siempre a mano.</h1>
-        <p>Empresa, itinerario, documentos e inducción desde una sola aplicación.</p>
       </div>
 
-      <div class="actions">
-        <button id="openApp" class="primary" type="button">
-          Abrir PPS 2026 <span aria-hidden="true">→</span>
-        </button>
-        <button id="install" class="secondary" type="button">Instalar aplicación</button>
+      <div class="installer-copy">
+        <span id="installBadge" class="badge">Aplicación oficial</span>
+        <h2 id="installHeading">Instale PPS 2026 en su teléfono</h2>
+        <p id="installLead">Una sola instalación. Después podrá abrirla desde su pantalla de inicio como cualquier otra aplicación.</p>
       </div>
 
-      <div id="installStatus" class="install-status" role="status" aria-live="polite">
-        Para abrir sin barra del navegador, instale PPS 2026 en su dispositivo.
+      <button id="installPrimary" class="install-primary" type="button">
+        <span id="installPrimaryIcon" class="install-icon">↓</span>
+        <span>
+          <strong id="installPrimaryTitle">Instalar PPS 2026</strong>
+          <small id="installPrimarySub">Tarda solo unos segundos</small>
+        </span>
+      </button>
+
+      <button id="browserFallback" class="browser-fallback" type="button">
+        Entrar sin instalar
+      </button>
+
+      <div id="installFeedback" class="install-feedback" role="status" aria-live="polite">
+        <span id="feedbackDot" class="feedback-dot"></span>
+        <span id="feedbackText">Preparando instalación…</span>
       </div>
 
-      <div class="feature-row" aria-label="Funciones principales">
-        <div><strong>Empresa</strong><span>Asignación y contacto</span></div>
-        <div><strong>Itinerario</strong><span>Ingreso y ubicación</span></div>
-        <div><strong>Documentos</strong><span>Expediente y currículum</span></div>
+      <div class="benefits">
+        <div><span>✓</span><p><strong>Acceso directo</strong><small>Desde el ícono del teléfono.</small></p></div>
+        <div><span>✓</span><p><strong>Sin buscar enlaces</strong><small>Su práctica siempre a mano.</small></p></div>
+        <div><span>✓</span><p><strong>Actualización automática</strong><small>Recibe las mejoras al abrir.</small></p></div>
       </div>
+
+      <p class="privacy-note">No instala archivos desconocidos ni solicita permisos especiales. Utiliza la instalación segura del navegador.</p>
     </section>
   </main>
 
   <section id="portal" class="portal" aria-label="Aplicación PPS 2026" hidden>
     <header class="app-bar">
-      <button id="backHome" class="icon-button" type="button" aria-label="Volver">‹</button>
       <img src="./icon.svg" alt="" width="34" height="34">
       <div class="app-title"><strong>PPS 2026</strong><span>CTP Liberia</span></div>
       <span id="connectionDot" class="connection-dot" title="Conexión"></span>
@@ -73,9 +80,7 @@
           <strong id="appProgressPct">8%</strong>
         </div>
         <p class="loading-note">La primera apertura puede tardar unos segundos mientras Google prepara la sesión.</p>
-        <a id="directLink" class="fallback-link" href="https://script.google.com/macros/s/AKfycbwQ9x6TxoBpIgh1u15-5anOOsLEGmP2mypSJp3SU8qNYkFaG5KsOE639YhoZzcRNWz_XA/exec" target="_blank" rel="noopener noreferrer" hidden>
-          Abrir directamente en el navegador
-        </a>
+        <a id="directLink" class="fallback-link" href="https://script.google.com/macros/s/AKfycbwQ9x6TxoBpIgh1u15-5anOOsLEGmP2mypSJp3SU8qNYkFaG5KsOE639YhoZzcRNWz_XA/exec" target="_blank" rel="noopener noreferrer" hidden>Abrir directamente en el navegador</a>
       </div>
     </div>
 
@@ -83,20 +88,17 @@
   </section>
 
   <div id="offline" class="offline" role="status" aria-live="polite" hidden>
-    <strong>Sin conexión</strong>
-    <span>Reconéctese para consultar o guardar información.</span>
+    <strong>Sin conexión</strong><span>Reconéctese para continuar.</span>
     <button id="retry" type="button">Reintentar</button>
   </div>
 
-  <dialog id="installHelp" aria-labelledby="helpTitle">
-    <button id="closeHelp" class="close" type="button" aria-label="Cerrar">×</button>
+  <dialog id="manualHelp" aria-labelledby="manualTitle">
+    <button id="manualClose" class="dialog-close" type="button" aria-label="Cerrar">×</button>
     <img src="./icon.svg" width="64" height="64" alt="Escudo CTP Liberia">
-    <h2 id="helpTitle">Instalar PPS 2026</h2>
-    <p id="helpText"></p>
-    <p class="help-note">Una PWA instalada se abre en modo aplicación, sin la barra normal del navegador.</p>
-    <button id="doneHelp" class="primary dialog-button" type="button">Entendido</button>
+    <h2 id="manualTitle">Instalar PPS 2026</h2>
+    <p id="manualText"></p>
+    <button id="manualAction" class="install-primary compact" type="button" hidden>Abrir en Chrome</button>
+    <button id="manualDone" class="browser-fallback" type="button">Entendido</button>
   </dialog>
-
-  <noscript><p>Active JavaScript para utilizar PPS 2026.</p></noscript>
 </body>
 </html>
