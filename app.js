@@ -9,6 +9,9 @@ let portalReady=false;
 let progressTimer=null;
 let longWaitTimer=null;
 let progressIndex=0;
+const INSTALLED_KEY='pps2026-installed';
+const wasInstalled=()=>localStorage.getItem(INSTALLED_KEY)==='1';
+const markInstalled=()=>localStorage.setItem(INSTALLED_KEY,'1');
 
 const stages=[
  [8,'Iniciando aplicación…','Preparando la interfaz de PPS 2026.'],
@@ -41,6 +44,14 @@ function feedback(text,type=''){
 function configureInstaller(){
   if(standalone()){
     openPortal();
+    return;
+  }
+
+  if(wasInstalled()){
+    $('installPrimaryTitle').textContent='Abrir PPS 2026';
+    $('installPrimarySub').textContent='La aplicación ya está instalada';
+    $('installPrimaryIcon').textContent='↗';
+    feedback('PPS 2026 ya está instalada en este dispositivo.','ok');
     return;
   }
 
@@ -82,6 +93,13 @@ function configureInstaller(){
 async function installPrimary(){
   if(standalone()){ openPortal(); return; }
 
+  if(wasInstalled()){
+    // Evita volver a mostrar instrucciones de instalación. En navegador,
+    // entra directamente al portal; desde el ícono instalado se abre en modo app.
+    openPortal();
+    return;
+  }
+
   if(isAndroid && !isChrome){
     window.location.href=chromeIntent();
     return;
@@ -99,10 +117,13 @@ async function installPrimary(){
     await prompt.prompt();
     const choice=await prompt.userChoice;
     if(choice.outcome==='accepted'){
-      feedback('Instalación aceptada. En unos segundos aparecerá el ícono de PPS 2026.','ok');
-      $('installPrimaryTitle').textContent='Instalación aceptada';
-      $('installPrimarySub').textContent='Abra PPS 2026 desde su nuevo ícono';
-      $('installPrimaryIcon').textContent='✓';
+      markInstalled();
+      if($('manualHelp').open) $('manualHelp').close();
+      feedback('Instalación completada. Abriendo PPS 2026…','ok');
+      $('installPrimaryTitle').textContent='Abrir PPS 2026';
+      $('installPrimarySub').textContent='La aplicación ya está instalada';
+      $('installPrimaryIcon').textContent='↗';
+      setTimeout(()=>openPortal(),350);
     }else{
       feedback('La instalación fue cancelada. Puede intentarlo nuevamente.');
     }
@@ -189,10 +210,13 @@ window.addEventListener('beforeinstallprompt',event=>{
 
 window.addEventListener('appinstalled',()=>{
   deferredInstall=null;
-  feedback('PPS 2026 se instaló correctamente. Ya puede abrirla desde su pantalla de inicio.','ok');
-  $('installPrimaryTitle').textContent='PPS 2026 instalada';
-  $('installPrimarySub').textContent='Abra la aplicación desde su nuevo ícono';
-  $('installPrimaryIcon').textContent='✓';
+  markInstalled();
+  if($('manualHelp').open) $('manualHelp').close();
+  feedback('PPS 2026 se instaló correctamente. Abriendo la aplicación…','ok');
+  $('installPrimaryTitle').textContent='Abrir PPS 2026';
+  $('installPrimarySub').textContent='La aplicación ya está instalada';
+  $('installPrimaryIcon').textContent='↗';
+  setTimeout(()=>openPortal(),350);
 });
 
 window.addEventListener('online',connectionState);
