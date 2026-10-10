@@ -10,6 +10,8 @@ let progressTimer=null;
 let longWaitTimer=null;
 let progressIndex=0;
 const INSTALLED_KEY='pps2026-installed';
+// La PWA y el navegador deben utilizar exactamente el mismo despliegue del portal.
+// La integración de datos se resuelve en Apps Script, no con copias locales en la PWA.
 const wasInstalled=()=>localStorage.getItem(INSTALLED_KEY)==='1';
 const markInstalled=()=>localStorage.setItem(INSTALLED_KEY,'1');
 
@@ -165,7 +167,7 @@ function startProgress(){
   longWaitTimer=setTimeout(()=>{
     $('directLink').hidden=false;
     $('loadingTitle').textContent='La conexión está tardando';
-    $('loadingDetail').textContent='Puede seguir esperando; el portal continúa intentando conectar.';
+    $('loadingDetail').textContent='Si la pantalla no avanza, abra el portal directamente en el navegador. Sus datos son los mismos.';
   },18000);
 }
 function stopProgress(){
@@ -198,6 +200,7 @@ $('retry').addEventListener('click',()=>{connectionState();if(navigator.onLine)o
 
 $('appFrame').addEventListener('load',()=>{
   if(!frameStarted)return;
+  // iframe.load confirma la carga del documento, no que haya finalizado la autenticación.
   portalReady=true;
   if(!$('portal').hidden)stopProgress();
 });
@@ -226,12 +229,10 @@ window.matchMedia('(display-mode: standalone)').addEventListener('change',()=>{i
 connectionState();
 configureInstaller();
 
-// Precarga suave del portal para reducir la espera sin bloquear el instalador.
-if('requestIdleCallback' in window)requestIdleCallback(()=>warmPortal(),{timeout:1800});
-else setTimeout(warmPortal,900);
-
+// No precargar el portal antes de una acción del usuario: evita sesiones embebidas
+// iniciadas sin necesidad y facilita diagnosticar fallos de carga.
 if(standalone())openPortal();
 
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./sw.js?v=9',{scope:'./'}).then(reg=>reg.update().catch(()=>{})).catch(()=>feedback('No se pudo preparar la instalación. Verifique la conexión e intente nuevamente.','warn'));
+  navigator.serviceWorker.register('./sw.js?v=11',{scope:'./'}).then(reg=>reg.update().catch(()=>{})).catch(()=>feedback('No se pudo preparar la instalación. Verifique la conexión e intente nuevamente.','warn'));
 }
