@@ -1,0 +1,10 @@
+'use strict';
+const assert = require('assert');
+const fs = require('fs');
+for (const file of ['app.js','sw.js']) new Function(fs.readFileSync(file,'utf8'));
+const app=fs.readFileSync('app.js','utf8');
+const sw=fs.readFileSync('sw.js','utf8');
+assert(app.includes('AKfycbyaD3mYBi3B6OmY0zRigsNZsMB1OFU5ZZNrwE9mLflQ6Z-qtMvYZlHgYiBP_UT4GLaE'));
+assert(!app.includes('AKfycbwQ9x6TxoBpIgh1u15-5anOOsLEGmP2mypSJp3SU8qNYkFaG5KsOE639YhoZzcRNWz_XA'));
+assert(sw.includes('pps-liberia-pwa-v11'));
+console.log('PASS PWA PPS2026');
