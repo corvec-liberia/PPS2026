@@ -1,5 +1,6 @@
 'use strict';
-const PORTAL_URL='https://script.google.com/macros/s/AKfycbwQ9x6TxoBpIgh1u15-5anOOsLEGmP2mypSJp3SU8qNYkFaG5KsOE639YhoZzcRNWz_XA/exec';
+// Backend privado de PRUEBAS. No apuntar esta rama al proyecto de producción.
+const PORTAL_URL='https://script.google.com/macros/s/AKfycbyaD3mYBi3B6OmY0zRigsNZsMB1OFU5ZZNrwE9mLflQ6Z-qtMvYZlHgYiBP_UT4GLaE/exec';
 const APP_URL='https://corvec-liberia.github.io/PPS2026/';
 const $=id=>document.getElementById(id);
 
@@ -233,5 +234,7 @@ else setTimeout(warmPortal,900);
 if(standalone())openPortal();
 
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('./sw.js?v=9',{scope:'./'}).then(reg=>reg.update().catch(()=>{})).catch(()=>feedback('No se pudo preparar la instalación. Verifique la conexión e intente nuevamente.','warn'));
+  navigator.serviceWorker.register('./sw.js?v=11',{scope:'./'}).then(reg=>reg.update().catch(()=>{})).catch(()=>feedback('No se pudo preparar la instalación. Verifique la conexión e intente nuevamente.','warn'));
 }
+
+
