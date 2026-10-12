@@ -171,7 +171,7 @@ function startProgress(){
 function stopProgress(){
   clearInterval(progressTimer);clearTimeout(longWaitTimer);
   $('appProgressBar').style.width='100%';$('appProgressPct').textContent='100%';
-  $('appProgressStep').textContent='Portal listo';$('loadingDetail').textContent='Abriendo su sesión…';
+  $('appProgressStep').textContent='Ventana del portal cargada';$('loadingDetail').textContent='Verifique el inicio de sesión dentro del portal. La carga de la ventana no confirma autenticación.';
   setTimeout(()=>{$('frameLoading').classList.add('ready');setTimeout(()=>{$('frameLoading').hidden=true;},260);},180);
 }
 function warmPortal(){
@@ -198,7 +198,9 @@ $('retry').addEventListener('click',()=>{connectionState();if(navigator.onLine)o
 
 $('appFrame').addEventListener('load',()=>{
   if(!frameStarted)return;
+  // La carga del iframe no prueba que Apps Script ni la autenticación estén operativos.
   portalReady=true;
+  $('directLink').hidden=false;
   if(!$('portal').hidden)stopProgress();
 });
 
