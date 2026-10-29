@@ -50,4 +50,15 @@ window.ppsEvalDibujar=function(d){
  };
  if(selects.length)render();else holder.remove();
 };
+// Protección adicional: no finalizar instrumentos con criterios sin responder.
+const guardarOriginal=window.ppsEvalGuardar;
+if(typeof guardarOriginal==='function'){
+ window.ppsEvalGuardar=function(finalizar){
+  if(finalizar){
+   const pendientes=[...ppsEvalPanel().querySelectorAll('select[data-criterio]')].filter(s=>!s.value);
+   if(pendientes.length){alert('Faltan '+pendientes.length+' criterios por calificar. Puede guardar el borrador, pero no finalizar.');return;}
+  }
+  return guardarOriginal.apply(this,arguments);
+ };
+}
 })();
