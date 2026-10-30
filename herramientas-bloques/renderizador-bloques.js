@@ -11,11 +11,6 @@
   const validation=dialog.querySelector('[data-pps-validation]');
   const print=document.createElement('button');print.type='button';print.className='btn secondary';print.textContent='Imprimir instrumento';print.style.cssText='margin-top:16px;flex-shrink:0';
   print.onclick=()=>ppsEvalImprimirBloques(d);dialog.querySelector('.pps-step-card').append(print);
-  if(d.instrumento==='IEPP-01-EC'){
-    const note=document.createElement('p');note.className='pps-document-source';note.style.cssText='font-size:12px;line-height:1.35;margin-top:6px';
-    note.textContent='Textos comunes: referencia IEPP-01-EC 2025. Equivalencia con 2026 pendiente de validar.';
-    dialog.querySelector('.pps-step-header>div').append(note);
-  }
   function paint(){
     dialog.dataset.ppsIndex=String(index);
     const reference=ppsEvalReferenciaBloque(criteria,index,d.instrumento);

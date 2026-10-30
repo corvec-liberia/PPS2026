@@ -27,8 +27,9 @@ with sync_playwright() as p:
    elif scope and i<technical+16:assert title==generic[i-technical][1] and description==''
    elif scope:assert title==human[i-technical-16][1] and description==human[i-technical-16][2]
    else:assert title==criteria[i].split(' - ',1)[1] and description==''
-  if scope:covered+=1;assert '2025' in page.locator('.pps-document-source').inner_text();assert 'pendiente' in page.locator('.pps-document-source').inner_text()
-  else:assert page.locator('.pps-document-source').count()==0
+  if scope:covered+=1
+  assert page.locator('.pps-document-source').count()==0
+  assert '2025' not in page.locator('.pps-step-dialog').inner_text()
  print('PASS: 31 textos literales cotejados con Excel en',covered,'instrumentos EC; IEPP-01 y criterios técnicos intactos')
  open_case();technical=len(catalogs['ECSC']['criterios'])-31
  assert page.evaluate('PPS_EVAL_TEXTOS_DOCUMENTADOS.equivalencia2026Confirmada') is False
@@ -45,11 +46,12 @@ with sync_playwright() as p:
  assert printpage.locator('tbody tr.block').count()==3
  blocks=printpage.locator('tbody tr:not(.block)').evaluate_all('rows=>rows.map(r=>r.children[0].textContent)')
  assert blocks==list(map(str,range(1,technical+1)))+list(map(str,range(1,17)))+list(map(str,range(1,16)))
- assert 'Equivalencia con 2026 pendiente' in printpage.locator('body').inner_text()
+ assert '2025' not in printpage.locator('body').inner_text()
+ assert 'Equivalencia con 2026 pendiente' not in printpage.locator('body').inner_text()
  for row in generic:assert row[1] in printpage.locator('body').text_content()
  for row in human:assert row[1] in printpage.locator('body').text_content() and row[2] in printpage.locator('body').text_content()
  assert printpage.locator('td.score').filter(has_text='X').count()==2
- out=root.parent/'reports'/'criterios-documentados';out.mkdir(parents=True,exist_ok=True);printpage.pdf(path=str(out/'Revision_bloques_IEPP_01_EC_2025.pdf'),format='A4');printpage.close()
+ out=root.parent/'reports'/'criterios-documentados';out.mkdir(parents=True,exist_ok=True);printpage.pdf(path=str(out/'Revision_bloques_IEPP_01_EC.pdf'),format='A4');printpage.close()
  print('PASS: impresión reinicia los números en cada bloque, incluye todos los textos y conserva 0/N/A')
  # Cierre seguro ante una correspondencia distinta: no completar textos por posición sin verificar título.
  changed=list(catalogs['ECSC']['criterios']);changed[technical]='COMPETENCIAS GENERICAS - Criterio diferente'

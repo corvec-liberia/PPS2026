@@ -1,4 +1,4 @@
-# Numeración por bloque y textos completos — candidata para revisión, NO PUBLICADA
+# Numeración por bloque y textos completos — publicación autorizada, pendiente de ejecutar
 
 Preferencia confirmada: numeración independiente de Específicas, Genéricas y Desarrollo humano. Específicas usa el número real del catálogo de cada especialidad (no se agregan indicadores para forzar 20); Genéricas tiene 16 y Desarrollo humano 15. Las claves globales de RESPUESTAS_JSON, su orden, las notas, ponderaciones, firmas, permisos y seguimiento permanecen iguales. Solo cambia Index.html.
 
@@ -14,7 +14,7 @@ Los textos completos se muestran solo para instrumento IEPP-01-EC, cuando el blo
 
 Genéricas muestra el indicador completo. Desarrollo humano muestra título más descripción. Se mantienen los controles estables, radios sin área invasora y el guardado de V33. El progreso se etiqueta como avance total, separado del número local del criterio. Los avisos de pendientes indican bloque y número local. Se retira el observador heredado que volvía a imponer «Pregunta 21 de 51».
 
-La candidata muestra la procedencia 2025 y la equivalencia 2026 pendiente. «Imprimir instrumento» crea una vista local de revisión con numeración por bloque y los mismos textos/selecciones; no llama a Google ni altera la evaluación. La impresión usa las respuestas actuales del formulario, que pueden estar pendientes de confirmación. No certifica que se haya guardado ni sustituye el acta firmada. No genera pruebas con estudiantes reales.
+Coordinación autorizó expresamente usar esta referencia y pidió omitir el año en la interfaz y en la impresión. La procedencia y el estado de equivalencia se conservan en la documentación técnica; la interfaz no afirma una certificación de equivalencia. «Imprimir instrumento» crea una vista local de revisión con numeración por bloque y los mismos textos/selecciones; no llama a Google ni altera la evaluación. La impresión usa las respuestas actuales del formulario, que pueden estar pendientes de confirmación. No certifica que se haya guardado ni sustituye el acta firmada. No genera pruebas con estudiantes reales.
 
 ## Pruebas
 
@@ -23,4 +23,4 @@ La candidata muestra la procedencia 2025 y la equivalencia 2026 pendiente. «Imp
 - interaccion_completa_test.py: se conserva la reproducción y salvaguarda frente a los clics que antes marcaban N/A sobre la posición previa de Siguiente.
 - publicacion_bloques_test.cjs: simulación de cuenta/proyecto/versión/HEAD, integridad, verificación, reversión y rechazo de publicación sin aceptar explícitamente la referencia 2025.
 
-No se ha actualizado Apps Script ni escrito en Sheets durante esta preparación. La versión publicada comunicada por coordinación sigue siendo V33. El publicador respalda V33 y HEAD, cambia únicamente el HTML y verifica la versión inmutable antes de actualizar el mismo despliegue. Sin --publicar solo comprueba. La publicación exige además --aceptar-referencia-2025; esa aceptación no convierte la fuente en una versión certificada 2026 ni amplía el alcance a IEPP-01. --verificar consulta; --revertir vuelve a V33 sin alterar filas ni HEAD. No ejecuta funciones de Apps Script. Falta la decisión de coordinación sobre esta referencia documental antes de publicar.
+No se ha actualizado Apps Script ni escrito en Sheets durante esta preparación. La versión publicada comunicada por coordinación sigue siendo V33. El publicador respalda V33 y HEAD, cambia únicamente el HTML y verifica la versión inmutable antes de actualizar el mismo despliegue. Sin --publicar solo comprueba. La publicación se realiza con --publicar, conforme a la autorización expresa recibida; no se amplía el alcance a IEPP-01. --verificar consulta; --revertir vuelve a V33 sin alterar filas ni HEAD. No ejecuta funciones de Apps Script. La autorización de coordinación ya fue recibida; la ejecución sigue pendiente de la sesión local autenticada.
