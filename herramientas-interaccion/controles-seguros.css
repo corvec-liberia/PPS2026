@@ -1,0 +1,13 @@
+/* PPS2026: ningún radio invisible invade otro control; navegación estable. */
+#ppsEvalPanel .pps-step-dialog{display:flex;flex-direction:column;height:min(920px,calc(100dvh - 28px));max-height:calc(100dvh - 28px);min-height:0;overflow:hidden}
+#ppsEvalPanel .pps-step-header,#ppsEvalPanel .pps-step-progress,#ppsEvalPanel .pps-step-footer,#ppsEvalPanel .pps-save-controls{flex-shrink:0}
+#ppsEvalPanel .pps-step-card{position:relative;isolation:isolate;flex:1 1 auto;min-height:0!important;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;justify-content:flex-start}
+#ppsEvalPanel .pps-step-option{position:relative;touch-action:manipulation}
+#ppsEvalPanel .pps-step-option input[type=radio]{position:absolute!important;width:1px!important;height:1px!important;min-width:0!important;min-height:0!important;max-width:1px!important;max-height:1px!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden;clip-path:inset(50%);pointer-events:none;opacity:0}
+#ppsEvalPanel .pps-step-option:focus-within{outline:3px solid #264987;outline-offset:2px}
+#ppsEvalPanel .pps-step-footer{position:relative!important;bottom:auto;z-index:2;background:#eef7f1}
+#ppsEvalPanel #ppsSaveFeedback{height:64px;min-height:64px;max-height:64px;overflow-y:auto}
+#ppsEvalPanel .pps-save-controls{margin:0;padding:8px 14px;min-height:64px;box-sizing:border-box}
+#ppsEvalPanel [data-n],#ppsEvalPanel [data-p]{touch-action:manipulation}
+@media(max-width:600px){#ppsEvalPanel .pps-step-dialog{height:calc(100dvh - 12px);max-height:calc(100dvh - 12px)}}
+@media(max-height:650px){#ppsEvalPanel .pps-step-header{padding:8px 12px}#ppsEvalPanel .pps-step-progress{padding-top:8px}#ppsEvalPanel .pps-step-card{margin:8px 12px;padding:16px}#ppsEvalPanel #ppsSaveFeedback{height:44px;min-height:44px;max-height:44px;font-size:13px}#ppsEvalPanel .pps-save-controls{min-height:56px;padding:4px 12px}}
