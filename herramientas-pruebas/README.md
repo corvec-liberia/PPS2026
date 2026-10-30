@@ -21,4 +21,10 @@ Este paquete se entrega en una rama de revisión porque falló la descarga de ar
 
 No contiene credenciales. No comparta tokens, PIN ni .clasprc.json. Lea LEER-ANTES.txt dentro del ZIP antes de ejecutarlo.
 
-SHA-256 del ZIP: `2bc090f2625fbf4f720a009ab50425740ac49ebc2993cd0fb4594f6856f9ea89`.
+SHA-256 del ZIP: `591e83aaa9d33d9cfedb520768479f55810659607c3d2d8586a857057d3f8cdf`.
+
+## Corrección del asistente en Windows
+
+La revisión inicial pasaba `--project .`; clasp 3.4.1 rechazó esa ruta relativa durante su validación de seguridad. El asistente corregido pasa `--project` con la ruta absoluta del directorio de trabajo. Mantiene intactas todas las comprobaciones de destino, respaldo, integridad y acceso privado.
+
+Para una carpeta ya extraída, basta descargar el archivo `preparar-pruebas.cjs` de esta revisión con otro nombre dentro de esa misma carpeta y ejecutarlo con Node. No es necesario copiar otra vez el proyecto ni borrar el respaldo generado.
