@@ -7,9 +7,9 @@ const DEPLOYMENT='AKfycbwQ9x6TxoBpIgh1u15-5anOOsLEGmP2mypSJp3SU8qNYkFaG5KsOE639Y
 const PREVIOUS_VERSION=33,ACCOUNT='cordiempresactpl@gmail.com';
 const PUBLIC_URL='https://script.google.com/macros/s/'+DEPLOYMENT+'/exec';
 const RESULT=path.join(ROOT,'RESULTADO-BLOQUES.json');
-const REMOTE='https://github.com/corvec-liberia/PPS2026/raw/60a47ba9e9f038864be7afa0875ec3748d631d88/herramientas-bloques/';
+const REMOTE='https://github.com/corvec-liberia/PPS2026/raw/2dc11efe1bad5885a5724dc1058f57078a16c8a9/herramientas-bloques/';
 const RESOURCES={
- 'parches-v33.json':'011dc0e7e8e3b895fd2c43045a1dd768128d579d9954552ce628ba17749e7a6f',
+ 'parches-v33.json':'cd92345b4d2a47ac8f4e1905a7a225c95c5e37d5ea67c5bd9e0a5ec560379275',
  'baseline-v33.json':'8a2bc713f944335f0f9b3b4122d9be5e0173006ac977f7b78df64cf2f61c6535'
 };
 const hash=b=>crypto.createHash('sha256').update(b).digest('hex');
@@ -78,12 +78,10 @@ function verifyPublished(record){
  const published=clone(record.newVersion,folder);assert(equal(published,record.candidate),'El código publicado no coincide con la candidata verificada.');
  record.phase='PUBLICACION_VERIFICADA';record.publicationVerifiedAt=new Date().toISOString();record.verificationFolder=folder;save(record);
  console.log('\nPRODUCCIÓN ACTUALIZADA Y VERIFICADA POR API. Versión '+record.newVersion+'\n'+PUBLIC_URL+'\nPWA: https://corvec-liberia.github.io/PPS2026/');
- console.log('Referencia de textos: IEPP-01-EC 2025; equivalencia 2026 pendiente. Solo formularios EC; IEPP-01 conserva sus textos.');
  console.log('No se ejecutaron funciones ni se escribieron filas de Sheets. Para cargar el HTML nuevo, actualizar o cerrar y reabrir la PWA.');
  console.log('Respaldo y referencia de reversión: '+record.session);return record;
 }
 async function main(){
- assert(!process.argv.includes('--publicar')||process.argv.includes('--aceptar-referencia-2025'),'No se publica sin aceptar expresamente la referencia documental 2025. La equivalencia con 2026 no está confirmada.');
  assert(!process.argv.includes('--publicar')||!process.argv.includes('--comprobar'),'Elija comprobar o publicar.');
  const user=clasp(['show-authorized-user'],ROOT,true);
  assert(user.loggedIn&&String(user.email||'').toLowerCase()===ACCOUNT,'Use la cuenta de coordinación autorizada en clasp. No comparta contraseñas ni tokens.');
@@ -126,14 +124,14 @@ async function main(){
    record.phase='INICIANDO_PUSH';save(record);clasp(['push','--force'],work);
   }
   record.phase='HEAD_ACTUALIZADO';save(record);
-  const version=clasp(['create-version','BLOQUES_Y_TEXTOS_REFERENCIA_2025'],work,true);
+  const version=clasp(['create-version','BLOQUES_Y_TEXTOS_COMPLETOS'],work,true);
   assert(Number.isInteger(version.versionNumber)&&version.versionNumber!==PREVIOUS_VERSION,'No se confirmó una versión nueva.');
   record.newVersion=version.versionNumber;record.phase='VERSION_CREADA';save(record);
   const versionDir=path.join(session,'verificacion-version-nueva');
   assert(equal(clone(record.newVersion,versionDir),candidate),'La versión inmutable nueva no coincide con la candidata; producción no se actualizó.');
   assert(deployment(ROOT).versionNumber===PREVIOUS_VERSION,'Otra publicación cambió producción. No se reemplazó.');
   record.phase='ACTUALIZANDO_IMPLEMENTACION';save(record);
-  const deployed=clasp(['create-deployment','--deploymentId',DEPLOYMENT,'--versionNumber',String(record.newVersion),'--description','BLOQUES_Y_TEXTOS_REFERENCIA_2025'],work,true);
+  const deployed=clasp(['create-deployment','--deploymentId',DEPLOYMENT,'--versionNumber',String(record.newVersion),'--description','BLOQUES_Y_TEXTOS_COMPLETOS'],work,true);
   assert(deployed.deploymentId===DEPLOYMENT,'La respuesta no corresponde a la implementación autorizada.');
   record.phase='IMPLEMENTACION_ENVIADA';save(record);
   return verifyPublished(record);

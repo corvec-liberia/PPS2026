@@ -21,6 +21,6 @@ Coordinación autorizó expresamente usar esta referencia y pidió omitir el añ
 - bloques_evaluacion_test.py: 10 especialidades, 504 criterios, numeración, claves históricas de 0/N/A y pendientes.
 - textos_documentados_test.py: cotejo independiente con las 31 filas del Excel, alcance EC/IEPP-01, ambas evaluaciones, impresión/PDF y controles estables con guardado lento en 320/360/768 px.
 - interaccion_completa_test.py: se conserva la reproducción y salvaguarda frente a los clics que antes marcaban N/A sobre la posición previa de Siguiente.
-- publicacion_bloques_test.cjs: simulación de cuenta/proyecto/versión/HEAD, integridad, verificación, reversión y rechazo de publicación sin aceptar explícitamente la referencia 2025.
+- publicacion_bloques_test.cjs: simulación de cuenta/proyecto/versión/HEAD, integridad, verificación, reversión.
 
 No se ha actualizado Apps Script ni escrito en Sheets durante esta preparación. La versión publicada comunicada por coordinación sigue siendo V33. El publicador respalda V33 y HEAD, cambia únicamente el HTML y verifica la versión inmutable antes de actualizar el mismo despliegue. Sin --publicar solo comprueba. La publicación se realiza con --publicar, conforme a la autorización expresa recibida; no se amplía el alcance a IEPP-01. --verificar consulta; --revertir vuelve a V33 sin alterar filas ni HEAD. No ejecuta funciones de Apps Script. La autorización de coordinación ya fue recibida; la ejecución sigue pendiente de la sesión local autenticada.

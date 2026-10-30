@@ -6,7 +6,7 @@ const fixture=process.argv[2],original=path.join(fixture,'original'),candidate=p
 const PROJECT='1Le02XMtS4UigkTG6HW1jHDHccba9DNiclVYYBH0rLwq9nNyFjWZh5vqC';
 const DEP='AKfycbwQ9x6TxoBpIgh1u15-5anOOsLEGmP2mypSJp3SU8qNYkFaG5KsOE639YhoZzcRNWz_XA';
 (async()=>{
-for(const scenario of ['correcto','comprobar','cuenta_incorrecta','head_no_publicado','version_cambiada','proyecto_incorrecto','version_inmutable_distinta','recurso_corrupto','reanudar_head_candidato','sin_aceptar_referencia']){
+for(const scenario of ['correcto','comprobar','cuenta_incorrecta','head_no_publicado','version_cambiada','proyecto_incorrecto','version_inmutable_distinta','recurso_corrupto','reanudar_head_candidato']){
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'pps-prod-check-'));const head=path.join(root,'mock-head');fs.cpSync(scenario==='reanudar_head_candidato'?candidate:original,head,{recursive:true});
  if(scenario==='head_no_publicado')fs.appendFileSync(path.join(head,'Code.js'),'\n// Trabajo posterior no publicado\n');
  let published=scenario==='version_cambiada'?37:33,newVersion=0,exitCode=0,calls=[],errors=[];
@@ -34,7 +34,7 @@ for(const scenario of ['correcto','comprobar','cuenta_incorrecta','head_no_publi
   if(args.includes('create-deployment')){assert.equal(args[args.indexOf('--deploymentId')+1],DEP);published=Number(args[args.indexOf('--versionNumber')+1]);return result({deploymentId:DEP,versionNumber:published});}
   throw new Error('Comando inesperado');
  }};
- const processMock={platform:process.platform,execPath:process.execPath,argv:['node','publicacion.cjs',...(scenario==='comprobar'?['--comprobar']:scenario==='sin_aceptar_referencia'?['--publicar']:['--publicar','--aceptar-referencia-2025'])],stdout:{write(){}},get exitCode(){return exitCode;},set exitCode(v){exitCode=v;}};
+ const processMock={platform:process.platform,execPath:process.execPath,argv:['node','publicacion.cjs',...(scenario==='comprobar'?['--comprobar']:['--publicar'])],stdout:{write(){}},get exitCode(){return exitCode;},set exitCode(v){exitCode=v;}};
  const sandbox={Buffer,__dirname:root,require:n=>n==='node:child_process'?cp:require(n),fetch:async url=>{
   const data=fs.readFileSync(path.join(ROOT,'herramientas-bloques',url.split('/').pop()));const bytes=scenario==='recurso_corrupto'?Buffer.from('CORRUPTO'):data;
   return {ok:true,arrayBuffer:async()=>bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength)};
