@@ -5,10 +5,19 @@ const ROOT=__dirname,PROJECT='1nGQjNeAKJMtTBizaYU2u0C09SkS_pVEynW0dIcLJlcT6rroZf
 const sourceDir=path.join(ROOT,'proyecto');
 const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
 function assert(c,m){if(!c)throw new Error(m);}
+function npxCli(){
+ const bin=path.dirname(process.execPath);
+ const candidates=[path.join(bin,'node_modules','npm','bin','npx-cli.js'),path.resolve(bin,'..','lib','node_modules','npm','bin','npx-cli.js'),path.resolve(bin,'..','node_modules','npm','bin','npx-cli.js')];
+ const npm=path.join(bin,'npm');
+ if(fs.existsSync(npm))candidates.push(path.join(path.dirname(fs.realpathSync(npm)),'npx-cli.js'));
+ const found=candidates.find(p=>fs.existsSync(p));
+ assert(found,'No se encontró npx-cli.js junto a Node. Comparta este mensaje; no cambie permisos.');
+ return found;
+}
 function clasp(args,cwd,json=false){
  const command=['--yes','@google/clasp@3.4.1',...(json?['--json']:[]),'--project',path.resolve(cwd),...args];
- // Todos los argumentos son constantes de este archivo; cwd no se interpola en el shell.
- const result=cp.spawnSync(process.platform==='win32'?'npx.cmd':'npx',command,{cwd,encoding:'utf8',shell:process.platform==='win32',windowsHide:true});
+ // Ejecutar npx con Node directamente, sin shell ni concatenación de argumentos.
+ const result=cp.spawnSync(process.execPath,[npxCli(),...command],{cwd,encoding:'utf8',shell:false,windowsHide:true});
  if(result.error)throw result.error;
  if(result.status!==0)throw new Error('clasp no completó '+args[0]+':\n'+(result.stderr||result.stdout));
  if(!json){if(result.stdout)process.stdout.write(result.stdout);return result.stdout;}
@@ -21,6 +30,17 @@ function main(){
  assert(settings.scriptId===PROJECT,'BLOQUEADO: el destino no es el proyecto aislado.');
  const expectedPack=JSON.parse(fs.readFileSync(path.join(ROOT,'paquete-esperado.json'),'utf8'));
  for(const [name,hash] of Object.entries(expectedPack))assert(sha(fs.readFileSync(path.join(sourceDir,name)))===hash,'El paquete fue modificado: '+name);
+ // Reparación del paquete inicial, solo tras verificar TODOS sus hashes.
+ const previous='PruebaGuardado.js',renamed='ServidorPruebaGuardado.js';
+ if(Object.hasOwn(expectedPack,previous)){
+  assert(!fs.existsSync(path.join(sourceDir,renamed)),'Ya existe el archivo de servidor corregido. Se detuvo para no sobrescribirlo.');
+  fs.renameSync(path.join(sourceDir,previous),path.join(sourceDir,renamed));
+  expectedPack[renamed]=expectedPack[previous];delete expectedPack[previous];
+  fs.writeFileSync(path.join(ROOT,'paquete-esperado.json'),JSON.stringify(expectedPack,null,2));
+  console.log('Nombre del servidor corregido; contenido y hashes conservados.');
+ }
+ const basenames=fs.readdirSync(sourceDir).filter(n=>/\.(?:js|gs|html)$/i.test(n)).map(n=>n.replace(/\.(?:js|gs|html)$/i,'').toLowerCase());
+ assert(new Set(basenames).size===basenames.length,'Hay nombres base duplicados que Apps Script no acepta. No se subió nada.');
  const manifest=JSON.parse(fs.readFileSync(path.join(sourceDir,'appsscript.json'),'utf8'));
  assert(manifest.webapp.access==='MYSELF'&&manifest.webapp.executeAs==='USER_DEPLOYING','El despliegue debe ser privado para su propietario.');
  console.log('Destino: SOLO proyecto de pruebas existente. Se respaldará antes de actualizar.');

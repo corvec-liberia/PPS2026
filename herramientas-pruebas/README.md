@@ -21,10 +21,16 @@ Este paquete se entrega en una rama de revisión porque falló la descarga de ar
 
 No contiene credenciales. No comparta tokens, PIN ni .clasprc.json. Lea LEER-ANTES.txt dentro del ZIP antes de ejecutarlo.
 
-SHA-256 del ZIP: `591e83aaa9d33d9cfedb520768479f55810659607c3d2d8586a857057d3f8cdf`.
+SHA-256 del ZIP: `557dea646685b2ed0730225d31ff81bd90dcb23d02554c8641c332000c2b4d8d`.
 
 ## Corrección del asistente en Windows
 
 La revisión inicial pasaba `--project .`; clasp 3.4.1 rechazó esa ruta relativa durante su validación de seguridad. El asistente corregido pasa `--project` con la ruta absoluta del directorio de trabajo. Mantiene intactas todas las comprobaciones de destino, respaldo, integridad y acceso privado.
 
 Para una carpeta ya extraída, basta descargar el archivo `preparar-pruebas.cjs` de esta revisión con otro nombre dentro de esa misma carpeta y ejecutarlo con Node. No es necesario copiar otra vez el proyecto ni borrar el respaldo generado.
+
+## Reparación de nombres de Apps Script
+
+El servidor ahora se llama `ServidorPruebaGuardado.js` y el HTML conserva `PruebaGuardado.html`. Apps Script no admite dos archivos con el mismo nombre base aunque tengan tipos distintos. El asistente migra automáticamente la carpeta inicial tras verificar sus hashes, sin cambiar el contenido del servidor. También verifica nombres base duplicados antes de subir.
+
+La invocación de npx usa Node directamente con argumentos separados, sin `shell:true`. Se mantienen las rutas absolutas y todas las comprobaciones del proyecto aislado. Se probaron el paquete corregido, la migración del paquete inicial y los bloqueos por destino incorrecto o cambios remotos, con clasp simulado.
