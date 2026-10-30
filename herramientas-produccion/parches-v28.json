@@ -1,0 +1,54 @@
+[
+  [
+    "function ppsV11FirmaControl(host,nombre){",
+    "function ppsV11FirmaControl(host,nombre,inicial){"
+  ],
+  [
+    "const canvas=host.querySelector('canvas'),ctx=canvas.getContext('2d'),trazos=[];",
+    "const canvas=host.querySelector('canvas'),ctx=canvas.getContext('2d'),trazos=inicial&&Array.isArray(inicial.trazos)?inicial.trazos.map(t=>t.map(p=>p.slice())):[];"
+  ],
+  [
+    "let actual=null;let points=0;",
+    "let actual=null;let points=trazos.reduce((n,t)=>n+t.length,0);"
+  ],
+  [
+    "ppsV11FirmaControl(document.getElementById('v11FirmaHost'),'');",
+    "ppsV11FirmaControl(document.getElementById('v11FirmaHost'),d.firmante||'',d.firma);"
+  ],
+  [
+    "el.className='v11-status'+(error?' v11-error':'');}",
+    "el.className='v11-status'+(error?' v11-error':'');el.setAttribute('role',error?'alert':'status');if(error)el.scrollIntoView({block:'nearest'});}"
+  ],
+  [
+    "const firma=ppsV11Signature?ppsV11Signature.leer():null;",
+    "let firma=ppsV11Signature?ppsV11Signature.leer():null;if(ppsEvalPanel().ppsMobileAutomatic&&!ppsMobileFirmaValida(firma))firma=null;"
+  ],
+  [
+    "ppsV11EstadoBotones(true);ppsV11Mensaje(finalizar?'Enviando evaluación y firma…':'Guardando borrador…');",
+    "ppsV11EstadoBotones(true);if(window.ppsMobileSaveStart)ppsMobileSaveStart(finalizar);ppsV11Mensaje(finalizar?'Enviando evaluación y firma…':'Guardando borrador…');"
+  ],
+  [
+    "canvas.addEventListener('pointerdown',e=>{if(trazos.length>=100||points>=2800)return;",
+    "canvas.addEventListener('pointerdown',e=>{if(ppsV11Busy||trazos.length>=100||points>=2800)return;"
+  ],
+  [
+    "canvas.addEventListener('pointermove',e=>{if(!actual||points>=2800)return;",
+    "canvas.addEventListener('pointermove',e=>{if(ppsV11Busy||!actual||points>=2800)return;"
+  ],
+  [
+    "if(!r||!r.ok){ppsV11EstadoBotones(false);return ppsV11Mensaje('El servidor no confirmó el guardado. Revise antes de volver a enviar.',true);}",
+    "if(!r||!r.ok){ppsV11EstadoBotones(false);if(window.ppsMobileSaveResult)ppsMobileSaveResult(false);return ppsV11Mensaje('El servidor no confirmó el guardado. Revise antes de volver a enviar.',true);}"
+  ],
+  [
+    "d.respuestas=resp;d.estado=r.estado;",
+    "d.respuestas=resp;d.estado=r.estado;if(window.ppsMobileSaveResult)ppsMobileSaveResult(true,resp,firma,finalizar);"
+  ],
+  [
+    "const fail=e=>{ppsV11EstadoBotones(false);ppsV11Mensaje('No se pudo guardar: '+e.message,true);};",
+    "const fail=e=>{ppsV11EstadoBotones(false);if(window.ppsMobileSaveResult)ppsMobileSaveResult(false);ppsV11Mensaje('No se pudo guardar: '+(e&&e.message?e.message:String(e)),true);};"
+  ],
+  [
+    "const run=google.script.run.withSuccessHandler(ok).withFailureHandler(fail);\n if(d.externa)run.apiEnviarEvaluacionEnlacePPS(PPS_V11_PUBLICO,resp,firma,finalizar);\n else run.apiGuardarEvaluacionFirmadaPPS(TOKEN_SESION,d.idAsignacion,d.numero,d.codigo,resp,finalizar,firma);",
+    "try{const run=google.script.run.withSuccessHandler(ok).withFailureHandler(fail);\n if(d.externa)run.apiEnviarEvaluacionEnlacePPS(PPS_V11_PUBLICO,resp,firma,finalizar);\n else run.apiGuardarEvaluacionFirmadaPPS(TOKEN_SESION,d.idAsignacion,d.numero,d.codigo,resp,finalizar,firma);\n  }catch(e){fail(e);}"
+  ]
+]
