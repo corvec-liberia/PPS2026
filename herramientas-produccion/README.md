@@ -39,3 +39,11 @@ La PWA mantiene su URL y el mismo portal en el iframe. Su service worker no alma
 ## Estado
 
 Material preparado en una rama de revisión. No equivale a un despliegue ejecutado. La autenticación de Google sigue en el Windows del usuario; el entorno cloud no la posee.
+
+## Pruebas del publicador
+
+`tests/publicacion_produccion_test.cjs` se ejecutó con clasp/API simulados y copias locales de los archivos V28. Pasaron los escenarios: publicación correcta, solo comprobación, cuenta incorrecta, HEAD con trabajo posterior, versión publicada cambiada, proyecto equivocado, versión inmutable distinta, recurso corrupto y reanudación tras HEAD candidato. Se comprobaron además la verificación sin escrituras y la reversión de la versión sin tocar HEAD.
+
+El parche generado por JavaScript coincide byte a byte con el generado por la herramienta Python probada. La prueba de publicación exige 19 archivos y comprueba que los 18 distintos de Index no cambian. No se invocó ninguna función de Apps Script ni se hizo un despliegue real en estas pruebas.
+
+Para ejecutar, descargue únicamente el asistente en una carpeta local, con Node y la autenticación de clasp existente. Sin argumentos publica el cambio autorizado; `--comprobar` solo prepara y verifica; `--verificar` consulta la publicación registrada; `--revertir` cambia la implementación a V28 si sigue en la versión de esta operación. El archivo `RESULTADO-PRODUCCION.json` y las carpetas `publicacion-pps2026-*` deben conservarse localmente para trazabilidad y reversión. No compartir sus respaldos completos por contener código de configuración privado.
