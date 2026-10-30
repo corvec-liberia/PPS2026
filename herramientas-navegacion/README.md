@@ -1,0 +1,11 @@
+# Navegación fluida sobre V31
+
+La vista anterior sustituía toda la tarjeta, radios y botones al seleccionar una respuesta o navegar. La nueva vista crea esos controles una sola vez y cambia el texto de la pregunta y la selección. Las confirmaciones de borrador no redibujan la vista ni cambian su posición. Conserva las clases/estética, los textos íntegros recibidos del instrumento y el guardado serializado en segundo plano de V31.
+
+«Siguiente» verifica localmente una respuesta válida (incluidos 0 y N/A). Si falta, muestra «Seleccione una opción para continuar.» dentro de la tarjeta, sin alert ni llamada al servidor. Anterior no exige responder; el salto explícito al primer pendiente permite completar borradores antiguos. DEMO y finalizadas permiten navegar en lectura sin exigir respuestas. En la última pregunta continúa disponible Guardar borrador; finalizar sigue siendo una acción separada con validación/confirmación y bloqueo de envío duplicado.
+
+La firma conserva su canvas y nombre al retroceder y volver. Se evita repetir el estado del guardado en el encabezado, porque los mensajes de distinta longitud desplazaban los controles. El estado visible permanece junto a los botones. Los mensajes de borrador son breves y distinguen confirmado de pendiente. Los errores siguen mostrándose completos.
+
+Solo cambia Index.html. El backend, las asignaciones, permisos, instrumentos, criterios, ponderaciones y datos históricos no cambian. El publicador exige V31 exacta y HEAD conocido, respalda, verifica la versión inmutable antes de actualizar el mismo despliegue. Sin --publicar solo comprueba; --verificar consulta; --revertir vuelve a V31 sin tocar datos/HEAD. No ejecuta funciones Apps Script ni llama a Sheets. Es preciso recargar tras confirmar el borrador abierto.
+
+Pruebas con red bloqueada y registros sintéticos: toques reales en 320/360/768/1024 px, identidad DOM estable, servidor lento, respuestas durante el guardado, validación breve, 0/N/A, texto completo, firma/retorno, pendiente explícito, lectura DEMO/finalizadas, reconexión y fallos. El simulador de CLI verifica integridad, cuenta, versión, HEAD, publicación y reversión. La validación del comportamiento real en Google sigue pendiente de aplicar y usar la actualización.
