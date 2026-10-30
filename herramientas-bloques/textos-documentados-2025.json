@@ -1,0 +1,216 @@
+{
+  "instrumento": "IEPP-01-EC",
+  "versionFuente": 2025,
+  "contrasteDeclarado": 2023,
+  "equivalencia2026Confirmada": false,
+  "origen": "Transcripción aportada por coordinación; no se inspeccionó directamente el archivo original en Drive en esta sesión.",
+  "archivoAuditoria": "Auditoria_criterios_IEPP_01_EC_2025_PPS2026.xlsx",
+  "sha256Auditoria": "1d1c7ecf50a32e2ea039e87fe8042cdfe177942160b81701fc9e46c5557c9290",
+  "urlFuente": "https://docs.google.com/spreadsheets/d/1VCBoj0dKazS6hYAAdhQl0Zw8XixKnV8M/edit",
+  "referenciasFilasAproximadas": true,
+  "genericas": [
+    {
+      "numero": 1,
+      "tituloAnterior": "Utiliza herramientas y tecnologias digitales",
+      "indicador": "Utiliza herramientas y tecnologías digitales en la ejecución de las tareas asignadas.",
+      "referencia": "Evaluación — B59"
+    },
+    {
+      "numero": 2,
+      "tituloAnterior": "Compromiso con el ambiente y la sostenibilidad",
+      "indicador": "Implementa buenas prácticas que demuestran su compromiso con el ambiente y la sostenibilidad.",
+      "referencia": "Evaluación — B60"
+    },
+    {
+      "numero": 3,
+      "tituloAnterior": "Salud e higiene ocupacional",
+      "indicador": "Aplica normas de salud e higiene ocupacional, según protocolos establecidos y políticas organizacionales.",
+      "referencia": "Evaluación — B61"
+    },
+    {
+      "numero": 4,
+      "tituloAnterior": "Calidad en la ejecucion de tareas",
+      "indicador": "Demuestra calidad en la ejecución de las tareas asignadas.",
+      "referencia": "Evaluación — B62"
+    },
+    {
+      "numero": 5,
+      "tituloAnterior": "Mantenimiento preventivo y correctivo",
+      "indicador": "Aplica protocolos de mantenimiento preventivo y correctivo del equipo, maquinaria y herramientas.",
+      "referencia": "Evaluación — B63"
+    },
+    {
+      "numero": 6,
+      "tituloAnterior": "Procesador de textos",
+      "indicador": "Aplica las funciones básicas del procesador de textos en la elaboración de documentos.",
+      "referencia": "Evaluación — B64"
+    },
+    {
+      "numero": 7,
+      "tituloAnterior": "Hoja electronica",
+      "indicador": "Utiliza las herramientas que presenta la hoja electrónica para la elaboración de documentos.",
+      "referencia": "Evaluación — B65"
+    },
+    {
+      "numero": 8,
+      "tituloAnterior": "Presentaciones digitales",
+      "indicador": "Realiza presentaciones utilizando los elementos básicos del editor.",
+      "referencia": "Evaluación — B66"
+    },
+    {
+      "numero": 9,
+      "tituloAnterior": "Proteccion e integridad de la informacion",
+      "indicador": "Ejecuta procedimientos orientados a la protección e integridad de la información.",
+      "referencia": "Evaluación — B67"
+    },
+    {
+      "numero": 10,
+      "tituloAnterior": "Documentos en la nube",
+      "indicador": "Elabora documentos en la nube utilizando herramientas colaborativas.",
+      "referencia": "Evaluación — B68"
+    },
+    {
+      "numero": 11,
+      "tituloAnterior": "Interpretacion de informacion tecnica",
+      "indicador": "Interpreta información relacionada con su área de formación técnica.",
+      "referencia": "Evaluación — B69"
+    },
+    {
+      "numero": 12,
+      "tituloAnterior": "Etiqueta y protocolo",
+      "indicador": "Utiliza las normas de etiqueta y protocolo en el ámbito personal y profesional.",
+      "referencia": "Evaluación — B70"
+    },
+    {
+      "numero": 13,
+      "tituloAnterior": "Comunicacion oral en ingles",
+      "indicador": "Comunica de forma oral en idioma inglés, la información propia de su área de formación técnica. ",
+      "referencia": "Evaluación — B71"
+    },
+    {
+      "numero": 14,
+      "tituloAnterior": "Comunicacion escrita en ingles",
+      "indicador": "Comunica de forma escrita en idioma inglés, la información propia de su área de formación técnica. ",
+      "referencia": "Evaluación — B72"
+    },
+    {
+      "numero": 15,
+      "tituloAnterior": "Comprension de manuales en ingles",
+      "indicador": "Comprende información en idioma inglés, de manuales, textos, catálogos, entre otros.",
+      "referencia": "Evaluación — B73"
+    },
+    {
+      "numero": 16,
+      "tituloAnterior": "Comprension de conversaciones e instrucciones en ingles",
+      "indicador": "Comprende información en idioma inglés, a partir de conversaciones, presentaciones e instrucciones dadas, entre otros.",
+      "referencia": "Evaluación — B74"
+    }
+  ],
+  "desarrolloHumano": [
+    {
+      "numero": 1,
+      "tituloAnterior": "Autocontrol",
+      "encabezado": "Autocontrol",
+      "descripcion": "Demuestra control ante situaciones de contexto adversas, previniendo consecuencias negativas para sí mismo y las personas que lo rodean.",
+      "referencia": "Evaluación — B87: título; B88: indicador"
+    },
+    {
+      "numero": 2,
+      "tituloAnterior": "Autoaprendizaje",
+      "encabezado": "Autoaprendizaje",
+      "descripcion": "Demuestra interés investigando e indagando sobre temas  útiles para su vida personal y profesional.",
+      "referencia": "Evaluación — B89: título; B90: indicador"
+    },
+    {
+      "numero": 3,
+      "tituloAnterior": "Comunicacion oral y escrita",
+      "encabezado": "Comunicación oral y escrita",
+      "descripcion": "Comunica información propia de su campo de formación de forma oral y escrita. ",
+      "referencia": "Evaluación — B91: título; B92: indicador"
+    },
+    {
+      "numero": 4,
+      "tituloAnterior": "Comunicacion asertiva",
+      "encabezado": "Comunicación asertiva",
+      "descripcion": "Comunica información empleando un contenido verbal claro, directo, honesto, considerado y respetuoso.",
+      "referencia": "Evaluación — B93: título; B94: indicador"
+    },
+    {
+      "numero": 5,
+      "tituloAnterior": "Capacidad de negociacion",
+      "encabezado": "Capacidad de negociación",
+      "descripcion": "Demuestra eficacia en la identificación y posibles causas de problemas, buscando alternativas para su solución y empleando acciones en las que denota consideraciones por los sentimientos y necesidades de los otros.",
+      "referencia": "Evaluación — B95: título; B96: indicador"
+    },
+    {
+      "numero": 6,
+      "tituloAnterior": "Compromiso etico",
+      "encabezado": "Compromiso ético",
+      "descripcion": "Efectúa con empeño las obligaciones o responsabilidades asignadas, superando los obstáculos que se presentan para el logro de los objetivos trazados.",
+      "referencia": "Evaluación — B97: título; B98: indicador"
+    },
+    {
+      "numero": 7,
+      "tituloAnterior": "Discernimiento y responsabilidad",
+      "encabezado": "Discernimiento y responsabilidad",
+      "descripcion": "Demuestra claridad en los objetivos y aspectos que debe desarrollar de forma responsable, con esmero, dedicación y puntualidad.",
+      "referencia": "Evaluación — B99: título; B100: indicador"
+    },
+    {
+      "numero": 8,
+      "tituloAnterior": "Innovacion y creatividad",
+      "encabezado": "Innovación y creatividad",
+      "descripcion": "Demuestra capacidades para innovar y resolver situaciones de forma creativa y propositiva, relacionados con su área de formación técnica.",
+      "referencia": "Evaluación — B101: título; B102: indicador"
+    },
+    {
+      "numero": 9,
+      "tituloAnterior": "Juicio y toma de decisiones",
+      "encabezado": "Juicio y toma de decisiones",
+      "descripcion": "Selecciona alternativas que puedan dar solución a problemas  e implementarse en su área de formación técnica, de forma viable y oportuna.",
+      "referencia": "Evaluación — B103: título; B104: indicador"
+    },
+    {
+      "numero": 10,
+      "tituloAnterior": "Liderazgo",
+      "encabezado": "Liderazgo",
+      "descripcion": "Implementa acciones en procura del bien común y el cumplimiento de las metas trazadas, ante situaciones de contexto.",
+      "referencia": "Evaluación — B105: título; B106: indicador"
+    },
+    {
+      "numero": 11,
+      "tituloAnterior": "Solucion de problemas",
+      "encabezado": "Solución de problemas ",
+      "descripcion": "Formula procedimientos para abordar problemas  relacionados con su área de formación técnica y de contexto, estableciedo las rutas potenciales a seguir.",
+      "referencia": "Evaluación — B107: título; B108: indicador"
+    },
+    {
+      "numero": 12,
+      "tituloAnterior": "Orientacion y servicio al cliente",
+      "encabezado": "Orientación y servicio al cliente",
+      "descripcion": "Demuestra capacidades para la atención y servicio al cliente interno y externo de la organización.",
+      "referencia": "Evaluación — B109: título; B110: indicador"
+    },
+    {
+      "numero": 13,
+      "tituloAnterior": "Proactividad",
+      "encabezado": "Proactividad",
+      "descripcion": "Demuestra capacidad para superar los obstáculos, a partir de las herramientas disponibles.",
+      "referencia": "Evaluación — B111: título; B112: indicador"
+    },
+    {
+      "numero": 14,
+      "tituloAnterior": "Pensamiento critico",
+      "encabezado": "Pensamiento crítico",
+      "descripcion": "Llega a conclusiones y soluciones, argumentando de forma reflexiva aspectos propios de su  área de formación técnica y de contexto.",
+      "referencia": "Evaluación — B113: título; B114: indicador"
+    },
+    {
+      "numero": 15,
+      "tituloAnterior": "Trabajo en equipo",
+      "encabezado": "Trabajo en equipo",
+      "descripcion": "Coordina, colabora y apoya a los integrantes del equipo, para el cumplimiento de los objetivos trazados.",
+      "referencia": "Evaluación — B115: título; B116: indicador"
+    }
+  ]
+}
