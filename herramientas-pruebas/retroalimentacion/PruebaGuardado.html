@@ -1,0 +1,2642 @@
+<!doctype html><meta charset="utf-8"><title>PPS2026 — pruebas aisladas de guardado</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+    :root {
+      --bg: #f7fbf8;
+      --panel: #ffffff;
+      --panel-soft: #fbfefd;
+      --primary: #9ccbb0;
+      --primary-dark: #6f9f83;
+      --primary-deep: #355944;
+      --primary-soft: #edf7f1;
+      --secondary: #c9e2d2;
+      --secondary-soft: #f3faf5;
+      --accent: #e6d58f;
+      --accent-soft: #fbf6e3;
+      --text: #31473a;
+      --muted: #6f8576;
+      --border: #dbe9df;
+      --success: #7fb892;
+      --warning: #c8aa4c;
+      --danger: #cf8f8f;
+      --shadow: 0 14px 32px rgba(128, 175, 148, 0.14);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .loader {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(201, 226, 210, 0.50), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(230, 213, 143, 0.22), transparent 25%),
+        linear-gradient(180deg, #f9fdfb 0%, #f2faf5 100%);
+      padding: 24px;
+    }
+
+    .loader-card {
+      width: min(440px, 92vw);
+      background: rgba(255,255,255,0.86);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: 30px;
+      text-align: center;
+    }
+
+    .loader-logo {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: white;
+      margin: 0 auto 16px;
+      padding: 8px;
+      border: 3px solid #edf6f0;
+      box-shadow: 0 8px 22px rgba(128, 175, 148, 0.15);
+      object-fit: contain;
+    }
+
+    .loader-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--primary-deep);
+      margin-bottom: 8px;
+    }
+
+    .loader-subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-bottom: 22px;
+    }
+
+    .loader-progress-shell {
+      height: 12px;
+      background: #eef6f1;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .loader-progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #9ccbb0, #c9e2d2, #e6d58f);
+      transition: width 0.22s ease;
+    }
+
+    .loader-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .app { display: none; min-height: 100vh; }
+
+    .sidebar {
+      width: 290px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      overflow-y: auto;
+      padding: 24px 18px;
+      background: linear-gradient(180deg, #edf7f1 0%, #e6f2ea 52%, #dcebe1 100%);
+      border-right: 1px solid rgba(128, 175, 148, 0.18);
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 26px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(128, 175, 148, 0.22);
+    }
+
+    .brand-logo-box {
+      width: 118px;
+      height: 118px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: white;
+      display: grid;
+      place-items: center;
+      padding: 8px;
+      box-shadow: 0 10px 22px rgba(128, 175, 148, 0.18);
+      border: 3px solid #f3f8f5;
+    }
+
+    .brand-logo { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+    .brand h1 { margin: 0 0 8px; font-size: 21px; color: var(--text); }
+    .brand p { margin: 0; font-size: 13px; line-height: 1.45; color: var(--muted); }
+
+    .brand-mini {
+      margin-top: 10px;
+      display: inline-block;
+      padding: 5px 10px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(128, 175, 148, 0.18);
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--primary-dark);
+      font-weight: bold;
+    }
+
+    .nav { margin-top: 8px; }
+
+    .nav button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      padding: 13px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 15px;
+      margin-bottom: 6px;
+      transition: all 0.18s ease;
+    }
+
+    .nav button:hover { background: rgba(255,255,255,0.64); }
+
+    .nav button.active {
+      background: rgba(255,255,255,0.92);
+      font-weight: bold;
+      color: var(--primary-dark);
+      box-shadow: inset 0 0 0 1px rgba(128,175,148,0.18);
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .main { margin-left: 290px; padding: 28px; }
+
+    .hero {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fcf9 62%, #f2f8f4 100%);
+      border-radius: 24px;
+      padding: 26px 28px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 20px;
+      bottom: 20px;
+      width: 8px;
+      border-radius: 0 10px 10px 0;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -55px;
+      top: -55px;
+      width: 190px;
+      height: 190px;
+      border-radius: 50%;
+      background: rgba(201, 226, 210, 0.30);
+    }
+
+    .hero-left, .hero-actions { position: relative; z-index: 1; }
+
+    .hero-chip {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      border: 1px solid rgba(128, 175, 148, 0.18);
+    }
+
+    .hero h2 { margin: 0 0 8px; font-size: 23px; color: var(--text); letter-spacing: 0.2px; }
+    .hero-main-title { margin: 0 0 6px; font-size: 16px; font-weight: bold; color: var(--primary-dark); }
+    .hero p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+    .hero-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: all 0.18s ease;
+      box-shadow: 0 6px 16px rgba(128, 175, 148, 0.14);
+    }
+
+    .btn:hover { transform: translateY(-1px); filter: brightness(0.98); }
+    .btn.primary { background: var(--primary); color: #294136; }
+    .btn.secondary { background: #ffffff; color: var(--primary-dark); border: 1px solid var(--border); }
+    .btn.warning { background: var(--accent); color: #665926; }
+    .btn.danger { background: #ebd0d0; color: #7a5252; }
+    .btn.small { padding: 7px 10px; font-size: 12px; }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--panel);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .card .label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .card .number { font-size: 32px; font-weight: bold; color: var(--text); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .panel {
+      background: var(--panel);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .panel h3 {
+      margin-top: 0;
+      color: var(--text);
+      border-left: 5px solid var(--primary);
+      padding-left: 10px;
+      font-size: 18px;
+    }
+
+    .toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      background: #fcfefd;
+      color: var(--text);
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(156, 203, 176, 0.14);
+    }
+
+    textarea { min-height: 90px; resize: vertical; }
+    .input-sm { max-width: 330px; }
+
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 14px; overflow: hidden; }
+    th, td { border-bottom: 1px solid var(--border); padding: 10px; text-align: left; font-size: 13px; vertical-align: top; }
+    th { background: #eef6f1; color: var(--text); font-weight: bold; }
+    tr:hover td { background: #f9fcfa; }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+    }
+
+    .badge.warning { background: var(--accent-soft); color: #947933; }
+    .badge.success { background: #eef7f1; color: #5e8c70; }
+    .badge.danger { background: #f9ecec; color: #ad6f6f; }
+
+    .bar-row { margin-bottom: 12px; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; gap: 12px; }
+    .bar-bg { height: 10px; background: #edf4ef; border-radius: 999px; overflow: hidden; }
+    .bar { height: 10px; background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%); border-radius: 999px; }
+
+    .notice {
+      padding: 12px 14px;
+      background: #f5faf6;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .empty-state {
+      padding: 18px;
+      background: #fbfefd;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(90, 112, 96, 0.18);
+      z-index: 1000;
+      padding: 30px;
+      overflow-y: auto;
+      backdrop-filter: blur(2px);
+    }
+
+    .modal {
+      background: white;
+      max-width: 780px;
+      margin: 0 auto;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+
+    .modal h3 { margin-top: 0; color: var(--text); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 13px; color: var(--text); }
+    .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+    .chat-box {
+      white-space: pre-wrap;
+      background: #fbfefd;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 140px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .helper-text { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+
+
+    .cv-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .cv-link {
+      display: inline-block;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: bold;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      border: 1px solid rgba(128, 175, 148, 0.22);
+    }
+
+    .upload-status {
+      display: none;
+      margin-bottom: 16px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #fbfefd;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .upload-status.active {
+      display: block;
+    }
+
+    .compact-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+
+
+    .student-practice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .student-info-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      background: linear-gradient(180deg,#ffffff 0%,#f8fcf9 100%);
+      min-height: 118px;
+    }
+    .student-info-card .mini-label { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: bold; letter-spacing: .4px; }
+    .student-info-card .big-value { font-size: 18px; color: var(--primary-deep); font-weight: bold; margin-top: 7px; line-height: 1.3; }
+    .student-task {
+      border-radius: 18px;
+      padding: 17px;
+      margin: 14px 0;
+      border: 1px solid var(--border);
+      background: #fbfefd;
+    }
+    .student-task.required { background: var(--accent-soft); border-color: rgba(200,170,76,.35); }
+    .student-task.completed { background: #f2faf5; border-color: rgba(127,184,146,.36); }
+    .student-task h4 { margin: 0 0 6px; color: var(--primary-deep); font-size: 16px; }
+    .student-task p { margin: 0; color: var(--muted); line-height: 1.5; }
+    .student-status-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .student-section-title { margin: 24px 0 12px; color: var(--text); border-left: 5px solid var(--primary); padding-left: 10px; }
+
+    /* v19.7 · retroalimentación visible durante registro/PIN */
+    .registro-save-feedback {
+      display:none;
+      margin:14px 0 2px;
+      padding:14px 15px;
+      border-radius:16px;
+      border:1px solid #bfdac9;
+      background:#f4fbf6;
+      color:#365746;
+    }
+    .registro-save-feedback.active { display:block; }
+    .registro-save-feedback.error { background:#fff3f3; border-color:#efc9c9; color:#8a4d4d; }
+    .registro-save-feedback.success { background:#eef9f1; border-color:#b8d9c2; color:#2f6645; }
+    .registro-save-head { display:flex; align-items:center; justify-content:space-between; gap:12px; font-weight:700; }
+    .registro-save-status { display:flex; align-items:center; gap:9px; }
+    .registro-spinner { width:16px; height:16px; border-radius:50%; border:2px solid #cfe2d5; border-top-color:#5e9f79; animation:registroSpin .85s linear infinite; flex:0 0 auto; }
+    .registro-save-feedback.success .registro-spinner, .registro-save-feedback.error .registro-spinner { display:none; }
+    .registro-save-track { height:9px; margin-top:11px; border-radius:999px; background:#e3eee6; overflow:hidden; }
+    .registro-save-bar { height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg,#9ccbb0,#c9e2d2,#e6d58f); transition:width .28s ease; }
+    .registro-save-detail { margin-top:8px; font-size:12px; line-height:1.45; opacity:.92; }
+    @keyframes registroSpin { to { transform:rotate(360deg); } }
+
+    @media (max-width: 900px) { .student-practice-grid { grid-template-columns: 1fr; } }
+
+
+
+    /* PPS 2026 v19.6 · Ruta guiada del estudiante */
+    .student-route-shell{display:grid;gap:18px;margin-top:18px}
+    .student-route-hero{border:1px solid #dce8e0;border-radius:22px;padding:20px;background:linear-gradient(135deg,#f6fbf8 0%,#fffdf7 100%);box-shadow:0 10px 24px rgba(76,110,91,.06)}
+    .student-route-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+    .student-route-title{margin:0;color:var(--primary-deep);font-size:21px;line-height:1.25}
+    .student-route-subtitle{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.5;max-width:760px}
+    .student-route-progress{min-width:190px;text-align:right}
+    .student-route-progress strong{display:block;color:var(--primary-deep);font-size:14px}
+    .student-route-progress span{font-size:12px;color:var(--muted)}
+    .student-route-track{height:10px;border-radius:999px;background:#eaf2ed;overflow:hidden;margin-top:8px;border:1px solid #dce8e0}
+    .student-route-track>div{height:100%;background:linear-gradient(90deg,#83b99b,#b9d7c5,#e6d58f);transition:width .3s ease}
+    .student-route-nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:16px}
+    .student-route-link{border:1px solid #dce8e0;background:#fff;border-radius:15px;padding:10px 9px;cursor:pointer;text-align:left;color:var(--text);transition:.18s ease;min-height:62px}
+    .student-route-link:hover{transform:translateY(-1px);box-shadow:0 7px 16px rgba(62,91,74,.08)}
+    .student-route-link .num{display:inline-flex;width:24px;height:24px;border-radius:50%;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-right:6px;background:#eef5f0;color:var(--primary-deep)}
+    .student-route-link .route-label{display:block;margin-top:5px;font-size:11px;color:var(--muted);font-weight:700}
+    .student-priority{border-radius:18px;padding:16px 17px;border:1px solid #e8cf79;background:linear-gradient(135deg,#fff9df,#fffdf5);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .student-priority.done{border-color:#b9d9c4;background:linear-gradient(135deg,#eef9f2,#f9fdfb)}
+    .student-priority h4{margin:0 0 4px;font-size:16px;color:#5f542b}
+    .student-priority.done h4{color:var(--primary-deep)}
+    .student-priority p{margin:0;color:#6c6650;font-size:13px;line-height:1.45}
+    .student-step{border-radius:22px;border:1px solid var(--border);overflow:hidden;background:#fff;box-shadow:0 8px 20px rgba(66,91,77,.05)}
+    .student-step-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:17px 18px;border-bottom:1px solid rgba(210,225,216,.8)}
+    .student-step-head-left{display:flex;gap:12px;align-items:flex-start}
+    .student-step-number{flex:0 0 34px;width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px}
+    .student-step-title{margin:0;font-size:17px;color:var(--primary-deep);line-height:1.25}
+    .student-step-help{margin:4px 0 0;color:var(--muted);font-size:12.5px;line-height:1.45}
+    .student-step-body{padding:18px}
+    .student-step.cv{border-color:#c9e3d2}.student-step.cv .student-step-head{background:#eff9f3}.student-step.cv .student-step-number{background:#d7eddf;color:#285a3b}
+    .student-step.letter{border-color:#cedde9}.student-step.letter .student-step-head{background:#f0f6fb}.student-step.letter .student-step-number{background:#dbe8f2;color:#365c78}
+    .student-step.itinerary{border-color:#eadfb7}.student-step.itinerary .student-step-head{background:#fff9e9}.student-step.itinerary .student-step-number{background:#f3e9be;color:#776322}
+    .student-step.personal{border-color:#ddd8eb}.student-step.personal .student-step-head{background:#f7f4fb}.student-step.personal .student-step-number{background:#e9e3f3;color:#5c4b79}
+    .student-step.supervisor{border-color:#cde1dd}.student-step.supervisor .student-step-head{background:#eff8f6}.student-step.supervisor .student-step-number{background:#d7ebe7;color:#315f57}
+    .student-step-status{white-space:nowrap;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:800;border:1px solid transparent}
+    .student-step-status.ok{background:#eaf7ef;color:#2f6541;border-color:#c8e4d2}
+    .student-step-status.pending{background:#fff5d8;color:#78621e;border-color:#ead996}
+    .student-step-status.info{background:#edf5fa;color:#3e6077;border-color:#cedeeb}
+    .student-step .notice{margin:0 0 14px}
+    .student-step .actions{margin-bottom:0}
+    .student-step .student-task{margin:0}
+    .student-step .document-action-card{margin:0;border:0;background:transparent;padding:0}
+    .student-step .student-section-title{display:none}
+    .student-data-toggle{border:0;background:transparent;padding:0;color:var(--primary-deep);font-weight:800;cursor:pointer;font-size:12px}
+    .student-collapsible{display:block}
+    .student-kicker{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;background:#edf6f0;color:#47705a;font-size:11px;font-weight:800;margin-bottom:7px}
+    .student-info-card.primary-company{border-color:#bcd8c7;background:linear-gradient(180deg,#f6fbf8,#edf7f1)}
+    .student-info-card.primary-company .big-value{font-size:20px}
+    .student-guide-note{margin-top:10px;font-size:12px;color:var(--muted);line-height:1.5}
+    @media(max-width:1050px){.student-route-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.student-route-link:last-child{grid-column:1/-1}}
+    @media(max-width:700px){.student-route-nav{grid-template-columns:1fr}.student-route-link:last-child{grid-column:auto}.student-route-progress{text-align:left;min-width:100%}.student-step-head{align-items:flex-start}.student-step-status{white-space:normal;text-align:center}.student-step-body{padding:15px}.student-route-hero{padding:16px}}
+
+    @media (max-width: 1100px) {
+      .sidebar { position: static; width: 100%; }
+      .main { margin-left: 0; padding: 18px; }
+      .cards, .grid-2, .form-grid { grid-template-columns: 1fr; }
+      .hero { display: block; }
+      .hero-actions { margin-top: 14px; }
+    }
+
+    .security-banner {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #7c6828;
+      font-size: 12px;
+      font-weight: bold;
+      border: 1px solid rgba(200,170,76,0.25);
+      margin-top: 10px;
+    }
+
+    .contact-card {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: var(--panel-soft);
+      padding: 14px;
+      margin: 10px 0 14px;
+      line-height: 1.5;
+    }
+
+    .contact-card strong { color: var(--primary-deep); }
+
+    .agenda-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 18px;
+    }
+
+    .readonly-field {
+      background: #f3f7f4;
+      color: var(--muted);
+    }
+
+    .role-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    @media (max-width: 1100px) {
+      .agenda-grid { grid-template-columns: 1fr; }
+    }
+
+
+    /*******************************************************
+     * LOGIN INTERNO - VERSIÓN VISUAL MEJORADA
+     *******************************************************/
+    .login-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 34px;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(156, 203, 176, 0.42), transparent 28%),
+        radial-gradient(circle at 88% 16%, rgba(230, 213, 143, 0.34), transparent 28%),
+        radial-gradient(circle at 48% 92%, rgba(196, 224, 207, 0.50), transparent 30%),
+        linear-gradient(135deg, #f7fbf8 0%, #eef8f2 45%, #fbf7e8 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(111,159,131,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(111,159,131,0.055) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: radial-gradient(circle at center, black 0%, transparent 78%);
+      pointer-events: none;
+    }
+
+    .login-card {
+      width: min(1120px, 96vw);
+      min-height: 575px;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid rgba(219, 233, 223, 0.90);
+      border-radius: 34px;
+      box-shadow: 0 26px 60px rgba(88, 132, 105, 0.18);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 0.98fr 1.22fr;
+      backdrop-filter: blur(8px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-brand {
+      padding: 42px 38px;
+      background:
+        radial-gradient(circle at 26% 18%, rgba(255,255,255,0.88), transparent 28%),
+        linear-gradient(160deg, #e8f5ed 0%, #dbeee3 64%, #f7f0cf 135%);
+      border-right: 1px solid rgba(219, 233, 223, 0.92);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-brand::after {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      right: -96px;
+      bottom: -84px;
+      background: rgba(230, 213, 143, 0.28);
+    }
+
+    .login-logo-shell {
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      margin: 0 auto 22px;
+      border: 4px solid rgba(255,255,255,0.95);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 15px 34px rgba(93, 142, 113, 0.19);
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-logo-img {
+      width: 122px;
+      height: 122px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .login-brand h1 {
+      margin: 0 0 10px;
+      color: var(--primary-deep);
+      font-size: 30px;
+      letter-spacing: -0.3px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-brand p {
+      margin: 0;
+      color: #587466;
+      line-height: 1.55;
+      font-size: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-brand .brand-mini {
+      margin-top: 18px;
+      position: relative;
+      z-index: 1;
+      background: rgba(255,255,255,0.76);
+      color: var(--primary-dark);
+      border: 1px solid rgba(111,159,131,0.18);
+    }
+
+    .login-highlights {
+      margin-top: 26px;
+      display: grid;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .login-highlight {
+      padding: 11px 13px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.62);
+      border: 1px solid rgba(219, 233, 223, 0.86);
+      color: #476656;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .login-content {
+      padding: 38px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(230,213,143,0.55);
+      color: #766529;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
+
+    .login-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .login-tab {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--primary-dark);
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(128,175,148,0.08);
+    }
+
+    .login-tab.active {
+      box-shadow: 0 10px 22px rgba(89, 119, 99, 0.16);
+      transform: translateY(-1px);
+    }
+
+    /* PPS2026 v20.9.5 · botones de acceso diferenciados */
+    #tabLogin {
+      background: linear-gradient(180deg, #e9f6ed 0%, #dcefe3 100%);
+      color: #2f5d46;
+      border: 1px solid #a9ccb6;
+      box-shadow: 0 7px 16px rgba(86, 142, 108, 0.12);
+    }
+
+    #tabLogin.active {
+      background: linear-gradient(180deg, #dff1e5 0%, #cfe7d7 100%);
+      color: #234b37;
+      border: 2px solid #6f9f83;
+      box-shadow: 0 0 0 4px rgba(111,159,131,0.12), 0 10px 22px rgba(86,142,108,0.16);
+    }
+
+    #tabRegistro {
+      background: linear-gradient(180deg, #f2ebf9 0%, #e8dcf4 100%);
+      color: #55406f;
+      border: 1px solid #cdb9df;
+      box-shadow: 0 7px 16px rgba(132, 103, 158, 0.12);
+    }
+
+    #tabRegistro.active {
+      background: linear-gradient(180deg, #eadff5 0%, #dccbea 100%);
+      color: #47345f;
+      border: 2px solid #9c82b8;
+      box-shadow: 0 0 0 4px rgba(156,130,184,0.12), 0 10px 22px rgba(132,103,158,0.16);
+    }
+
+    #tabLogin:hover, #tabRegistro:hover {
+      filter: brightness(0.985);
+      transform: translateY(-1px);
+    }
+
+    .login-panel { display: none; }
+    .login-panel.active { display: block; }
+
+    .login-panel h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      color: var(--primary-deep);
+      letter-spacing: -0.2px;
+    }
+
+    .login-panel .helper-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 16px;
+    }
+
+    .login-input-wrap input {
+      height: 46px;
+      background: rgba(252, 254, 253, 0.95);
+    }
+
+    .login-message {
+      display: none;
+      margin: 12px 0 16px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      color: var(--text);
+      line-height: 1.45;
+      font-size: 13px;
+    }
+
+    .login-message.active { display: block; }
+    .login-message.error { background: #fff3f3; border-color: #efc9c9; color: #8a4d4d; }
+    .login-message.ok { background: #f2faf5; border-color: var(--border); color: var(--primary-deep); }
+
+    .login-role-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 18px 0 12px;
+    }
+
+    .login-role-card {
+      padding: 12px;
+      border-radius: 16px;
+      background: #fbfefd;
+      border: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .login-role-card strong {
+      display: block;
+      color: var(--primary-deep);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .login-safe-note {
+      margin-top: 16px;
+      padding: 13px 14px;
+      border-radius: 16px;
+      background: #f5faf6;
+      border: 1px solid var(--border);
+      color: #4d6a5a;
+      line-height: 1.48;
+      font-size: 13px;
+    }
+
+    .readonly-card {
+      border: 1px dashed var(--border);
+      background: #fbfefd;
+      border-radius: 16px;
+      padding: 14px;
+      margin: 14px 0;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 900px) {
+      .login-screen { padding: 18px; }
+      .login-card { grid-template-columns: 1fr; }
+      .login-brand { border-right: 0; border-bottom: 1px solid var(--border); padding: 30px 22px; }
+      .login-content { padding: 26px 22px; }
+      .login-role-grid { grid-template-columns: 1fr; }
+    }
+
+  
+    /* PPS 2026 v19.2 · retroalimentación visual no bloqueante */
+    .global-action-feedback{position:fixed;left:0;right:0;top:0;z-index:5000;pointer-events:none;display:none}
+    .global-action-feedback.active{display:block}
+    .global-action-track{height:5px;background:rgba(219,233,223,.72);overflow:hidden}
+    .global-action-bar{height:100%;width:0%;background:linear-gradient(90deg,#9ccbb0,#c9e2d2,#e6d58f);transition:width .22s ease}
+    .global-action-label{position:absolute;right:18px;top:12px;background:rgba(255,255,255,.94);border:1px solid var(--border);border-radius:999px;padding:7px 12px;font-size:12px;color:var(--primary-deep);box-shadow:var(--shadow)}
+    .inline-progress{height:9px;background:#edf4ef;border-radius:999px;overflow:hidden;margin-top:9px;border:1px solid var(--border)}
+    .inline-progress>div{height:100%;width:0%;background:linear-gradient(90deg,#9ccbb0,#c9e2d2,#e6d58f);transition:width .22s ease}
+    .login-progress-wrap{display:none;margin-top:9px}
+    .login-progress-wrap.active{display:block}
+    .login-progress-track{height:9px;background:#edf4ef;border:1px solid var(--border);border-radius:999px;overflow:hidden}
+    .login-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#8fc2a4,#bfdcca,#e5d48d);transition:width .24s ease}
+    .login-progress-meta{display:flex;justify-content:space-between;gap:12px;margin-top:6px;font-size:12px;color:var(--muted)}
+    .login-progress-meta strong{color:var(--primary-deep)}
+    .itinerary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}
+    .itinerary-item{padding:13px;border:1px solid var(--border);border-radius:14px;background:#fbfefd}
+    .itinerary-item .k{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:bold;margin-bottom:5px}
+    .itinerary-item .v{font-size:14px;line-height:1.45;color:var(--text)}
+    .itinerary-details{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .document-action-card{padding:17px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(135deg,#f8fcf9,#fffdf4);margin:16px 0}
+    .document-action-card h4{margin:0 0 7px;color:var(--primary-deep);font-size:16px}
+    @media(max-width:900px){.itinerary-grid,.itinerary-details{grid-template-columns:1fr}}
+
+
+    /* PPS 2026 v19.9 · optimización móvil sin alterar escritorio */
+    @media (max-width: 700px) {
+      html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+      body { -webkit-text-size-adjust: 100%; }
+
+      .main { margin-left: 0; padding: 10px; width: 100%; }
+      .hero { padding: 16px 14px; border-radius: 18px; margin-bottom: 14px; gap: 10px; }
+      .hero::after { width: 120px; height: 120px; right: -42px; top: -42px; }
+      .hero h2 { font-size: 20px; line-height: 1.25; }
+      .hero-main-title { font-size: 15px; }
+      .hero p { font-size: 13px; }
+      .hero-chip { font-size: 11px; padding: 5px 9px; }
+      .hero-actions { width: 100%; gap: 8px; }
+      .hero-actions .btn { flex: 1 1 100%; width: 100%; }
+
+      .panel, .card { padding: 14px; border-radius: 16px; box-shadow: 0 8px 20px rgba(128,175,148,.10); }
+      .panel { margin-bottom: 14px; }
+      .panel h3 { font-size: 16px; }
+      .cards, .grid-2, .form-grid, .student-practice-grid, .itinerary-grid, .itinerary-details { grid-template-columns: 1fr !important; gap: 10px; }
+
+      .student-practice-grid { margin-bottom: 12px; }
+      .student-info-card { min-height: 0; padding: 13px; border-radius: 15px; }
+      .student-info-card .big-value { font-size: 17px; }
+      .student-info-card.primary-company .big-value { font-size: 18px; }
+
+      .student-route-shell { gap: 12px; margin-top: 12px; }
+      .student-route-hero { padding: 14px; border-radius: 17px; }
+      .student-route-title { font-size: 18px; }
+      .student-route-subtitle { font-size: 12.5px; }
+      .student-route-progress { min-width: 0; width: 100%; text-align: left; }
+      .student-route-track { height: 9px; }
+
+      .student-route-nav { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+      .student-route-link { min-height: 58px; padding: 9px 8px; border-radius: 13px; }
+      .student-route-link:last-child { grid-column: 1 / -1; }
+      .student-route-link .route-label { font-size: 10.5px; }
+
+      .student-priority { padding: 13px; border-radius: 15px; align-items: stretch; }
+      .student-priority .btn { width: 100%; }
+
+      .student-step { border-radius: 17px; }
+      .student-step-head { padding: 13px; flex-direction: column; align-items: stretch; gap: 9px; }
+      .student-step-head-left { gap: 9px; }
+      .student-step-number { width: 31px; height: 31px; flex-basis: 31px; border-radius: 10px; }
+      .student-step-title { font-size: 16px; }
+      .student-step-help { font-size: 12px; }
+      .student-step-status { align-self: flex-start; white-space: normal; text-align: left; }
+      .student-step-body { padding: 13px; }
+      .student-task { padding: 13px; border-radius: 15px; }
+      .student-task h4, .document-action-card h4 { font-size: 15px; }
+      .student-task p, .compact-note, .notice { font-size: 12.5px; }
+
+      .actions { justify-content: stretch; gap: 8px; }
+      .actions .btn { flex: 1 1 100%; width: 100%; min-height: 44px; }
+      .btn { min-height: 44px; font-size: 14px; }
+
+      input, select, textarea { font-size: 16px; min-height: 44px; }
+      textarea { min-height: 96px; }
+
+      .itinerary-item { padding: 12px; border-radius: 13px; }
+      .itinerary-item .v { font-size: 13px; }
+      .document-action-card { padding: 13px; border-radius: 15px; }
+
+      .login-screen { padding: 10px; align-items: start; }
+      .login-card { width: 100%; min-height: 0; border-radius: 20px; }
+      .login-brand { padding: 20px 15px; }
+      .login-content { padding: 18px 14px; }
+      .login-logo-img { max-width: 82px; max-height: 82px; }
+      .login-tabs { gap: 6px; }
+      .login-tab { padding: 10px 8px; font-size: 13px; }
+      .login-role-grid { display: none; }
+      .login-highlights { display: none; }
+      .login-safe-note { font-size: 12px; }
+
+      .global-action-label { left: 10px; right: 10px; top: 10px; text-align: center; border-radius: 12px; }
+
+      table { font-size: 12px; }
+      th, td { padding: 8px 7px; }
+
+      .sidebar { padding: 14px 10px; }
+      .brand { margin-bottom: 12px; padding-bottom: 12px; }
+      .brand-logo-box { width: 76px; height: 76px; margin-bottom: 8px; }
+      .brand h1 { font-size: 18px; }
+      .brand p, .footer-note { font-size: 12px; }
+      .nav { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }
+      .nav button { margin: 0; padding: 11px 10px; font-size: 13px; }
+    }
+
+    @media (max-width: 380px) {
+      .main { padding: 8px; }
+      .student-route-nav { grid-template-columns: 1fr; }
+      .student-route-link:last-child { grid-column: auto; }
+      .hero, .student-route-hero, .panel, .card { border-radius: 14px; }
+    }
+
+
+    /* PPS 2026 v19.10 · móvil legible: tipografía y controles ampliados */
+    @media (max-width: 700px) {
+      html { font-size: 17px; }
+      body { font-size: 17px; line-height: 1.55; }
+      .main { padding: 12px; }
+      .sidebar { padding: 12px 10px 10px; }
+      .brand { margin-bottom: 10px; padding-bottom: 10px; }
+      .brand-logo-box { width: 70px; height: 70px; }
+      .brand h1 { font-size: 20px; line-height: 1.2; }
+      .brand p { font-size: 13.5px; line-height: 1.45; }
+      .footer-note { display:none; }
+      .nav { grid-template-columns: 1fr; }
+      .nav button { font-size: 15px; min-height: 46px; }
+      .hero { padding: 18px 16px; }
+      .hero h2 { font-size: 23px; }
+      .hero-main-title { font-size: 17px; line-height: 1.35; }
+      .hero p { font-size: 15px; line-height: 1.55; }
+      .hero-chip { font-size: 12.5px; }
+      .panel, .card { padding: 16px; }
+      .panel h3 { font-size: 19px; line-height: 1.3; }
+      .card .label { font-size: 14px; }
+      .card .number { font-size: 28px; }
+      .student-info-card { padding: 15px; }
+      .student-info-card .label { font-size: 12.5px; }
+      .student-info-card .big-value { font-size: 19px; line-height: 1.3; }
+      .student-info-card.primary-company .big-value { font-size: 20px; }
+      .student-info-card .subvalue { font-size: 13.5px; line-height: 1.45; }
+      .student-route-hero { padding: 16px; }
+      .student-route-title { font-size: 21px; }
+      .student-route-subtitle { font-size: 14.5px; line-height: 1.55; }
+      .student-route-progress { font-size: 14px; }
+      .student-route-nav { grid-template-columns: 1fr; gap: 8px; }
+      .student-route-link, .student-route-link:last-child { grid-column: auto; min-height: 54px; padding: 11px 12px; }
+      .student-route-link .route-label { font-size: 13.5px; line-height: 1.35; }
+      .student-priority { padding: 15px; }
+      .student-priority strong { font-size: 16px; }
+      .student-priority p { font-size: 14px; line-height: 1.5; }
+      .student-step-head { padding: 15px; }
+      .student-step-number { width: 36px; height: 36px; flex-basis: 36px; font-size: 16px; }
+      .student-step-title { font-size: 19px; line-height: 1.3; }
+      .student-step-help { font-size: 14px; line-height: 1.5; }
+      .student-step-status { font-size: 13px; padding: 6px 9px; }
+      .student-step-body { padding: 15px; }
+      .student-task { padding: 15px; }
+      .student-task h4, .document-action-card h4 { font-size: 17px; }
+      .student-task p, .compact-note, .notice { font-size: 14.5px; line-height: 1.55; }
+      .itinerary-item { padding: 14px; }
+      .itinerary-item .k { font-size: 12.5px; }
+      .itinerary-item .v { font-size: 15px; line-height: 1.5; }
+      .document-action-card { padding: 15px; }
+      .btn, .btn.small { font-size: 16px; min-height: 48px; padding: 12px 14px; }
+      input, select, textarea { font-size: 17px; min-height: 48px; padding: 12px 13px; }
+      label { font-size: 14px; line-height: 1.35; }
+      .login-content { padding: 20px 16px; }
+      .login-brand h1 { font-size: 24px; }
+      .login-brand p { font-size: 15px; }
+      .login-kicker { font-size: 13px; }
+      .login-tab { font-size: 15px; min-height: 46px; }
+      .login-panel h2 { font-size: 22px; }
+      .helper-text { font-size: 14.5px; line-height: 1.55; }
+      .login-message { font-size: 14.5px; }
+      .login-progress-meta { font-size: 13.5px; }
+      .registro-save-head { font-size: 15px; }
+      .registro-save-detail { font-size: 14px; }
+      table { font-size: 14px; }
+      th, td { padding: 10px 8px; }
+    }
+
+
+    /* PPS2026 v19.11 — móvil realmente legible: tipografía táctil y lectura sin zoom */
+    @media (max-width: 700px) {
+      html { font-size: 17px; }
+      body { font-size: 17px; line-height: 1.5; }
+
+      .main { padding: 6px !important; }
+      .topbar { padding: 9px 10px !important; gap: 8px; }
+      .topbar h1, #pageTitle { font-size: 18px !important; line-height: 1.25; }
+      .topbar .muted, .topbar small { font-size: 13px !important; }
+
+      .hero { padding: 16px 12px !important; margin-bottom: 10px !important; }
+      .hero h2 { font-size: 23px !important; }
+      .hero-main-title { font-size: 18px !important; line-height: 1.35; }
+      .hero p { font-size: 15px !important; line-height: 1.5; }
+      .hero-chip { font-size: 13px !important; }
+
+      .panel, .card { padding: 14px 12px !important; margin-bottom: 10px; }
+      .panel h2 { font-size: 21px !important; line-height: 1.3; }
+      .panel h3, .card h3 { font-size: 18px !important; line-height: 1.35; }
+      .panel p, .card p, .helper-text, .notice, .readonly-card,
+      .student-route-subtitle, .itinerary-value, .itinerary-note,
+      .student-step-copy, .empty-state { font-size: 15px !important; line-height: 1.5 !important; }
+
+      .student-info-card { padding: 14px 12px !important; }
+      .student-info-card .label, .student-info-card small { font-size: 13px !important; }
+      .student-info-card .big-value { font-size: 19px !important; line-height: 1.3; }
+      .student-info-card.primary-company .big-value { font-size: 20px !important; }
+
+      .student-route-hero { padding: 15px 12px !important; }
+      .student-route-title { font-size: 21px !important; line-height: 1.3; }
+      .student-route-subtitle { font-size: 15px !important; }
+      .student-route-progress strong { font-size: 16px !important; }
+      .student-route-progress span { font-size: 13px !important; }
+      .student-route-nav { grid-template-columns: 1fr !important; gap: 8px !important; }
+      .student-route-link { min-height: 64px !important; padding: 11px 12px !important; }
+      .student-route-link strong { font-size: 16px !important; }
+      .student-route-link span, .student-route-link small { font-size: 13px !important; }
+
+      .student-step-card { padding: 15px 12px !important; }
+      .student-step-number { width: 34px !important; height: 34px !important; font-size: 16px !important; }
+      .student-step-title { font-size: 19px !important; line-height: 1.3; }
+      .student-step-copy { font-size: 15px !important; }
+
+      label { font-size: 15px !important; margin-bottom: 6px !important; }
+      input, select, textarea {
+        min-height: 50px !important;
+        font-size: 17px !important;
+        padding: 11px 12px !important;
+        border-radius: 12px !important;
+      }
+      textarea { min-height: 100px !important; }
+
+      .btn, button, .linkbtn, .folder-link {
+        min-height: 48px;
+        font-size: 15px !important;
+        line-height: 1.25;
+        padding: 11px 13px !important;
+      }
+
+      .login-screen { padding: 8px !important; align-items: start !important; }
+      .login-card { width: 100% !important; max-width: none !important; border-radius: 18px !important; }
+      .login-brand, .login-content { padding: 18px 14px !important; }
+      .login-logo-shell { width: 76px !important; height: 76px !important; }
+      .login-brand h1 { font-size: 24px !important; line-height: 1.25; }
+      .login-brand p, .brand-mini, .login-kicker, .login-highlight, .login-role-card,
+      .login-message, .login-progress-meta { font-size: 14px !important; line-height: 1.45; }
+      .login-content h2 { font-size: 22px !important; }
+      .login-tab { min-height: 48px; font-size: 15px !important; padding: 10px 8px !important; }
+      .login-tabs { gap: 6px; }
+
+      table { font-size: 14px !important; }
+      th, td { padding: 9px 8px !important; }
+      .badge { font-size: 12px !important; }
+
+      .loader-card { width: 96vw !important; padding: 22px 16px !important; }
+      .loader-title { font-size: 22px !important; }
+      .loader-subtitle { font-size: 15px !important; }
+      .loader-meta { font-size: 13px !important; }
+    }
+
+
+    /* PPS2026 v19.14 · MOBILE LARGE / lectura sin zoom.
+       Se aplica por ancho normal y también por detección real de teléfono,
+       incluso si Edge/Chrome solicita vista de escritorio. */
+    @media (max-width: 900px) {
+      html { font-size: 18px; }
+      body { font-size: 18px; line-height: 1.58; -webkit-text-size-adjust: 100%; }
+    }
+
+    @media (max-width: 700px) {
+      .login-screen { padding: 8px; align-items: start; }
+      .login-card { width: 100%; max-width: none; grid-template-columns: 1fr; border-radius: 18px; }
+      .login-brand { padding: 18px 14px 14px; border-right: 0; border-bottom: 1px solid var(--border); }
+      .login-brand h1 { font-size: 24px; line-height: 1.2; margin-bottom: 7px; }
+      .login-brand p { font-size: 16px; line-height: 1.45; }
+      .login-brand .brand-mini { font-size: 13px; }
+      .login-logo-img { width: 82px; height: 82px; }
+      .login-content { padding: 18px 14px 22px; }
+      .login-kicker { font-size: 13px; margin-bottom: 10px; }
+      .login-tabs { grid-template-columns: 1fr; gap: 8px; }
+      .login-tab { width: 100%; min-height: 50px; padding: 12px 10px; font-size: 16px; line-height: 1.25; }
+      .login-panel h2 { font-size: 25px; line-height: 1.25; margin-bottom: 8px; }
+      .login-panel .helper-text, .helper-text { font-size: 16px; line-height: 1.55; }
+      label { font-size: 16px; margin-bottom: 7px; }
+      input, select, textarea, .login-input-wrap input { font-size: 18px; min-height: 52px; padding: 12px 13px; }
+      textarea { min-height: 110px; }
+      .btn, .btn.small { min-height: 48px; font-size: 16px; padding: 12px 15px; }
+      .actions { display: grid; grid-template-columns: 1fr; gap: 9px; }
+      .actions .btn { width: 100%; }
+      .login-message { font-size: 16px; line-height: 1.5; }
+      .login-progress-meta { font-size: 14px; }
+
+      .main { margin-left: 0; width: 100%; padding: 10px; }
+      .sidebar { position: static; width: 100%; padding: 12px 10px; overflow: visible; }
+      .brand { margin-bottom: 10px; padding-bottom: 10px; }
+      .brand-logo-box { width: 72px; height: 72px; }
+      .brand h1 { font-size: 22px; }
+      .brand p { font-size: 15px; }
+      .brand-mini { font-size: 13px; }
+      .footer-note { display: none; }
+      .nav { display: grid; grid-template-columns: 1fr; gap: 7px; }
+      .nav button { min-height: 50px; margin: 0; padding: 12px 13px; font-size: 16px; }
+
+      .hero { padding: 17px 15px; border-radius: 17px; margin-bottom: 12px; }
+      .hero h2 { font-size: 25px; line-height: 1.22; }
+      .hero-main-title { font-size: 18px; line-height: 1.4; }
+      .hero p { font-size: 16px; line-height: 1.55; }
+      .hero-chip { font-size: 13px; }
+      .hero-actions { width: 100%; }
+      .hero-actions .btn { width: 100%; }
+
+      .cards, .grid-2, .form-grid, .student-practice-grid, .student-route-nav, .itinerary-grid, .itinerary-details { grid-template-columns: 1fr !important; }
+      .form-grid .full { grid-column: auto; }
+      .panel, .card { padding: 16px; border-radius: 16px; }
+      .panel h3 { font-size: 21px; line-height: 1.3; }
+      .card .label { font-size: 15px; }
+      .card .number { font-size: 30px; }
+      .notice, .readonly-card, .empty-state, .compact-note { font-size: 16px; line-height: 1.55; }
+
+      .student-info-card { padding: 16px; }
+      .student-info-card .label { font-size: 14px; }
+      .student-info-card .big-value { font-size: 21px; line-height: 1.28; }
+      .student-info-card.primary-company .big-value { font-size: 22px; }
+      .student-info-card .subvalue { font-size: 15px; line-height: 1.5; }
+      .student-route-hero { padding: 16px; }
+      .student-route-title { font-size: 23px; line-height: 1.25; }
+      .student-route-subtitle { font-size: 16px; line-height: 1.55; }
+      .student-route-progress { min-width: 0; width: 100%; text-align: left; }
+      .student-route-progress strong { font-size: 17px; }
+      .student-route-progress span { font-size: 15px; }
+      .student-route-link, .student-route-link:last-child { grid-column: auto; min-height: 62px; padding: 13px 14px; }
+      .student-route-link .num { width: 30px; height: 30px; font-size: 15px; }
+      .student-route-link .route-label { font-size: 15px; line-height: 1.4; }
+      .student-priority { padding: 16px; }
+      .student-priority h4, .student-priority strong { font-size: 18px; }
+      .student-priority p { font-size: 16px; line-height: 1.52; }
+      .student-step-head { padding: 16px; }
+      .student-step-head-left { gap: 10px; }
+      .student-step-number { width: 40px; height: 40px; flex-basis: 40px; font-size: 17px; }
+      .student-step-title { font-size: 21px; line-height: 1.3; }
+      .student-step-help { font-size: 16px; line-height: 1.5; }
+      .student-step-status { font-size: 14px; padding: 7px 9px; }
+      .student-step-body { padding: 16px; }
+      .student-task h4, .document-action-card h4 { font-size: 19px; }
+      .student-task p, .document-action-card, .itinerary-item .v { font-size: 16px; line-height: 1.55; }
+      .itinerary-item .k { font-size: 13px; }
+
+      table { font-size: 14px; }
+      th, td { padding: 9px 8px; }
+      .modal-backdrop { padding: 8px; }
+      .modal { padding: 16px; border-radius: 16px; }
+      .modal h3 { font-size: 21px; }
+      .global-action-label { font-size: 14px; left: 8px; right: 8px; }
+    }
+
+    /* Defensa adicional: navegador móvil en modo escritorio. */
+    html.mobile-device body { font-size: 18px !important; line-height: 1.58 !important; min-width: 0 !important; }
+    html.mobile-device .login-screen { padding: 8px !important; align-items: start !important; }
+    html.mobile-device .login-card { width: 100% !important; max-width: none !important; grid-template-columns: 1fr !important; border-radius: 18px !important; }
+    html.mobile-device .login-brand { padding: 18px 14px 14px !important; border-right: 0 !important; border-bottom: 1px solid var(--border) !important; }
+    html.mobile-device .login-content { padding: 18px 14px 22px !important; }
+    html.mobile-device .login-tabs { grid-template-columns: 1fr !important; }
+    html.mobile-device .login-tab { min-height: 50px !important; font-size: 16px !important; }
+    html.mobile-device .login-panel h2 { font-size: 25px !important; }
+    html.mobile-device .login-panel .helper-text, html.mobile-device .helper-text { font-size: 16px !important; line-height: 1.55 !important; }
+    html.mobile-device label { font-size: 16px !important; }
+    html.mobile-device input, html.mobile-device select, html.mobile-device textarea { font-size: 18px !important; min-height: 52px !important; }
+    html.mobile-device .btn, html.mobile-device .btn.small { min-height: 48px !important; font-size: 16px !important; }
+    html.mobile-device .actions { display: grid !important; grid-template-columns: 1fr !important; }
+    html.mobile-device .actions .btn { width: 100% !important; }
+    html.mobile-device .sidebar { position: static !important; width: 100% !important; padding: 12px 10px !important; overflow: visible !important; }
+    html.mobile-device .main { margin-left: 0 !important; width: 100% !important; padding: 10px !important; }
+    html.mobile-device .nav { display: grid !important; grid-template-columns: 1fr !important; gap: 7px !important; }
+    html.mobile-device .nav button { min-height: 50px !important; margin: 0 !important; padding: 12px 13px !important; font-size: 16px !important; }
+    html.mobile-device .cards, html.mobile-device .grid-2, html.mobile-device .form-grid, html.mobile-device .student-practice-grid, html.mobile-device .student-route-nav, html.mobile-device .itinerary-grid, html.mobile-device .itinerary-details { grid-template-columns: 1fr !important; }
+    html.mobile-device .form-grid .full { grid-column: auto !important; }
+    html.mobile-device .hero h2 { font-size: 25px !important; }
+    html.mobile-device .hero-main-title { font-size: 18px !important; }
+    html.mobile-device .hero p { font-size: 16px !important; }
+    html.mobile-device .panel h3 { font-size: 21px !important; }
+    html.mobile-device .student-info-card .big-value { font-size: 21px !important; }
+    html.mobile-device .student-route-title { font-size: 23px !important; }
+    html.mobile-device .student-route-subtitle, html.mobile-device .student-step-help, html.mobile-device .student-task p, html.mobile-device .itinerary-item .v, html.mobile-device .notice, html.mobile-device .compact-note { font-size: 16px !important; line-height: 1.55 !important; }
+    html.mobile-device .student-route-nav { grid-template-columns: 1fr !important; }
+    html.mobile-device .student-route-link { min-height: 62px !important; }
+    html.mobile-device .student-route-link .route-label { font-size: 15px !important; }
+    html.mobile-device .student-step-title { font-size: 21px !important; }
+    html.mobile-device .footer-note, html.mobile-device .login-role-grid, html.mobile-device .login-highlights, html.mobile-device .login-safe-note { display: none !important; }
+
+
+    /* ===== FASE 2 · GESTOR PPS ===== */
+    .gestor-shell { display: grid; gap: 18px; }
+    .gestor-welcome {
+      background: linear-gradient(135deg, #f2faf5, #fffdf4);
+      border: 1px solid var(--border); border-radius: 22px; padding: 22px;
+      display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+    }
+    .gestor-welcome h3 { margin: 0 0 7px; font-size: 24px; color: var(--primary-deep); }
+    .gestor-welcome p { margin: 0; color: var(--muted); line-height: 1.55; max-width: 760px; }
+    .gestor-guide { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; width:100%; margin-top:8px; }
+    .gestor-step { background:#fff; border:1px solid var(--border); border-radius:16px; padding:12px 14px; font-size:13px; font-weight:700; }
+    .gestor-step b { display:inline-grid; place-items:center; width:26px; height:26px; border-radius:50%; background:var(--primary-soft); color:var(--primary-deep); margin-right:6px; }
+    .gestor-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+    .gestor-stat { background:#fff; border:1px solid var(--border); border-radius:18px; padding:16px 18px; box-shadow:0 7px 18px rgba(53,89,68,.06); }
+    .gestor-stat .num { font-size:30px; font-weight:800; color:var(--primary-deep); }
+    .gestor-stat .lbl { font-size:13px; color:var(--muted); font-weight:700; margin-top:3px; }
+    .gestor-stat.pendiente { border-left:6px solid #d9bd66; }
+    .gestor-stat.enviado { border-left:6px solid #9fb7d8; }
+    .gestor-stat.respondido { border-left:6px solid #9bc7b0; }
+    .gestor-stat.completado { border-left:6px solid #6fa886; }
+    .gestor-toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .gestor-toolbar input, .gestor-toolbar select { min-height:44px; font-size:15px; }
+    .gestor-list { display:grid; gap:12px; }
+    .gestor-card { background:#fff; border:1px solid var(--border); border-radius:18px; padding:17px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:14px; align-items:center; box-shadow:0 6px 16px rgba(53,89,68,.05); }
+    .gestor-card h4 { margin:0 0 8px; font-size:18px; color:var(--text); }
+    .gestor-meta { display:flex; flex-wrap:wrap; gap:7px 14px; color:var(--muted); font-size:13px; line-height:1.5; }
+    .gestor-status { display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px; font-weight:800; font-size:12px; }
+    .gestor-status.pendiente { background:#fff5d9; color:#876d1d; }
+    .gestor-status.enviado { background:#eef4fb; color:#526f96; }
+    .gestor-status.respondio { background:#ecf8f1; color:#42765a; }
+    .gestor-status.completado { background:#e4f3e9; color:#2f6948; }
+    .gestor-detail { display:none; }
+    .gestor-detail.active { display:block; }
+    .gestor-detail-grid { display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); gap:18px; }
+    .gestor-box { background:#fff; border:1px solid var(--border); border-radius:18px; padding:18px; }
+    .gestor-box h4 { margin:0 0 13px; color:var(--primary-deep); font-size:18px; }
+    .gestor-info-row { display:grid; grid-template-columns:160px 1fr; gap:10px; padding:7px 0; border-bottom:1px dashed #e7efe9; line-height:1.45; }
+    .gestor-info-row:last-child { border-bottom:0; }
+    .gestor-info-row .k { color:var(--muted); font-weight:700; font-size:13px; }
+    .gestor-message { width:100%; min-height:250px; font-size:15px; line-height:1.55; background:#fcfefd; }
+    .gestor-student-table { width:100%; border-collapse:separate; border-spacing:0; margin-top:12px; overflow:hidden; border:1px solid var(--border); border-radius:14px; }
+    .gestor-student-table th, .gestor-student-table td { padding:10px 12px; border-bottom:1px solid var(--border); font-size:13px; }
+    .gestor-student-table th { background:#f2f8f4; color:var(--primary-deep); }
+    .gestor-student-table tr:last-child td { border-bottom:0; }
+    .gestor-evidence-zone { margin-top:12px; border:2px dashed #bfd8c7; border-radius:16px; padding:16px; background:#f8fcf9; text-align:center; transition:.18s ease; }
+    .gestor-evidence-zone.drag, .gestor-evidence-zone:focus { border-color:var(--primary-dark); background:#eef8f2; outline:none; }
+    .gestor-evidence-zone strong { color:var(--primary-deep); display:block; margin-bottom:4px; }
+    .gestor-version { display:inline-flex; align-items:center; gap:6px; margin-left:8px; padding:4px 9px; border-radius:999px; background:#ffffff; border:1px solid var(--border); color:var(--primary-dark); font-size:11px; font-weight:800; vertical-align:middle; }
+    .gestor-message-summary { margin:12px 0 14px; padding:13px; background:#f8fcf9; border:1px solid var(--border); border-radius:14px; }
+    .gestor-message-summary-title { font-size:12px; font-weight:800; color:var(--primary-deep); margin-bottom:8px; text-transform:uppercase; letter-spacing:.35px; }
+    .gestor-evidence-primary { margin-top:12px; border:2px solid #b9d8c4; border-radius:20px; padding:22px 18px; background:linear-gradient(135deg,#eff9f3 0%,#fffdf5 100%); text-align:center; box-shadow:0 8px 20px rgba(66,91,77,.06); }
+    .gestor-evidence-primary .evidence-icon { font-size:38px; line-height:1; margin-bottom:8px; }
+    .gestor-evidence-primary .evidence-title { display:block; font-size:19px; color:var(--primary-deep); font-weight:800; margin-bottom:6px; }
+    .gestor-evidence-primary .evidence-copy { display:block; color:var(--muted); font-size:14px; line-height:1.5; max-width:560px; margin:0 auto 12px; }
+    .gestor-optional-details { margin-top:14px; border:1px solid var(--border); border-radius:16px; background:#fbfefd; overflow:hidden; }
+    .gestor-optional-details > summary { cursor:pointer; padding:14px 16px; font-weight:800; color:var(--primary-deep); list-style:none; }
+    .gestor-optional-details > summary::-webkit-details-marker { display:none; }
+    .gestor-optional-details > summary::before { content:'＋'; display:inline-block; width:22px; }
+    .gestor-optional-details[open] > summary::before { content:'−'; }
+    .gestor-optional-details .gestor-form { padding:0 14px 14px; }
+    .gestor-evidence-preview { display:none; margin-top:12px; padding:12px; border:1px solid var(--border); border-radius:14px; background:#fff; }
+    .gestor-evidence-preview.active { display:block; }
+    .gestor-evidence-preview img { display:block; max-width:100%; max-height:280px; margin:0 auto 10px; border-radius:10px; border:1px solid var(--border); }
+    .gestor-evidence-meta { font-size:12px; color:var(--muted); line-height:1.45; word-break:break-word; }
+    .gestor-evidence-actions { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px; }
+    .gestor-evidence-link { display:inline-flex; align-items:center; gap:6px; margin-top:10px; font-size:13px; font-weight:700; color:var(--primary-dark); text-decoration:none; }
+    .gestor-form { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .gestor-form .full { grid-column:1/-1; }
+    .gestor-form label { font-weight:700; color:var(--text); margin-bottom:6px; display:block; }
+    .gestor-form input, .gestor-form select, .gestor-form textarea { width:100%; font-size:15px; min-height:44px; }
+    .gestor-form textarea { min-height:90px; }
+    .gestor-actionbar { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .gestor-helper { padding:12px 14px; border-radius:14px; background:#f5faf7; border:1px solid var(--border); color:var(--muted); font-size:13px; line-height:1.45; }
+    .gestor-busy { display:none; align-items:center; gap:10px; padding:12px 14px; border-radius:14px; background:#eef7f1; color:var(--primary-deep); font-weight:700; margin:12px 0; }
+    .gestor-busy.active { display:flex; }
+    .gestor-spinner { width:20px; height:20px; border:3px solid #d8e9de; border-top-color:var(--primary-dark); border-radius:50%; animation:gestorSpin .8s linear infinite; }
+    @keyframes gestorSpin { to { transform:rotate(360deg); } }
+    .gestor-toast { position:fixed; right:22px; bottom:22px; z-index:9999; max-width:390px; background:#fff; border:1px solid var(--border); box-shadow:var(--shadow); border-radius:16px; padding:14px 16px; display:none; font-weight:700; line-height:1.4; }
+    .gestor-toast.active { display:block; }
+    .gestor-toast.ok { border-left:6px solid var(--success); }
+    .gestor-toast.error { border-left:6px solid var(--danger); }
+    .gestor-empty { text-align:center; padding:30px; color:var(--muted); background:#fff; border:1px dashed var(--border); border-radius:18px; }
+    .gestor-overall { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:14px; align-items:center; padding:16px 18px; border-radius:18px; background:linear-gradient(135deg,#f5faf7,#fffdf5); border:1px solid var(--border); }
+    .gestor-overall h4 { margin:0 0 5px; color:var(--primary-deep); font-size:17px; }
+    .gestor-overall p { margin:0; color:var(--muted); font-size:13px; line-height:1.45; }
+    .gestor-overall-pct { font-size:28px; font-weight:800; color:var(--primary-deep); min-width:74px; text-align:right; }
+    .gestor-progress-track { height:11px; margin-top:10px; border-radius:999px; background:#e9f1ec; overflow:hidden; border:1px solid #dce9e1; }
+    .gestor-progress-bar { height:100%; width:0%; background:linear-gradient(90deg,#9ccbb0,#c9e2d2,#e6d58f); transition:width .28s ease; }
+    .gestor-next { padding:15px 17px; border-radius:18px; border:1px solid #e5d99e; background:linear-gradient(135deg,#fff8dc,#fffdf6); }
+    .gestor-next strong { display:block; color:#6f5d22; font-size:16px; margin-bottom:4px; }
+    .gestor-next span { color:#776f58; font-size:13px; line-height:1.45; }
+    .gestor-next.done { border-color:#bfdcc9; background:linear-gradient(135deg,#edf8f1,#f9fdfb); }
+    .gestor-next.done strong { color:#37694b; }
+    .gestor-card-priority { display:inline-flex; align-items:center; gap:6px; margin-top:8px; padding:5px 8px; border-radius:10px; background:#f6faf7; border:1px solid var(--border); color:var(--muted); font-size:12px; font-weight:700; }
+    .gestor-stage { border:1px solid var(--border); border-radius:18px; overflow:hidden; background:#fff; margin-top:14px; }
+    .gestor-stage-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:14px 16px; background:#f7fbf8; border-bottom:1px solid var(--border); }
+    .gestor-stage-head h4 { margin:0; font-size:17px; color:var(--primary-deep); }
+    .gestor-stage-head p { margin:4px 0 0; color:var(--muted); font-size:12.5px; line-height:1.45; }
+    .gestor-stage-num { display:inline-grid; place-items:center; width:30px; height:30px; border-radius:10px; background:var(--primary-soft); color:var(--primary-deep); font-weight:800; margin-right:8px; flex:0 0 auto; }
+    .gestor-stage-title { display:flex; align-items:flex-start; }
+    .gestor-stage-body { padding:16px; }
+    .gestor-stage.is-locked { opacity:.68; }
+    .gestor-stage-note { padding:10px 12px; border-radius:12px; background:#fff8df; border:1px solid #eadba5; color:#746229; font-size:13px; line-height:1.45; margin-bottom:12px; }
+    .gestor-mini-state { border-radius:999px; padding:5px 9px; font-size:11px; font-weight:800; white-space:nowrap; background:#eef5f0; color:var(--primary-deep); }
+    .gestor-mini-state.wait { background:#fff5d9; color:#80681d; }
+    .gestor-mini-state.ok { background:#e7f5ec; color:#34684a; }
+    .gestor-refresh { margin-left:auto; }
+    @media(max-width:700px){
+      .gestor-student-table th, .gestor-student-table td { padding:9px 8px; font-size:13px; }
+      .gestor-evidence-zone { padding:14px 10px; }
+      .gestor-evidence-actions .btn { width:100%; }
+    }
+    @media (max-width: 900px) {
+      .gestor-guide, .gestor-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .gestor-detail-grid { grid-template-columns:1fr; }
+      .gestor-card { grid-template-columns:1fr; }
+      .gestor-card .btn { width:100%; }
+    }
+    @media (max-width: 560px) {
+      .gestor-guide, .gestor-stats, .gestor-form { grid-template-columns:1fr; }
+      .gestor-info-row { grid-template-columns:1fr; gap:2px; }
+      .gestor-actionbar .btn { width:100%; }
+      .gestor-toast { left:12px; right:12px; bottom:12px; }
+      .gestor-overall { grid-template-columns:1fr; }
+      .gestor-overall-pct { text-align:left; font-size:25px; }
+      .gestor-stage-head { flex-direction:column; }
+      .gestor-mini-state { white-space:normal; }
+    }
+
+    /* v20.1 · optimización de primera pintura y vistas inactivas */
+    .view:not(.active) { content-visibility: hidden; }
+    .view.active { content-visibility: visible; }
+    @media (max-width:700px), (max-device-width:900px) {
+      .gestor-welcome h3 { font-size:23px; }
+      .gestor-welcome p, .gestor-helper, .gestor-meta, .gestor-info-row { font-size:15px; line-height:1.55; }
+      .gestor-card h4, .gestor-box h4 { font-size:20px; }
+      .gestor-status { font-size:14px; }
+      .gestor-toolbar input, .gestor-toolbar select, .gestor-form input, .gestor-form select, .gestor-form textarea, .gestor-message { font-size:17px; min-height:50px; }
+      .gestor-message { min-height:260px; }
+      .gestor-step { font-size:15px; line-height:1.4; }
+      .gestor-stat .num { font-size:31px; }
+      .gestor-stat .lbl { font-size:15px; }
+    }
+
+  
+
+    /* PPS2026 v20.7 · aceptación obligatoria de normativa PPS */
+    .normativa-pps-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 20000;
+      background: rgba(31, 49, 43, 0.72);
+      padding: 18px;
+      overflow: auto;
+      align-items: flex-start;
+      justify-content: center;
+      backdrop-filter: blur(2px);
+    }
+    .normativa-pps-modal.active { display: flex; }
+    .normativa-pps-card {
+      width: min(920px, 100%);
+      margin: 12px auto 28px;
+      background: #fffefd;
+      border: 1px solid #d9e4df;
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(45, 74, 60, 0.28);
+    }
+    .normativa-pps-head {
+      padding: 20px 22px 18px;
+      background: linear-gradient(135deg, #edf4ef 0%, #f3eef4 100%);
+      border-bottom: 1px solid #d9e4df;
+    }
+    .normativa-pps-kicker {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #6f8576;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .normativa-pps-head h2 {
+      margin: 0 0 5px;
+      color: #405f51;
+      font-size: 23px;
+    }
+    .normativa-pps-head p {
+      margin: 0;
+      color: #6f8576;
+      font-size: 13px;
+    }
+    .normativa-pps-body { padding: 18px 20px 10px; }
+    .normativa-pps-intro {
+      line-height: 1.58;
+      color: #31473a;
+      margin-bottom: 14px;
+    }
+    .normativa-pps-rules {
+      max-height: 52vh;
+      overflow-y: auto;
+      border: 1px solid #dbe9df;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fffefd 0%, #fbfdfb 100%);
+      padding: 16px 18px;
+      scroll-behavior: smooth;
+    }
+    .normativa-pps-rules ol { margin: 0; padding-left: 23px; }
+    .normativa-pps-rules li { margin: 0 0 13px; line-height: 1.6; padding-left: 2px; }
+    .normativa-pps-rules strong { color: #456457; }
+    .normativa-pps-hint {
+      margin-top: 12px;
+      padding: 11px 13px;
+      border-radius: 11px;
+      background: #fbf6e3;
+      color: #6a5a2e;
+      border: 1px solid #eadca8;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .normativa-pps-hint.done {
+      background: #edf7f1;
+      color: #3f674b;
+      border-color: #d6e8dc;
+    }
+    .normativa-pps-confirm {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid #d6e5dc;
+      border-radius: 13px;
+      background: #f3f9f5;
+    }
+    .normativa-pps-confirm label {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-weight: bold;
+      line-height: 1.48;
+      color: #31473a;
+    }
+    .normativa-pps-confirm input { width: 20px; height: 20px; margin-top: 1px; flex: 0 0 auto; }
+    .normativa-pps-actions {
+      padding: 8px 20px 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .normativa-pps-status {
+      display: none;
+      margin: 0 20px 16px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    .normativa-pps-status.active { display: block; }
+    .normativa-pps-status.error { background: #f9ecec; color: #8b5555; border: 1px solid #efd2d2; }
+    @media (max-width: 700px) {
+      .normativa-pps-modal { padding: 8px; }
+      .normativa-pps-card { margin-top: 4px; border-radius: 16px; }
+      .normativa-pps-head { padding: 17px 16px 15px; }
+      .normativa-pps-head h2 { font-size: 20px; }
+      .normativa-pps-body { padding: 14px 13px 8px; }
+      .normativa-pps-rules { max-height: 56vh; padding: 14px; }
+      .normativa-pps-actions { padding: 8px 13px 16px; }
+    }
+
+  
+    /* PPS2026 v20.9 · Inducción virtual obligatoria */
+    .induccion-pps-modal{
+      display:none; position:fixed; inset:0; z-index:21000;
+      background:rgba(31,49,43,.76); padding:14px; overflow:auto;
+      align-items:flex-start; justify-content:center; backdrop-filter:blur(3px);
+    }
+    .induccion-pps-modal.active{display:flex}
+    .induccion-pps-card{
+      width:min(980px,100%); margin:8px auto 28px; background:#fff;
+      border:1px solid #d9e4e4; border-radius:22px; overflow:hidden;
+      box-shadow:0 24px 80px rgba(45,74,60,.30);
+    }
+    .induccion-pps-head{
+      padding:18px 20px 14px;
+      background:linear-gradient(135deg,#edf5f2 0%,#f3eef4 100%);
+      border-bottom:1px solid #d9e4e4; position:sticky; top:0; z-index:2;
+    }
+    .induccion-pps-kicker{
+      font-size:11px; text-transform:uppercase; letter-spacing:.06em;
+      color:#6f8576; font-weight:700; margin-bottom:4px;
+    }
+    .induccion-pps-head h2{margin:0 0 5px;color:#405f51;font-size:22px}
+    .induccion-pps-head p{margin:0;color:#6f8576;font-size:12px}
+    .induccion-pps-progress-row{
+      display:flex; justify-content:space-between; gap:10px; margin-top:12px;
+      font-size:11px; color:#6f8576; font-weight:700;
+    }
+    .induccion-pps-progress{
+      height:8px; border-radius:999px; background:#e4ecec; overflow:hidden;
+      margin-top:6px; border:1px solid #d8e4e0;
+    }
+    .induccion-pps-progress>span{
+      display:block;height:100%;width:0;background:#7fa9a2;transition:.25s;
+    }
+    .induccion-pps-body{padding:20px}
+    .induccion-pps-step{display:block}
+    .induccion-pps-step.hidden{display:none}
+    .induccion-pps-hero{text-align:center;padding:12px 8px 4px}
+    .induccion-pps-hero .icon{font-size:44px}
+    .induccion-pps-hero h3{font-size:26px;margin:10px 0 8px;color:#31473a}
+    .induccion-pps-lead{max-width:760px;margin:0 auto;color:#66777b;line-height:1.62}
+    .induccion-pps-dates{
+      display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px auto 0;max-width:700px
+    }
+    .induccion-pps-date{
+      padding:14px;border:1px solid #d9e4e4;border-radius:14px;background:#fbfdfd;text-align:left
+    }
+    .induccion-pps-date strong{display:block;font-size:12px;color:#4c666b}
+    .induccion-pps-date span{display:block;margin-top:4px;font-size:14px}
+    .induccion-pps-notice{
+      max-width:780px;margin:18px auto 0;padding:14px;border:1px solid #d6e1dc;
+      background:#eef5f3;border-radius:14px;text-align:left;line-height:1.55;font-size:13px
+    }
+    .induccion-pps-message{
+      padding:18px;background:#fbfdfd;border:1px solid #d9e4e4;border-radius:15px;
+      line-height:1.65;color:#34484c
+    }
+    .induccion-pps-message p{margin:0 0 12px}
+    .induccion-pps-message p:last-child{margin-bottom:0}
+    .induccion-pps-section-title{display:flex;align-items:flex-start;gap:11px;margin-bottom:16px}
+    .induccion-pps-section-title .n{
+      flex:0 0 38px;height:38px;border-radius:12px;background:#dfeeee;
+      display:grid;place-items:center;font-weight:800;color:#456f74
+    }
+    .induccion-pps-section-title h3{margin:0 0 4px;font-size:19px;color:#31473a}
+    .induccion-pps-section-title p{margin:0;color:#66777b;font-size:13px}
+    .induccion-pps-video{
+      overflow:hidden;border-radius:17px;border:1px solid #d9e4e4;background:#fff;
+      box-shadow:0 14px 40px rgba(20,30,35,.12)
+    }
+    .induccion-pps-video iframe{display:block;width:100%;height:min(62vh,560px);border:0;background:#fff}
+.induccion-pps-timer{
+      margin-top:13px;padding:12px 14px;border:1px solid #d9e4e4;border-radius:12px;
+      background:#f7faf9;color:#4f666b;font-size:13px;line-height:1.5
+    }
+    .induccion-pps-options{display:grid;gap:10px}
+    .induccion-pps-option{
+      width:100%;text-align:left;padding:13px 14px;border-radius:13px;border:1px solid #d9e4e4;
+      background:#fff;color:#31473a;font:600 14px Arial,sans-serif;cursor:pointer;transition:.15s
+    }
+    .induccion-pps-option:hover{background:#f7fbf9}
+    .induccion-pps-option.correct{background:#e6f3e8;border-color:#b8d9c2;color:#386445}
+    .induccion-pps-option.wrong{background:#f8e9e9;border-color:#efc9c9;color:#8a4747}
+    .induccion-pps-check.selected{background:#edf7f1;border-color:#9ccbb0;color:#355944}
+    .induccion-pps-feedback{display:none;margin-top:12px;padding:10px 12px;border-radius:11px;font-size:13px}
+    .induccion-pps-feedback.show{display:block}
+    .induccion-pps-feedback.ok{background:#e6f3e8;color:#386445;border:1px solid #c9e4d1}
+    .induccion-pps-feedback.bad{background:#f8e9e9;color:#8a4747;border:1px solid #efc9c9}
+    .induccion-pps-nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+    .induccion-pps-contact{
+      margin-top:15px;padding:12px 14px;background:#f5faf6;border:1px solid #dbe9df;
+      border-radius:12px;color:#405f51;font-size:13px;line-height:1.5
+    }
+    .induccion-pps-complete{text-align:center;padding:14px 8px}
+    .induccion-pps-complete .big{font-size:50px}
+    .induccion-pps-complete h3{font-size:25px;color:#355944;margin:10px 0 8px}
+    .induccion-pps-ticks{max-width:620px;margin:18px auto;text-align:left;display:grid;gap:8px}
+    .induccion-pps-tick{padding:10px 12px;border-radius:11px;background:#eef7f1;color:#386445;border:1px solid #d1e7d7}
+    .induccion-pps-status{
+      display:none;margin-top:12px;padding:11px 12px;border-radius:11px;font-size:13px;line-height:1.45
+    }
+    .induccion-pps-status.active{display:block}
+    .induccion-pps-status.error{background:#f8e9e9;color:#8a4747;border:1px solid #efc9c9}
+    @media(max-width:700px){
+      .induccion-pps-modal{padding:6px}
+      .induccion-pps-card{border-radius:15px;margin-top:2px}
+      .induccion-pps-head{padding:15px 14px 12px}
+      .induccion-pps-head h2{font-size:19px}
+      .induccion-pps-body{padding:14px}
+      .induccion-pps-dates{grid-template-columns:1fr}
+      .induccion-pps-video iframe{height:56vw;min-height:230px}
+      .induccion-pps-hero h3{font-size:22px}
+    }
+
+  
+
+    /* PPS2026 v19.15 · tablas legibles en PWA móvil + loader centrado */
+    .pps-mobile-records { display:none; }
+    @media (max-width:700px) {
+      .pps-desktop-table { display:none !important; }
+      .pps-mobile-records { display:grid !important; grid-template-columns:1fr; gap:12px; width:100%; }
+      .pps-mobile-card { width:100%; min-width:0; background:#fff; border:1px solid var(--border); border-radius:18px; padding:15px; box-shadow:0 7px 18px rgba(128,175,148,.10); overflow:hidden; }
+      .pps-mobile-name { font-size:18px; line-height:1.3; font-weight:700; color:var(--primary-deep); padding-bottom:10px; margin-bottom:8px; border-bottom:1px solid var(--border); overflow-wrap:anywhere; }
+      .pps-mobile-row { display:grid; grid-template-columns:105px minmax(0,1fr); gap:10px; align-items:start; padding:7px 0; border-bottom:1px solid #edf3ef; }
+      .pps-mobile-row:last-child { border-bottom:0; }
+      .pps-mobile-label { color:var(--muted); font-size:13px; font-weight:700; }
+      .pps-mobile-value { min-width:0; color:var(--text); font-size:15px; line-height:1.4; overflow-wrap:anywhere; }
+      .pps-mobile-actions { margin-top:12px; }
+      .pps-mobile-actions .btn { width:100%; text-align:center; display:block; margin-top:7px; }
+      .loader { width:100%; min-height:100dvh; display:flex; justify-content:center; align-items:flex-start; padding:calc(env(safe-area-inset-top,0px) + 96px) 14px 24px; overflow-x:hidden; }
+      .loader-card { width:min(100%,430px) !important; max-width:430px; margin:0 auto !important; padding:24px 18px !important; transform:none !important; }
+    }
+    @media print { .pps-mobile-records { display:none !important; } .pps-desktop-table { display:table !important; } }
+
+    /* PPS2026 · Módulo docente de seguimiento */
+    .teacher-login-choice{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+    .teacher-choice{border:1px solid var(--border);border-radius:18px;padding:15px;background:#fbfefd}
+    .teacher-choice h4{margin:0 0 6px;color:var(--primary-deep)}
+    .teacher-choice p{margin:0 0 12px;color:var(--muted);font-size:12px;line-height:1.45}
+    .teacher-demo-box{padding:16px;border-radius:18px;border:1px solid #d8cbea;background:#f8f4fc;margin-top:14px}
+    .teacher-toolbar{display:flex;gap:10px;align-items:end;flex-wrap:wrap;margin-bottom:16px}
+    .teacher-toolbar>div{min-width:220px;flex:1}
+    .teacher-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+    .teacher-summary .card{padding:16px}
+    .teacher-list{display:grid;gap:12px}
+    .teacher-student{border:1px solid var(--border);border-radius:18px;padding:16px;background:#fff;display:grid;grid-template-columns:1.5fr 1fr auto;gap:14px;align-items:center}
+    .teacher-student h4{margin:0 0 5px;color:var(--primary-deep)}
+    .teacher-student p{margin:2px 0;color:var(--muted);font-size:12.5px}
+    .teacher-actions{display:flex;gap:7px;justify-content:flex-end;flex-wrap:wrap}
+    .teacher-exp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .teacher-exp-card{border:1px solid var(--border);border-radius:16px;padding:14px;background:#fbfefd}
+    .teacher-exp-card .k{font-size:11px;text-transform:uppercase;color:var(--muted);font-weight:bold}
+    .teacher-exp-card .v{margin-top:5px;color:var(--text);font-weight:700;line-height:1.4}
+    .teacher-contact{margin-top:14px;border:1px solid #cde1dd;border-radius:18px;padding:16px;background:#eff8f6}
+    .teacher-eval-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+    .teacher-eval{border:1px solid var(--border);border-radius:18px;padding:16px;background:#fff}
+    .teacher-eval h4{margin:0 0 7px;color:var(--primary-deep)}
+    @media(max-width:800px){
+      .teacher-login-choice,.teacher-summary,.teacher-exp-grid,.teacher-eval-grid{grid-template-columns:1fr}
+      .teacher-student{grid-template-columns:1fr}
+      .teacher-actions{justify-content:flex-start}
+    }
+
+
+    /* PPS2026 | Mejora visual exclusiva del módulo docente. Sin cambios en funciones. */
+    #misPracticantes > .panel:first-child { background:#fcfdfb; border-color:#d6e5dd; }
+    #misPracticantes > .panel:first-child > h3 { font-size:22px; border-left:6px solid #8cb99c; padding:4px 0 4px 12px; margin-bottom:17px; }
+    #misPracticantes .teacher-toolbar { padding:16px; border:1px solid #d6dfeb; border-radius:17px; background:#f2f6fb; margin-bottom:20px; align-items:center; }
+    #misPracticantes .teacher-toolbar label {font-size:13px;color:#375775;}
+    #misPracticantes .teacher-toolbar select { background:#fff; border-color:#bfcfe2; font-weight:600; min-height:46px; }
+    #misPracticantes .teacher-toolbar .notice { background:#e8f1ec; border-color:#c7dacd; color:#456753; padding:13px 15px; }
+    #misPracticantes .teacher-section-heading { margin:20px 0 10px; }
+    #misPracticantes .teacher-section-heading h4, #misPracticantes .teacher-roster-header h4 {margin:0 0 4px;font-size:17px;color:#36574a;}
+    #misPracticantes .teacher-section-heading p, #misPracticantes .teacher-roster-header p {margin:0;color:#677a70;font-size:13px;line-height:1.45;}
+    #misPracticantes .teacher-summary { gap:13px; margin-bottom:24px; }
+    #misPracticantes .teacher-summary .card {border:1px solid #cce2d4;background:#e9f5ed;box-shadow:none;border-radius:17px;min-height:92px;padding:17px 18px;}
+    #misPracticantes .teacher-summary .card:nth-child(2) {background:#fff7df;border-color:#ecdeb1;}
+    #misPracticantes .teacher-summary .card:nth-child(3) {background:#e5f4f3;border-color:#c5dedd;}
+    #misPracticantes .teacher-summary .card:nth-child(4) {background:#f0eafb;border-color:#d9cbed;}
+    #misPracticantes .teacher-summary .card .label {font-size:13px;font-weight:700;color:#51645b;margin-bottom:6px;}
+    #misPracticantes .teacher-summary .card .number {font-size:32px;color:#304e40;line-height:1.1;}
+    #misPracticantes .teacher-roster-header {display:flex;justify-content:space-between;align-items:end;gap:14px;flex-wrap:wrap;border-bottom:1px solid #dbe7df;padding:0 0 15px;margin-bottom:16px;}
+    #misPracticantes .teacher-roster-header .toolbar {margin:0;min-width:min(100%,290px);}
+    #misPracticantes .teacher-search-label {display:block;margin:0;color:#536f5f;font-weight:700;font-size:12px;}
+    #misPracticantes #teacherSearch {display:block;width:100%;max-width:370px;margin-top:6px;background:#fff;min-height:44px;}
+    #misPracticantes .teacher-student {border:1px solid #d8e4dc;border-left:5px solid #a3c7b0;background:#fff;border-radius:16px;padding:18px 17px;box-shadow:0 5px 14px rgba(65,105,80,.06);gap:16px;}
+    #misPracticantes .teacher-student:nth-child(even) {background:#fafcfb;}
+    #misPracticantes .teacher-student h4 {font-size:16px;line-height:1.35;color:#284d3b;margin-bottom:7px;}
+    #misPracticantes .teacher-student p {font-size:13px;line-height:1.5;color:#607569;margin:3px 0;}
+    #misPracticantes .teacher-student .badge {white-space:normal;line-height:1.4;padding:6px 10px;background:#efebf8;color:#654f81;border:1px solid #ded2ed;}
+    #misPracticantes .teacher-student .badge.warning {background:#fff5dc;color:#805e20;border-color:#efdba9;}
+    #misPracticantes .teacher-student .badge.success {background:#e9f5ed;color:#316347;border-color:#c6e1d0;}
+    #misPracticantes .teacher-actions .btn {min-height:39px;box-shadow:none;}
+    #misPracticantes .teacher-actions .btn.secondary {background:#dceee4;border-color:#b4d4c1;color:#28553d;}
+    #misPracticantes .teacher-actions .btn.secondary:hover {background:#cce5d6;}
+    #teacherExpediente {background:#fcfdfb;border:1px solid #cddfd4;border-top:5px solid #9ac3ab;scroll-margin-top:20px;}
+    #teacherExpediente h3 {font-size:19px;line-height:1.35;}
+    #teacherExpediente .teacher-exp-grid {margin-top:16px;gap:12px;}
+    #teacherExpediente .teacher-exp-card {background:#f1f7f3;border:1px solid #d7e6db;border-radius:15px;min-height:77px;}
+    #teacherExpediente .teacher-exp-card:nth-child(2n) {background:#f4f2fa;border-color:#e3dcef;}
+    #teacherExpediente .teacher-exp-card .k {font-size:12px;color:#5a7062;letter-spacing:.3px;}
+    #teacherExpediente .teacher-exp-card .v {font-size:14px;color:#294a39;overflow-wrap:anywhere;}
+    #teacherExpediente .teacher-contact {background:#eaf6f5;border-color:#c6e1de;border-left:5px solid #8abcb8;line-height:1.6;}
+    #teacherExpediente .teacher-contact strong {font-size:16px;color:#2c615b;}
+    #teacherExpediente .teacher-contact p {margin:9px 0 0;overflow-wrap:anywhere;}
+    #teacherExpediente .teacher-eval {background:#f5f0fb;border-color:#e1d3ed;}
+    #teacherExpediente .teacher-eval:nth-child(2) {background:#fff7e8;border-color:#e9dcb9;}
+    #teacherExpediente .teacher-eval h4 {font-size:17px;color:#4c465f;}
+    #teacherExpediente .teacher-eval .btn {min-height:43px;}
+    @media(max-width:850px){
+      #misPracticantes .teacher-summary {grid-template-columns:repeat(2,minmax(0,1fr));}
+      #misPracticantes .teacher-student {grid-template-columns:1fr;gap:9px;}
+      #misPracticantes .teacher-actions {justify-content:flex-start;}
+      #misPracticantes .teacher-roster-header .toolbar {width:100%;}
+      #misPracticantes #teacherSearch {max-width:none;}
+    }
+    @media(max-width:450px){
+      #misPracticantes .teacher-summary {gap:8px;}
+      #misPracticantes .teacher-summary .card {padding:13px;min-height:80px;}
+      #misPracticantes .teacher-summary .card .number {font-size:27px;}
+      #misPracticantes .teacher-summary .card .label {font-size:12px;}
+      #misPracticantes .teacher-toolbar {padding:12px;}
+      #misPracticantes .teacher-student {padding:14px;}
+    }
+
+
+
+/* PPS 2026 · plantilla institucional blanca y salvia */
+:root{--bg:#f7faf8;--panel:#fff;--panel-soft:#f7faf8;--primary:#3f6652;--primary-dark:#355944;--primary-deep:#26332c;--primary-soft:#e5f0e9;--secondary:#e5f0e9;--secondary-soft:#f7faf8;--text:#26332c;--muted:#586b63;--border:#dde7e1;--shadow:0 5px 22px rgba(63,102,82,.07);--radius:20px;--pps-celeste:#e9f1f4;--pps-lavanda:#f0edf6}
+body{font-family:Arial,sans-serif;background:linear-gradient(145deg,#f7faf8,#edf6f1);color:var(--text)}
+.panel,.card,.contact-card,.student-info-card,.student-step,.modal,.gestor-stat{background:#fff;border-color:var(--border);border-radius:20px;box-shadow:var(--shadow)}
+.btn.primary{background:#3f6652!important;color:#fff!important;border-color:#3f6652!important;border-radius:24px;min-height:44px}
+.btn.secondary{background:#e5f0e9;color:#294f3c;border-color:#dde7e1;border-radius:24px}
+.btn.danger{background:#fdeae8;color:#a62c25;border-color:#f4d8d5;border-radius:24px}
+input,select,textarea{background:#fff;border:1px solid #dde7e1;border-radius:12px;color:#26332c;font-family:Arial,sans-serif}
+.hero,.sidebar{background:#f7faf8;color:#26332c;border-color:#dde7e1}
+.nav button.active{background:#e5f0e9;color:#244d38}
+.student-step.cv .student-step-head,.student-step.letter .student-step-head{background:#e9f1f4}
+.student-step.itinerary .student-step-head,.student-step.personal .student-step-head{background:#e5f0e9}
+.student-step.supervisor .student-step-head{background:#f0edf6}
+.normativa-pps-card,.induccion-pps-card{border-radius:24px;background:#f7faf8}
+.normativa-pps-header,.induccion-pps-header{background:#e5f0e9;color:#26332c}
+.login-screen{background:linear-gradient(145deg,#f7faf8,#e5f0e9)!important;padding:24px 12px!important}
+.login-card{max-width:440px!important;width:100%!important;display:block!important;background:#f7faf8!important;border:1px solid #dde7e1!important;border-radius:28px!important;overflow:hidden;box-shadow:var(--shadow)!important}
+.login-brand{background:transparent!important;border:0!important;text-align:center!important;padding:26px 24px 12px!important}
+.login-brand::after{display:none!important}
+.login-logo-shell{margin:0 auto 14px!important;background:transparent!important;box-shadow:none!important;border:0!important;width:160px!important;height:140px!important}
+.login-logo-img{width:100%!important;height:100%!important;object-fit:contain!important}
+.login-brand h1{font-size:32px!important;color:#174c3e!important;margin:8px 0!important}
+.login-brand p{font-size:16px!important;color:#26332c!important}
+.login-brand .brand-mini,.login-kicker{display:none!important}
+.login-content{padding:14px 24px 28px!important;background:transparent!important}
+.login-tabs{background:#e5f0e9!important;border-radius:14px}
+.login-tab.active{background:#fff!important;color:#3f6652!important}
+.login-panel h2{font-size:20px!important;color:#174c3e!important}
+.login-input-wrap{display:grid!important;grid-template-columns:1fr!important;gap:14px!important}
+.login-input-wrap input{min-height:48px!important;font-size:16px!important;background:#fff!important}
+#loginPin{max-width:210px;letter-spacing:14px;font-size:22px!important;text-align:center}
+#panelLogin .actions .btn{width:100%;font-size:17px!important}
+.pps-student .sidebar,.pps-student .main>.hero{display:none!important}
+html body.pps-student #app > .main{box-sizing:border-box!important;margin:0 auto!important;margin-left:auto!important;margin-right:auto!important;width:100%!important;max-width:520px!important;min-width:0!important;padding:24px 18px 100px!important}
+.pps-student #misDatos>.panel{padding:0!important;background:transparent!important;box-shadow:none!important;border:0!important}
+.pps-student #misDatos>.panel>h3,.pps-student #misDatos>.panel>.notice{display:none!important}
+.pps-student .student-route-hero,.pps-student .student-priority,.pps-student .student-route-shell>.student-guide-note{display:none!important}
+.pps-student .student-route-shell{background:transparent;border:0;box-shadow:none;padding:0}
+.pps-student [hidden]{display:none!important}
+.pps-student .student-practice-grid{grid-template-columns:1fr!important;gap:14px!important}
+.pps-student .student-info-card{padding:20px!important;min-width:0}
+.pps-student .primary-company{background:#e5f0e9!important}
+.pps-student .student-step{margin:16px 0!important}
+.pps-student .form-grid{grid-template-columns:1fr!important}
+.pps-student .student-step-head{flex-wrap:wrap;gap:12px}
+.pps-student .student-step-number{background:#e5f0e9;color:#3f6652}
+.pps-student .student-step-title{font-size:18px!important;color:#174c3e!important}
+.pps-student .student-step-help,.pps-student .compact-note{font-size:14px!important;line-height:1.5!important}
+.pps-student .big-value{font-size:21px!important;color:#174c3e!important;overflow-wrap:anywhere}
+.pps-heading h1{font-size:30px;margin:0 0 5px;color:#174c3e;line-height:1.2}
+.pps-heading p{margin:0 0 4px;font-size:14px;color:#586b63}
+.pps-greeting{margin:22px 0 16px;padding:20px;border-radius:20px;background:linear-gradient(130deg,#fff,#e5f0e9)}
+.pps-greeting h2{font-size:25px;color:#174c3e;margin:5px 0 8px}
+.pps-greeting p{margin:0;font-size:15px;color:#586b63}
+.pps-tile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pps-tile,.pps-wide{font-family:Arial,sans-serif;font-size:16px;color:#183e32;border:0;border-radius:18px;padding:18px;text-align:left;min-height:110px;background:#e5f0e9;line-height:1.4}
+.pps-tile.blue{background:#e9f1f4}.pps-tile.purple{background:#f0edf6}
+.pps-tile .pps-icon{display:block;margin-bottom:12px;font-size:25px}
+.pps-wide{display:flex;align-items:center;gap:15px;width:100%;background:#fff;min-height:74px;margin:14px 0;box-shadow:var(--shadow)}
+.pps-wide .pps-icon{font-size:24px;background:#e5f0e9;border-radius:13px;padding:10px}
+.pps-bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,520px);background:#ffffffed;backdrop-filter:blur(12px);border-top:1px solid #dde7e1;display:grid;grid-template-columns:repeat(4,1fr);padding:9px 8px calc(10px + env(safe-area-inset-bottom));z-index:50}
+.pps-bottom button{border:0;background:transparent;color:#586b63;min-height:52px;font-family:Arial,sans-serif;font-size:12px;display:flex;flex-direction:column;gap:5px;align-items:center;justify-content:center}
+.pps-bottom button[aria-current=page]{color:#174c3e;font-weight:600}
+.pps-bottom .pps-icon{font-size:21px}
+.pps-profile-top{text-align:center;padding:22px;background:#fff;border-radius:20px;margin:16px 0;box-shadow:var(--shadow)}
+.pps-avatar{width:76px;height:76px;background:#e0eaf0;color:#50758c;display:grid;place-items:center;border-radius:50%;font-size:35px;margin:0 auto 12px}
+.pps-profile-top h2{font-size:21px;color:#174c3e;margin:8px 0}
+.pps-back{border:0;background:#e5f0e9;color:#3f6652;padding:12px 16px;border-radius:20px;font-size:15px;margin:12px 0;min-height:44px}
+.pps-student input,.pps-student select,.pps-student textarea{font-size:16px!important;min-height:46px}
+@media(max-width:600px){.main{padding:16px!important}.panel{border-radius:20px!important}html body.pps-student #app > .main{padding:22px 16px 100px!important}.pps-tile{padding:16px}.login-card{border-radius:24px!important}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+/* Aviso centrado y bloqueo mientras una acción espera al servidor. */
+.pps-wait{position:fixed;inset:0;z-index:2147483000;background:rgba(38,51,44,.38);display:grid;place-items:center;padding:20px;backdrop-filter:blur(3px)}
+.pps-wait-card{width:min(100%,400px);background:#fff;border:1px solid #dde7e1;border-radius:24px;padding:28px 24px;text-align:center;box-shadow:0 16px 60px rgba(38,51,44,.2);font-family:Arial,sans-serif;color:#26332c;outline:none}
+.pps-wait-card h2{font-size:21px;line-height:1.3;margin:16px 0 10px;color:#174c3e}
+.pps-wait-card p{font-size:15px;line-height:1.5;margin:10px 0}
+.pps-wait-spinner{display:inline-block;width:44px;height:44px;border:4px solid #e5f0e9;border-top-color:#3f6652;border-radius:50%;animation:ppsSpin 1s linear infinite}
+.pps-wait-track{height:7px;background:#e5f0e9;border-radius:8px;overflow:hidden;margin:20px 0 12px}
+.pps-wait-track span{display:block;height:100%;width:35%;background:#3f6652;border-radius:8px;animation:ppsSlide 1.6s ease-in-out infinite alternate}
+.pps-wait-time{color:#586b63;font-variant-numeric:tabular-nums}
+@keyframes ppsSpin{to{transform:rotate(360deg)}}
+@keyframes ppsSlide{to{transform:translateX(185%)}}
+@media(prefers-reduced-motion:reduce){.pps-wait-spinner,.pps-wait-track span{animation:none}}
+
+
+
+.pps-eval-overlay{position:fixed;inset:0;background:rgba(18,31,46,.64);z-index:99999;display:none;align-items:center;justify-content:center;padding:14px}
+.pps-eval-dialog{background:#fff;color:#203143;border-radius:16px;max-width:1020px;width:100%;max-height:94vh;display:flex;flex-direction:column;box-shadow:0 12px 45px #0004}
+.pps-eval-header,.pps-eval-footer{padding:16px 20px;display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;border-bottom:1px solid #dbe4e8}
+.pps-eval-header h2{margin:0;font-size:1.15rem}.pps-eval-header p{margin:4px 0;color:#536679}.pps-eval-items{overflow:auto;padding:8px 20px}.pps-eval-row{display:grid;grid-template-columns:1fr 175px;gap:15px;padding:13px 0;border-bottom:1px solid #e4e9ed;align-items:center}.pps-eval-row select{padding:10px;border:1px solid #aab9c6;border-radius:8px;max-width:100%;background:white;color:#172c40}.pps-eval-info{padding:12px 20px;margin:0;background:#edf5f5}.pps-eval-footer{border-top:1px solid #dbe4e8;border-bottom:0}
+@media(max-width:640px){.pps-eval-row{grid-template-columns:1fr}.pps-eval-dialog{max-height:97vh}.pps-eval-footer button{flex:1}}
+
+/* PPS2026: tres accesos claramente identificados, sin alterar sus funciones */
+.login-tabs { display:grid !important; grid-template-columns:repeat(3,minmax(0,1fr)) !important; gap:7px !important; background:transparent !important; }
+.login-tabs .login-tab { width:100% !important; min-width:0; padding:11px 5px !important; white-space:normal; line-height:1.25; font-size:13px !important; border-radius:13px !important; transition:background .15s,color .15s !important; }
+#tabLogin { background:#e5f6ed !important; color:#22563d !important; border:1px solid #91c6a9 !important; }
+#tabLogin.active { background:#c4e8d2 !important; border:2px solid #488e68 !important; color:#17462d !important; box-shadow:0 0 0 3px #b4d9c37a !important; }
+#tabDocente { background:#eee7f9 !important; color:#5f437f !important; border:1px solid #c0aad9 !important; }
+#tabDocente.active { background:#ddcdf3 !important; color:#46246b !important; border:2px solid #8969ae !important; box-shadow:0 0 0 3px #d6c0ef7a !important; }
+#tabCoordinacion { background:#fff1d6 !important; color:#795719 !important; border:1px solid #dec18a !important; }
+#tabCoordinacion.active { background:#f8e1aa !important; color:#67480e !important; border:2px solid #bb9243 !important; box-shadow:0 0 0 3px #e9d4a47a !important; }
+@media(max-width:430px) { .login-tabs .login-tab { font-size:12px !important; padding:11px 3px !important; } }
+/* Correccion definitiva: en modo movil se prioriza la cuadrícula de tres columnas.
+   La version anterior incluía html.mobile-device .login-tabs {grid-template-columns:1fr!important},
+   que anulaba las pestañas horizontales incluso en navegadores de escritorio. */
+html.mobile-device body #loginScreen .login-tabs,
+html body #loginScreen .login-tabs {
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:8px !important;
+  width:100% !important;
+  min-width:0 !important;
+  align-items:stretch !important;
+}
+html.mobile-device body #loginScreen .login-tabs > button,
+html body #loginScreen .login-tabs > button {
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  min-height:52px !important;
+  padding:9px 4px !important;
+  white-space:normal !important;
+  font-size:12px !important;
+  text-align:center !important;
+}
+html body #loginScreen .login-card {
+  box-sizing:border-box !important;
+  max-width:560px !important;
+  width:min(560px, 100%) !important;
+  margin:0 auto !important;
+}
+html body #loginScreen .login-content {min-width:0 !important;box-sizing:border-box !important;}
+html body #loginScreen .login-panel {min-width:0 !important;}
+@media(max-width:390px) {
+ html body #loginScreen .login-content {padding-left:12px !important;padding-right:12px !important;}
+ html body #loginScreen .login-tabs > button {font-size:11px !important;}
+}
+
+
+
+/* Un desplazamiento vertical natural: el panel completo se desplaza;
+   la lista de criterios deja de estar encerrada en un segundo scroll. */
+#ppsEvalPanel.pps-eval-overlay {
+  box-sizing:border-box;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  align-items:flex-start;
+  justify-content:center;
+  padding:clamp(10px,2vw,24px);
+}
+#ppsEvalPanel .pps-eval-dialog {
+  box-sizing:border-box;
+  max-height:none;
+  height:auto;
+  flex:0 1 940px;
+  width:100%;
+  margin:0 auto;
+  display:block;
+  overflow:visible;
+  border:1px solid #d8e8e2;
+  border-radius:22px;
+  background:#fff;
+  box-shadow:0 15px 45px rgba(24,52,43,.18);
+}
+#ppsEvalPanel .pps-eval-header {
+  padding:18px 22px;
+  background:#eef7f1;
+  border-bottom:1px solid #d0e5d7;
+  border-radius:22px 22px 0 0;
+  gap:12px;
+}
+#ppsEvalPanel .pps-eval-header h2 {
+  font-size:clamp(19px,2.6vw,25px);
+  line-height:1.3;
+  color:#264d3a;
+}
+#ppsEvalPanel .pps-eval-header p {
+  font-size:clamp(14px,1.8vw,16px);
+  line-height:1.5;
+  color:#455e53;
+}
+#ppsEvalPanel .pps-eval-info {
+  padding:12px 20px;
+  font-size:14px;
+  line-height:1.55;
+  color:#345a50;
+  background:#f0f8f6;
+  border-bottom:1px solid #d8ebe6;
+}
+#ppsEvalPanel .pps-eval-items {
+  overflow:visible;
+  max-height:none;
+  height:auto;
+  padding:18px 20px 22px;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+  background:#f8fbf9;
+}
+#ppsEvalPanel .pps-eval-row {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(165px,190px);
+  align-items:center;
+  gap:18px;
+  padding:20px;
+  margin:0;
+  background:#fff;
+  border:1px solid #dae7df;
+  border-left:5px solid #a8d0b8;
+  border-radius:16px;
+  box-shadow:0 3px 12px rgba(42,83,61,.045);
+}
+#ppsEvalPanel .pps-eval-row:nth-child(even) {border-left-color:#cbb8e3;}
+#ppsEvalPanel .pps-eval-row > div {
+  min-width:0;
+  color:#243c33;
+  font-size:16px;
+  line-height:1.65;
+  overflow-wrap:anywhere;
+}
+#ppsEvalPanel .pps-eval-row > div b {color:#497c61;}
+#ppsEvalPanel .pps-eval-row select {
+  width:100%;
+  min-width:0;
+  min-height:48px;
+  border:1px solid #9fbcaf;
+  border-radius:12px;
+  background:#f7fbf8;
+  color:#234436;
+  font-size:15px;
+  font-weight:600;
+  padding:10px 12px;
+}
+#ppsEvalPanel .pps-eval-row select:focus-visible,
+#ppsEvalPanel button:focus-visible {outline:3px solid #8eafd1;outline-offset:3px;}
+#ppsEvalPanel .pps-eval-footer {
+  padding:18px 20px 22px;
+  background:#eef6f1;
+  border-top:1px solid #d4e6db;
+  border-radius:0 0 22px 22px;
+  gap:14px;
+}
+#ppsEvalPanel #ppsEvalResumen {
+  flex:1 1 100%;
+  color:#3d5d4b;
+  line-height:1.5;
+  font-size:14px;
+}
+#ppsEvalPanel .pps-eval-footer button {min-height:46px;}
+@media(max-width:640px){
+  #ppsEvalPanel.pps-eval-overlay {
+    inset:0;
+    padding:0;
+    border-radius:0;
+    background:#f8fbf9;
+    align-items:flex-start;
+    display:none;
+    height:100vh;
+    height:100dvh;
+  }
+  #ppsEvalPanel.pps-eval-overlay[style*="display: flex"],
+  #ppsEvalPanel.pps-eval-overlay[style*="display:flex"] {display:flex;}
+  #ppsEvalPanel .pps-eval-dialog {
+    flex:1 1 auto;
+    width:100%;
+    max-width:none;
+    min-height:100vh;
+    min-height:100dvh;
+    height:auto;
+    max-height:none;
+    border:0;
+    border-radius:0;
+    margin:0;
+    box-shadow:none;
+  }
+  #ppsEvalPanel .pps-eval-header {
+    padding:16px 16px 14px;
+    gap:9px;
+    border-radius:0;
+  }
+  #ppsEvalPanel .pps-eval-header h2 {font-size:21px;line-height:1.3;}
+  #ppsEvalPanel .pps-eval-header p {font-size:14px;line-height:1.55;}
+  #ppsEvalPanel .pps-eval-header .btn {padding:9px 16px;min-height:43px;}
+  #ppsEvalPanel .pps-eval-info {padding:11px 16px;font-size:13px;line-height:1.45;}
+  #ppsEvalPanel .pps-eval-items {padding:13px 12px 19px;gap:12px;}
+  #ppsEvalPanel .pps-eval-row {
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:13px;
+    padding:17px 16px;
+    border-radius:14px;
+  }
+  #ppsEvalPanel .pps-eval-row > div {font-size:16px;line-height:1.67;}
+  #ppsEvalPanel .pps-eval-row select {min-height:52px;font-size:16px;}
+  #ppsEvalPanel .pps-eval-footer {border-radius:0;padding:16px 14px max(22px,env(safe-area-inset-bottom));gap:10px;}
+  #ppsEvalPanel #ppsEvalResumen {font-size:13px;}
+  #ppsEvalPanel .pps-eval-footer button {width:100%;flex:1 1 100%;min-height:48px;}
+}
+@media(max-width:360px){
+  #ppsEvalPanel .pps-eval-header {padding:12px;}
+  #ppsEvalPanel .pps-eval-header h2 {font-size:19px;}
+  #ppsEvalPanel .pps-eval-items {padding:10px 9px 16px;}
+  #ppsEvalPanel .pps-eval-row {padding:15px 13px;}
+}
+
+
+#ppsEvalPanel{padding:12px!important}
+#ppsEvalPanel{overflow:hidden!important;align-items:center!important;justify-content:center!important}
+#ppsEvalPanel .pps-eval-dialog{display:flex!important;flex-direction:column!important;overflow:hidden!important;flex:0 1 1000px!important;width:min(100%,1000px)!important;max-width:1000px!important;height:calc(100dvh - 24px)!important;max-height:calc(100dvh - 24px)!important;margin:0!important}
+#ppsEvalPanel .pps-eval-items{display:block!important;min-height:0;overflow-y:auto;padding:12px 20px 24px!important;flex:1}
+#ppsEvalPanel .pps-eval-row{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:16px;padding:16px!important;margin:12px 0!important;line-height:1.65;font-size:16px;border-bottom:1px solid #dde5e7}
+#ppsEvalPanel select{min-height:48px;font-size:16px;width:100%;background:#fff}
+#ppsEvalPanel .pps-eval-header{flex-shrink:0}
+#ppsEvalPanel .pps-eval-footer{flex-shrink:0;flex-wrap:wrap;gap:8px}
+.v11-sign{padding:18px;margin-top:18px;border:1px solid #cfdce0;border-radius:16px;background:#f5f9fb}
+.v11-sign label{display:block;font-weight:bold;margin-bottom:10px}
+.v11-sign input{display:block;width:100%;min-height:48px;font-size:16px;padding:10px;margin-top:6px;box-sizing:border-box}
+.v11-sign canvas{display:block;width:100%;height:180px;background:white;border:1px solid #9cafb7;border-radius:10px;touch-action:none;cursor:crosshair}
+.v11-sign p{font-size:14px;line-height:1.5}
+.v11-sign button{margin-top:8px}
+.v11-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.v11-link{display:block;width:100%;box-sizing:border-box;padding:10px;font-size:15px}
+.v11-status{white-space:pre-wrap;line-height:1.5;margin:10px 0;color:#35526a}
+.v11-error{color:#a12d33}
+.v11-overlay{position:fixed;inset:0;background:#eaf0f4eb;display:flex;align-items:center;justify-content:center;padding:12px;z-index:11000}
+.v11-card{background:#fff;color:#263b46;width:min(100%,760px);max-height:calc(100dvh - 24px);overflow:auto;border:1px solid #ccdae2;border-radius:20px;padding:24px;box-sizing:border-box}
+.v11-card h2{font-size:22px;margin:0 0 12px}
+.v11-acta-wrap{overflow-x:auto;border:1px solid #d5e0e6;border-radius:12px}
+.v11-acta{border-collapse:collapse;width:100%;min-width:1050px;font-size:14px;background:white}
+.v11-acta th{background:#eaf0f7;text-align:left}
+.v11-acta th,.v11-acta td{padding:12px;border:1px solid #dae2e7;vertical-align:middle}
+.v11-acta svg{width:150px;height:70px;display:block}
+.v11-pill{display:inline-block;border-radius:15px;padding:5px 9px;font-weight:bold;background:#f2efdf}
+.v11-pill.aprobado{background:#e2f2e9;color:#285642}.v11-pill.reprobado{background:#f9e8e9;color:#852e3e}
+.v11-name{font-weight:bold}
+@media(max-width:600px){
+ #ppsEvalPanel .pps-eval-row{grid-template-columns:1fr;gap:9px;font-size:16px}
+ #ppsEvalPanel .pps-eval-items{padding:8px 14px 20px!important}
+ #ppsEvalPanel .pps-eval-header{padding:14px!important;align-items:flex-start!important}
+ #ppsEvalPanel h2{font-size:20px}
+ #ppsEvalPanel .pps-eval-footer{padding:12px!important}
+ #ppsEvalPanel .pps-eval-footer button{flex:1;min-height:48px}
+ .v11-card{padding:18px}.v11-tools button{min-height:46px}
+}
+
+.pps-step-dialog{width:min(780px,100%);margin:auto;background:#fff;border:1px solid #d8e8e2;border-radius:24px;box-shadow:0 18px 55px #18342f33;overflow:hidden}.pps-step-header{padding:20px 28px;background:#eef7f1;border-bottom:1px solid #d0e5d7;display:flex;justify-content:space-between;gap:16px}.pps-step-kicker,.pps-step-label{color:#5f9c75;text-transform:uppercase;letter-spacing:.09em;font-weight:800;font-size:11px}.pps-step-header h2{font-size:25px;margin:8px 0}.pps-step-header p{margin:0;color:#526b5e;font-size:14px}.pps-step-progress{padding:18px 28px 0}.pps-step-progress div{display:flex;justify-content:space-between;color:#718178;font-size:12px}.pps-step-progress b{color:#28563f}.pps-step-progress i{display:block;height:9px;background:#e7f0ea;border-radius:99px;overflow:hidden;margin-top:8px}.pps-step-progress em{display:block;height:100%;background:#70ad86;border-radius:99px}.pps-step-card{margin:20px 28px;padding:42px;min-height:330px;border:1px solid #e0ebe3;border-radius:20px;background:#fbfefc;display:flex;flex-direction:column;justify-content:center}.pps-step-card h3{font-size:clamp(22px,4vw,34px);line-height:1.25;color:#244334;margin:15px 0 12px}.pps-step-card p{color:#718178;font-size:14px}.pps-step-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}.pps-step-option{min-height:58px;border:1px solid #dce9df;border-radius:13px;background:#fff;display:flex;align-items:center;padding:13px 15px;font-weight:800;color:#28563f;cursor:pointer}.pps-step-option input{position:absolute;opacity:0}.pps-step-option.selected{border-color:#69a27d;background:#e9f5ed}.pps-step-footer{border-top:1px solid #dce9df;padding:16px 28px;display:flex;align-items:center;gap:10px}.pps-step-footer span{margin:auto;color:#718178;font-size:12px}@media(max-width:520px){.pps-step-options{grid-template-columns:1fr}.pps-step-footer span{display:none}.pps-step-footer button{flex:1}}
+#ppsEvalPanel .pps-step-dialog{width:min(780px,calc(100vw - 32px));max-height:calc(100dvh - 28px);overflow:auto}#ppsEvalPanel .pps-step-header{padding:18px 24px}#ppsEvalPanel .pps-step-header h2{font-size:clamp(18px,2vw,23px)}#ppsEvalPanel .pps-step-card{min-height:260px;padding:clamp(20px,3vw,30px)}#ppsEvalPanel .pps-step-card h3{font-size:clamp(21px,2.2vw,28px);line-height:1.28}#ppsEvalPanel .pps-step-options{margin-top:16px}#ppsEvalPanel .pps-step-option{min-height:50px;padding:11px 13px}@media(max-width:600px){#ppsEvalPanel .pps-step-dialog{width:calc(100vw - 20px);max-height:calc(100dvh - 16px)}#ppsEvalPanel .pps-step-card h3{font-size:clamp(22px,6vw,28px)}} 
+#ppsEvalPanel{overflow-x:hidden!important;overscroll-behavior-x:none}#ppsEvalPanel .pps-step-dialog{width:min(780px,calc(100vw - 32px));max-height:calc(100dvh - 20px);overflow:auto;overscroll-behavior:contain}#ppsEvalPanel .pps-step-card h3{font-size:clamp(21px,2.2vw,28px);line-height:1.28}#ppsEvalPanel .pps-step-card{min-height:260px;padding:clamp(20px,3vw,30px)}#ppsEvalPanel .pps-step-option{min-height:50px;padding:11px 13px}@media(max-width:600px){#ppsEvalPanel.pps-eval-overlay{padding:8px 6px}#ppsEvalPanel .pps-step-dialog{width:100%;max-height:calc(100dvh - 12px);border-radius:18px}#ppsEvalPanel .pps-step-card{margin:14px 14px 18px;min-height:0;padding:24px 20px}#ppsEvalPanel .pps-step-card h3{font-size:clamp(22px,6vw,28px)}#ppsEvalPanel .pps-step-footer{position:sticky;bottom:0;background:#eef7f1;z-index:2;padding:12px 14px}}</style><body><script>
+let PPS_EVAL_ACTUAL=null,TOKEN_SESION='';
+function esc(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function ppsEvalPanel(){let p=document.getElementById('ppsEvalPanel');if(!p){p=document.createElement('div');p.id='ppsEvalPanel';p.className='pps-eval-overlay';document.body.append(p);}return p;}
+function ppsEvalCerrar(){ppsEvalPanel().style.display='none';PPS_EVAL_ACTUAL=null;}
+function ppsEvalDibujar(){}
+const PPS_V11_PUBLICO='';
+let ppsV11Signature=null,ppsV11Busy=false,ppsV11Acta=null,ppsV11ActaView=[];
+function ppsV11Svg(f){
+ if(!f||!Array.isArray(f.trazos))return '';
+ const paths=f.trazos.map(t=>'<path d="'+t.map((p,i)=>(i?'L':'M')+(Number(p[0])*600).toFixed(2)+' '+(Number(p[1])*180).toFixed(2)).join(' ')+'"/>').join('');
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" role="img" aria-label="Firma manuscrita"><g fill="none" stroke="#192b35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+paths+'</g></svg>';
+}
+function ppsV11FirmaControl(host,nombre,inicial){
+ host.innerHTML='<div class="v11-sign"><label>Nombre completo de quien firma<input class="v11-signer" autocomplete="name" maxlength="160"></label><p>Firme dentro del recuadro con el dedo, lápiz táctil o mouse.</p><canvas aria-label="Recuadro para dibujar su firma"></canvas><button type="button" class="btn secondary">Limpiar firma</button></div>';
+ host.querySelector('input').value=nombre||'';
+ const canvas=host.querySelector('canvas'),ctx=canvas.getContext('2d'),trazos=inicial&&Array.isArray(inicial.trazos)?inicial.trazos.map(t=>t.map(p=>p.slice())):[];
+ let actual=null;let points=trazos.reduce((n,t)=>n+t.length,0);
+ function dibujar(){
+  const rect=canvas.getBoundingClientRect(),dpr=window.devicePixelRatio||1;
+  canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.strokeStyle='#192b35';ctx.lineWidth=2.2;ctx.lineCap='round';ctx.lineJoin='round';
+  trazos.forEach(t=>{ctx.beginPath();t.forEach((p,i)=>{if(i)ctx.lineTo(p[0]*rect.width,p[1]*rect.height);else ctx.moveTo(p[0]*rect.width,p[1]*rect.height);});ctx.stroke();});
+ }
+ function punto(e){const r=canvas.getBoundingClientRect();return [Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)),Math.max(0,Math.min(1,(e.clientY-r.top)/r.height))];}
+ canvas.addEventListener('pointerdown',e=>{if(ppsV11Busy||trazos.length>=100||points>=2800)return;e.preventDefault();actual=[punto(e)];trazos.push(actual);points++;canvas.setPointerCapture(e.pointerId);});
+ canvas.addEventListener('pointermove',e=>{if(ppsV11Busy||!actual||points>=2800)return;e.preventDefault();const p=punto(e),last=actual[actual.length-1];if(Math.hypot(p[0]-last[0],p[1]-last[1])<0.002)return;actual.push(p);points++;dibujar();});
+ function fin(){if(actual&&actual.length<2){trazos.pop();points--;}actual=null;dibujar();}
+ canvas.addEventListener('pointerup',fin);canvas.addEventListener('pointercancel',fin);
+ host.querySelector('button').onclick=()=>{trazos.length=0;points=0;actual=null;dibujar();};
+ const resize=new ResizeObserver(dibujar);resize.observe(canvas);dibujar();
+ return {leer:()=>trazos.length?{nombre:host.querySelector('input').value.trim(),trazos:trazos.map(t=>t.map(p=>p.slice()))}:null,destruir:()=>resize.disconnect()};
+}
+function ppsV11Mensaje(texto,error){
+ const el=document.getElementById('v11EvalStatus');if(el){el.textContent=texto;el.className='v11-status'+(error?' v11-error':'');el.setAttribute('role',error?'alert':'status');if(error)el.scrollIntoView({block:'nearest'});}
+}
+function ppsV11EstadoBotones(b){
+ ppsV11Busy=b;ppsEvalPanel().querySelectorAll('button,select,input').forEach(x=>x.disabled=b||PPS_EVAL_ACTUAL.estado==='Finalizada');
+ if(!b)ppsEvalPanel().querySelectorAll('[data-v11-close]').forEach(x=>x.disabled=false);
+}
+function ppsV11ResumenVivo(){
+ const selects=[...ppsEvalPanel().querySelectorAll('[data-criterio]')],evaluados=selects.filter(s=>['0','1','2'].includes(s.value));
+ const puntos=evaluados.reduce((n,s)=>n+Number(s.value),0),pend=selects.filter(s=>!s.value).length,na=selects.filter(s=>s.value==='NA').length;
+ const nota=evaluados.length?(100*puntos/(2*evaluados.length)).toFixed(2)+' / 100':'Sin nota calculable';
+ const el=document.getElementById('ppsEvalResumen');if(el)el.textContent=(PPS_EVAL_ACTUAL.demo?'Simulación · ':'')+nota+' · '+pend+' pendientes · '+na+' No aplica';
+}
+const ppsV11CerrarAnterior=ppsEvalCerrar;
+ppsEvalCerrar=function(){
+ if(ppsV11Busy)return;
+ if(ppsV11Signature){ppsV11Signature.destruir();ppsV11Signature=null;}
+ ppsV11CerrarAnterior();
+};
+ppsEvalDibujar=function(d){
+ if(ppsV11Signature){ppsV11Signature.destruir();ppsV11Signature=null;}
+ const x=ppsEvalPanel(),editable=d.estado!=='Finalizada'&&(d.puedeGuardar||d.demo);x.style.display='flex';
+ const rows=d.criterios.map((t,i)=>{
+  const v=String(d.respuestas&&d.respuestas[i]!==undefined?d.respuestas[i]:'');
+  return '<div class="pps-eval-row"><label for="v11Criterion'+i+'"><b>'+(i+1)+'.</b> '+esc(t)+'</label><select id="v11Criterion'+i+'" data-criterio="'+i+'" '+(editable?'':'disabled')+'>'+[['','Seleccione un valor'],['2','2 · Logrado'],['1','1 · En proceso'],['0','0 · No logrado'],['NA','No aplica']].map(o=>'<option value="'+o[0]+'" '+(v===o[0]?'selected':'')+'>'+o[1]+'</option>').join('')+'</select></div>';
+ }).join('');
+ x.innerHTML='<section class="pps-eval-dialog" role="dialog" aria-modal="true" aria-label="Instrumento de evaluación"><div class="pps-eval-header"><div><h2>Evaluación '+d.numero+' · '+esc(d.instrumento)+'</h2><p class="v11-name">'+esc(d.estudiante)+'</p><p>'+esc(d.empresa||d.codigo)+' · '+esc(d.estado)+'</p></div>'+(d.externa?'':'<button class="btn secondary" data-v11-close type="button" onclick="ppsEvalCerrar()">Cerrar</button>')+'</div><div class="pps-eval-items"><p>CTP Liberia · Práctica Profesional Supervisada 2026</p><p>Seleccione un valor por criterio. «No aplica» se excluye del cálculo.</p>'+(d.demo?'<p class="v11-pill">Demostración: no se guardan notas ni firmas reales.</p>':'')+rows+'<div id="v11FirmaHost"></div>'+(d.numero===2&&!d.demo&&!d.externa&&editable?'<div class="v11-tools"><button type="button" class="btn secondary" id="v11MakeLink">Generar enlace para evaluar</button><button type="button" class="btn secondary" id="v11RevokeLink">Revocar enlace</button></div><div id="v11LinkHost"></div>':'')+'<p id="v11EvalStatus" class="v11-status" role="status" aria-live="polite"></p></div><div class="pps-eval-footer"><span id="ppsEvalResumen"></span>'+(editable?(d.demo?'<button class="btn secondary" onclick="ppsEvalLimpiarDemo()">Limpiar simulación</button>':'<button type="button" class="btn secondary" onclick="ppsEvalGuardar(false)">Guardar borrador</button><button type="button" class="btn primary" onclick="ppsEvalGuardar(true)">'+(d.numero===2?'Firmar y enviar':'Finalizar evaluación')+'</button>'):'')+'</div></section>';
+ if(d.numero===2&&editable)ppsV11Signature=ppsV11FirmaControl(document.getElementById('v11FirmaHost'),d.firmante||'',d.firma);
+ else if(d.firma){document.getElementById('v11FirmaHost').innerHTML='<div class="v11-sign"><strong>Firma registrada</strong>'+ppsV11Svg(d.firma)+'<p>'+esc(d.firmante||'')+' · '+esc(d.fechaFirma||'')+'</p></div>';}
+ x.querySelectorAll('[data-criterio]').forEach(s=>s.addEventListener('change',ppsV11ResumenVivo));
+ document.getElementById('v11MakeLink')?.addEventListener('click',ppsV11CrearEnlace);
+ document.getElementById('v11RevokeLink')?.addEventListener('click',ppsV11RevocarEnlace);
+ ppsV11ResumenVivo();
+};
+ppsEvalGuardar=function(finalizar){
+ const d=PPS_EVAL_ACTUAL;if(!d||!d.puedeGuardar||d.demo||ppsV11Busy||d.estado==='Finalizada')return;
+ const resp={};ppsEvalPanel().querySelectorAll('[data-criterio]').forEach(s=>{if(s.value)resp[s.dataset.criterio]=s.value;});
+ let firma=ppsV11Signature?ppsV11Signature.leer():null;if(ppsEvalPanel().ppsMobileAutomatic&&!ppsMobileFirmaValida(firma))firma=null;
+ if(finalizar&&Object.keys(resp).length!==d.criterios.length)return ppsV11Mensaje('Complete todos los criterios antes de enviar.',true);
+ if(finalizar&&d.numero===2&&(!firma||firma.nombre.length<3))return ppsV11Mensaje('Indique el nombre completo y dibuje la firma antes de enviar.',true);
+ if(finalizar&&!confirm('¿Enviar y finalizar la evaluación? Las notas y la firma quedarán registradas y ya no se podrán editar.'))return;
+ ppsV11EstadoBotones(true);if(window.ppsMobileSaveStart)ppsMobileSaveStart(finalizar);ppsV11Mensaje(finalizar?'Enviando evaluación y firma…':'Guardando borrador…');
+ const ok=r=>{
+  ppsV11Busy=false;
+  if(!r||!r.ok){ppsV11EstadoBotones(false);if(window.ppsMobileSaveResult)ppsMobileSaveResult(false);return ppsV11Mensaje('El servidor no confirmó el guardado. Revise antes de volver a enviar.',true);}
+  d.respuestas=resp;d.estado=r.estado;if(window.ppsMobileSaveResult)ppsMobileSaveResult(true,resp,firma,finalizar);
+  if(finalizar){
+   d.puedeGuardar=false;d.firma=firma?{trazos:firma.trazos}:null;d.firmante=firma?firma.nombre:'';d.fechaFirma=new Date().toLocaleString('es-CR');ppsEvalDibujar(d);
+   ppsV11Mensaje('✓ Evaluación enviada y guardada correctamente. Nota: '+Number(r.porcentajeReferencial).toFixed(2)+' / 100.');
+  }else{ppsV11EstadoBotones(false);ppsV11Mensaje('✓ Borrador guardado. La evaluación todavía no está finalizada.');}
+ };
+ const fail=e=>{ppsV11EstadoBotones(false);if(window.ppsMobileSaveResult)ppsMobileSaveResult(false);ppsV11Mensaje('No se pudo guardar: '+(e&&e.message?e.message:String(e)),true);};
+ try{const run=google.script.run.withSuccessHandler(ok).withFailureHandler(fail);
+ if(d.externa)run.apiEnviarEvaluacionEnlacePPS(PPS_V11_PUBLICO,resp,firma,finalizar);
+ else run.apiGuardarEvaluacionFirmadaPPS(TOKEN_SESION,d.idAsignacion,d.numero,d.codigo,resp,finalizar,firma);
+  }catch(e){fail(e);}
+};
+function ppsV11CrearEnlace(){
+ if(ppsV11Busy)return;const d=PPS_EVAL_ACTUAL;
+ ppsV11EstadoBotones(true);ppsV11Mensaje('Generando enlace…');
+ google.script.run.withSuccessHandler(r=>{
+  ppsV11EstadoBotones(false);
+  const host=document.getElementById('v11LinkHost');host.innerHTML='<label>Enlace para la segunda evaluación<input class="v11-link" readonly aria-label="Enlace de evaluación"></label><p>Vence en 7 días. Compártalo únicamente con la persona que evaluará a este estudiante. Un enlace nuevo revoca el anterior.</p><button type="button" class="btn secondary">Copiar enlace</button>';
+  host.querySelector('input').value=r.url;
+  host.querySelector('button').onclick=async()=>{const input=host.querySelector('input');input.select();try{await navigator.clipboard.writeText(input.value);ppsV11Mensaje('Enlace copiado.');}catch(e){ppsV11Mensaje('Enlace seleccionado. Use Copiar en su dispositivo.');}};
+  ppsV11Mensaje('Enlace creado. Permite evaluar y firmar únicamente a este estudiante.');
+ }).withFailureHandler(e=>{ppsV11EstadoBotones(false);ppsV11Mensaje(e.message,true);}).apiCrearEnlaceEvaluacion2PPS(TOKEN_SESION,d.idAsignacion,d.codigo);
+}
+function ppsV11RevocarEnlace(){
+ if(ppsV11Busy)return;const d=PPS_EVAL_ACTUAL;ppsV11EstadoBotones(true);
+ google.script.run.withSuccessHandler(()=>{ppsV11EstadoBotones(false);document.getElementById('v11LinkHost').replaceChildren();ppsV11Mensaje('Enlace revocado.');})
+ .withFailureHandler(e=>{ppsV11EstadoBotones(false);ppsV11Mensaje(e.message,true);}).apiRevocarEnlaceEvaluacion2PPS(TOKEN_SESION,d.idAsignacion,d.codigo);
+}
+function ppsV11ActaTabla(filas,impresion){
+ const nota=n=>n===null?'Pendiente':Number(n).toFixed(2);
+ return '<table class="v11-acta"><thead><tr>'+['Estudiante','Especialidad','Empresa','Evaluación 1','Evaluación 2','Promedio final','Condición','Firma del estudiante'].map(s=>'<th scope="col">'+s+'</th>').join('')+'</tr></thead><tbody>'+filas.map((r,i)=>'<tr><td class="v11-name">'+esc(r.estudiante)+'</td><td>'+esc(r.especialidad)+'</td><td>'+esc(r.empresa)+'</td><td>'+nota(r.nota1)+'</td><td>'+nota(r.nota2)+'</td><td><strong>'+nota(r.promedio)+'</strong></td><td><span class="v11-pill '+r.condicion.toLowerCase()+'">'+esc(r.condicion)+'</span></td><td>'+(r.firma?ppsV11Svg(r.firma)+'<small>'+esc(r.firmante)+'<br>'+esc(r.fechaFirma)+'</small>':r.promedio===null?'Pendiente de notas':impresion?'<div style="height:55px;min-width:150px;border-bottom:1px solid #555"></div>':'<button type="button" class="btn secondary" data-v11-sign="'+i+'">Firmar acta</button>')+'</td></tr>').join('')+'</tbody></table>';
+}
+function ppsV11PintarActa(){
+ if(!ppsV11Acta)return;
+ const cod=document.getElementById('v11ActaEspecialidad').value,q=document.getElementById('v11ActaBusqueda').value.trim().toLocaleLowerCase('es');
+ ppsV11ActaView=ppsV11Acta.filas.filter(r=>(!cod||r.codigo===cod)&&(!q||(r.estudiante+' '+r.empresa).toLocaleLowerCase('es').includes(q)));
+ document.getElementById('v11ActaTabla').innerHTML=ppsV11ActaView.length?ppsV11ActaTabla(ppsV11ActaView,false):'<p>No hay estudiantes para estos filtros.</p>';
+ document.getElementById('v11ActaStatus').textContent=ppsV11ActaView.length+' estudiantes · '+ppsV11Acta.regla+' Actualizado: '+ppsV11Acta.fecha;
+ document.querySelectorAll('[data-v11-sign]').forEach(b=>b.onclick=()=>ppsV11FirmarActa(ppsV11ActaView[Number(b.dataset.v11Sign)]));
+}
+function ppsV11CargarActa(){
+ if(!esAdminUI())return;
+ const status=document.getElementById('v11ActaStatus');status.textContent='Consultando estudiantes y notas…';
+ const button=document.getElementById('v11ActaActualizar');button.disabled=true;
+ google.script.run.withSuccessHandler(r=>{
+  button.disabled=false;if(!r||!r.ok||!Array.isArray(r.filas)){status.textContent='No se recibió un acta válida.';return;}r.filas.forEach(x=>{['nota1','nota2','promedio'].forEach(k=>{x[k]=(x[k]==null||x[k]===''||!Number.isFinite(Number(x[k])))?null:Number(x[k]);});});ppsV11Acta=r;
+  const sel=document.getElementById('v11ActaEspecialidad'),old=sel.value;
+  const especialidades=[...new Map(r.filas.map(x=>[x.codigo,x.especialidad])).entries()].sort((a,b)=>a[1].localeCompare(b[1],'es'));
+  sel.innerHTML='<option value="">Todas las especialidades</option>'+especialidades.map(x=>'<option value="'+esc(x[0])+'">'+esc(x[1])+'</option>').join('');sel.value=old;
+  ppsV11PintarActa();
+ }).withFailureHandler(e=>{button.disabled=false;status.textContent='No se pudo cargar el acta: '+e.message;}).apiActaAmbulatoriaPPS(TOKEN_SESION);
+}
+function ppsV11FirmarActa(r){
+ const overlay=document.createElement('div');overlay.className='v11-overlay';
+ overlay.innerHTML='<section class="v11-card" role="dialog" aria-modal="true" aria-label="Firma del estudiante"><h2>Firma del acta ambulatoria</h2><p class="v11-name">'+esc(r.estudiante)+'</p><p>'+esc(r.especialidad)+' · '+esc(r.empresa)+'</p><p>Evaluación 1: '+r.nota1.toFixed(2)+' · Evaluación 2: '+r.nota2.toFixed(2)+'<br><strong>Promedio: '+r.promedio.toFixed(2)+' · '+esc(r.condicion)+'</strong></p><p>Estudiante: revise sus notas y firme para dejar constancia de que las recibió.</p><div class="v11-acta-sign"></div><p class="v11-status" role="status"></p><div class="v11-tools"><button class="btn secondary" data-cancel>Cancelar</button><button class="btn primary" data-save>Guardar firma del estudiante</button></div></section>';
+ document.body.append(overlay);
+ const control=ppsV11FirmaControl(overlay.querySelector('.v11-acta-sign'),r.estudiante),status=overlay.querySelector('[role="status"]');
+ overlay.querySelector('[data-cancel]').onclick=()=>{control.destruir();overlay.remove();};
+ overlay.querySelector('[data-save]').onclick=()=>{
+  const firma=control.leer();if(!firma||firma.nombre.length<3){status.textContent='El estudiante debe dibujar su firma.';return;}
+  overlay.querySelectorAll('button,input').forEach(b=>b.disabled=true);status.textContent='Guardando firma…';
+  google.script.run.withSuccessHandler(()=>{control.destruir();overlay.remove();ppsV11CargarActa();})
+   .withFailureHandler(e=>{overlay.querySelectorAll('button,input').forEach(b=>b.disabled=false);status.textContent='No se pudo guardar: '+e.message;})
+   .apiFirmarActaAmbulatoriaPPS(TOKEN_SESION,r.id,r.hash,firma);
+ };
+}
+function ppsV11ImprimirActa(){
+ if(!ppsV11Acta||!ppsV11ActaView.length)return;
+ const w=window.open('','_blank');if(!w){document.getElementById('v11ActaStatus').textContent='Permita abrir la ventana de impresión.';return;}
+ w.document.write('<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Acta ambulatoria PPS 2026</title><style>@page{size:A4 landscape;margin:12mm}body{font:10px Arial,sans-serif;color:#1c303c}h1{font-size:20px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #bbcbd1;padding:6px;text-align:left}th{background:#eaf0f7}tr{break-inside:avoid}thead{display:table-header-group}svg{width:140px;height:50px}small{font-size:9px}</style></head><body><p>Dirección Regional de Educación de Liberia · CTP Liberia · Coordinación con la Empresa</p><h1>Acta ambulatoria · PPS 2026</h1><p>'+esc(ppsV11Acta.regla)+' · '+esc(ppsV11Acta.fecha)+'</p>'+ppsV11ActaTabla(ppsV11ActaView,true)+'</body></html>');
+ w.document.close();w.focus();w.print();
+}
+(function(){window.ppsEvalDibujar=function(d){var p=ppsEvalPanel(),c=d.criterios||[],a=Object.assign({},d.respuestas||{}),o=[['2','2 · Logrado'],['1','1 · En proceso'],['0','0 · No logrado'],['NA','No aplica']],n=0;function z(){var v=a[n]||'',q=c.length?Math.round((n+1)/c.length*100):0;p.style.display='flex';p.innerHTML='<section class="pps-step-dialog"><header class="pps-step-header"><div><div class="pps-step-kicker">Instrumento oficial · '+(n+1)+' de '+c.length+'</div><h2>Evaluación '+d.numero+' · '+esc(d.instrumento)+'</h2><p>'+esc(d.estudiante)+' · '+esc(d.empresa||d.codigo)+'</p></div><button class="btn secondary" data-x>Cerrar</button></header><div class="pps-step-progress"><div><span>Progreso del instrumento</span><b>'+q+'%</b></div><i><em style="width:'+q+'%"></em></i></div><main class="pps-step-card"><div class="pps-step-label">Criterio del instrumento</div><h3>'+esc(c[n]||'')+'</h3><p>Seleccione un valor. «No aplica» se excluye del cálculo.</p><div class="pps-step-options">'+o.map(function(x){return '<label class="pps-step-option '+(v===x[0]?'selected':'')+'"><input type="radio" name="step" value="'+x[0]+'" '+(v===x[0]?'checked':'')+'><span>'+x[1]+'</span></label>'}).join('')+'</div></main><footer class="pps-step-footer"><button class="btn secondary" data-p '+(n?'':'disabled')+'>← Anterior</button><span>'+Object.keys(a).filter(function(k){return a[k]}).length+' de '+c.length+' respondidos</span><button class="btn primary" data-n>'+(n===c.length-1?'Guardar borrador':'Siguiente →')+'</button></footer></section>';p.querySelectorAll('input[name=step]').forEach(function(x){x.onchange=function(){a[n]=x.value;z()}});p.querySelector('[data-x]').onclick=ppsEvalCerrar;p.querySelector('[data-p]').onclick=function(){if(n){n--;z()}};p.querySelector('[data-n]').onclick=function(){if(n<c.length-1){n++;z()}else{for(var i=0;i<c.length;i++){var s=document.createElement('select');s.dataset.criterio=i;s.value=a[i]||'';s.style.display='none';p.append(s)}ppsEvalGuardar(false)}}}z()}})();
+/* PPS2026: guardado sin rediseño */
+(function () {
+  'use strict';
+  let active = null;
+  function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+  window.ppsMobileFirmaValida = function (signature) {
+    if (!signature || signature.nombre.length < 3 || signature.nombre.length > 160) return false;
+    let points = 0, distance = 0;
+    if (!Array.isArray(signature.trazos) || !signature.trazos.length || signature.trazos.length > 100) return false;
+    for (const stroke of signature.trazos) {
+      if (stroke.length < 2 || stroke.length > 2000) return false;
+      points += stroke.length;
+      stroke.forEach((point, i) => {
+        if (i) distance += Math.hypot(point[0] - stroke[i - 1][0], point[1] - stroke[i - 1][1]);
+      });
+    }
+    return points >= 3 && points <= 3000 && distance >= 0.02;
+  };
+  window.ppsMobileSaveStart = function (finalized) {
+    if (!active) return;
+    active.clearTimers();
+    active.announce(finalized ? 'Enviando evaluación definitiva… Espere la confirmación del servidor.' : 'Guardando borrador… Espere la confirmación del servidor.');
+    const owner = active;
+    owner.watchdog = setTimeout(() => {
+      if (active === owner && ppsV11Busy) owner.announce('El servidor está tardando. El guardado aún no está confirmado; no cierre ni reenvíe la evaluación.', true);
+    }, 25000);
+  };
+  window.ppsMobileSaveResult = function (ok, responses, signature, finalized) {
+    if (!active) return;
+    active.clearTimers();
+    if (!ok) {
+      active.announce('No se confirmó el guardado. Las respuestas siguen en esta pantalla. Use Guardar borrador para reintentar.', true);
+      return;
+    }
+    active.confirmed = { responses: responses, signature: signature || active.confirmed.signature };
+    if (finalized) active.announce('Evaluación finalizada y confirmada por el servidor.');
+    else if (active.dirty()) {
+      active.announce('Notas guardadas. Quedan cambios pendientes en la firma; complete el nombre y la firma antes de salir.');
+      active.schedule();
+    } else {
+      const count = Object.keys(responses).length, pending = active.data.criterios.length - count;
+      active.announce('✓ Borrador guardado y confirmado · ' + count + ' de ' + active.data.criterios.length + ' respuestas · ' + new Date().toLocaleTimeString('es-CR') + (pending ? '. Faltan ' + pending + ' para finalizar.' : '. Listo para revisar y finalizar.'));
+    }
+  };
+  window.addEventListener('beforeunload', event => {
+    if (active && (ppsV11Busy || active.dirty())) { event.preventDefault(); event.returnValue = ''; }
+  });
+  window.addEventListener('online', () => { if (active) active.schedule(); });
+  window.addEventListener('offline', () => {
+    if (active && active.dirty()) active.announce('Sin conexión: hay cambios pendientes. Mantenga esta pantalla abierta; se intentará guardar al volver la conexión.', true);
+  });
+  const closeOriginal = window.ppsEvalCerrar;
+  window.ppsEvalCerrar = function () {
+    if (ppsV11Busy) return;
+    if (active && active.dirty() && !confirm('Hay cambios sin guardar. ¿Desea cerrar y descartarlos?')) return;
+    if (active) active.clearTimers();
+    active = null;
+    closeOriginal();
+  };
+  const original = window.ppsEvalDibujar;
+  const guardarOriginal = window.ppsEvalGuardar;
+  const estadoOriginal = window.ppsV11EstadoBotones;
+  const mensajeOriginal = window.ppsV11Mensaje;
+  window.ppsV11Mensaje = function (text, error) {
+    if (active && error) {
+      if (String(text).startsWith('Complete todos los criterios')) {
+        const pending = active.data.criterios.map((_, i) => i).filter(i => !Object.hasOwn(active.answers, String(i)));
+        active.pendingTarget = pending.length ? pending[0] : null;
+        const saved = !active.dirty() && active.data.estado === 'Borrador';
+        const shown = pending.slice(0, 10).map(i => i + 1).join(', ');
+        const detail = pending.length === 1 ? ' Pregunta pendiente: ' + shown + '.' : ' Preguntas pendientes: ' + shown + (pending.length > 10 ? ' y ' + (pending.length - 10) + ' más.' : '.');
+        active.announce('No se finalizó: ' + (pending.length === 1 ? 'falta 1 criterio por responder.' : 'faltan ' + pending.length + ' criterios por responder.') + detail + (saved ? ' El borrador está guardado.' : ' Revise el estado del borrador antes de cerrar.'), true);
+      } else active.announce(String(text), true);
+    }
+    mensajeOriginal(text, error);
+    // Mantener la vista en la tarjeta y en la confirmación próxima al botón.
+    if (active && error) ppsEvalPanel().querySelector('#ppsSaveFeedback')?.scrollIntoView({block:'nearest'});
+  };
+  const css = document.createElement('style');
+  css.textContent = '#ppsEvalPanel .pps-save-status{font-size:14px;line-height:1.4;margin:6px 0;overflow-wrap:anywhere}#ppsEvalPanel .pps-save-status[role=alert]{color:#922727;font-weight:700}#ppsEvalPanel .pps-save-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}#ppsEvalPanel .pps-save-controls button{min-height:48px}#ppsEvalPanel .pps-save-feedback-footer{flex-wrap:wrap}#ppsEvalPanel #ppsSaveFeedback{flex:0 0 100%;order:-1;box-sizing:border-box;padding:10px 12px;border:1px solid #8cae98;border-radius:10px;background:#eaf5ee;color:#1c5131;font:600 14px/1.45 Arial;text-align:left;overflow-wrap:anywhere}#ppsEvalPanel #ppsSaveFeedback[role=alert]{background:#fff3dc;border-color:#b17e24;color:#6c4100}';
+  document.head.append(css);
+  let observer = null;
+  window.ppsV11EstadoBotones = function (busy) {
+    estadoOriginal(busy);
+    if (active) active.sync();
+  };
+  window.ppsEvalGuardar = function (finalizar) {
+    if (active) active.sync();
+    return guardarOriginal(finalizar);
+  };
+  window.ppsEvalDibujar = function (data) {
+    if (active) active.clearTimers();
+    if (observer) observer.disconnect();
+    if (ppsV11Signature) { ppsV11Signature.destruir(); ppsV11Signature = null; }
+    active = null;
+    const answers = {};
+    Object.entries(data.respuestas || {}).forEach(([key, value]) => {
+      if (['0', '1', '2', 'NA'].includes(String(value))) answers[key] = String(value);
+    });
+    const savedSignature = data.firma ? { nombre: data.firmante || '', trazos: data.firma.trazos } : null;
+    const editable = data.estado !== 'Finalizada' && data.puedeGuardar && !data.demo;
+    const panel = ppsEvalPanel();
+    original(Object.assign({}, data, { respuestas: answers }));
+    const state = {
+      data, answers, timer: null, watchdog: null, signatureHost: null,
+      message: editable ? 'Guardado automático activo. Los cambios se guardan como borrador.' : (data.demo ? 'Demostración: no se guardan datos reales.' : 'Evaluación finalizada: solo lectura.'),
+      error: false, pendingTarget: null, confirmed: { responses: Object.assign({}, answers), signature: savedSignature },
+      read() { return { responses: Object.assign({}, answers), signature: ppsV11Signature ? ppsV11Signature.leer() : savedSignature }; },
+      clearTimers() { clearTimeout(this.timer); clearTimeout(this.watchdog); this.timer = this.watchdog = null; },
+      dirty() { return editable && !same(this.read(), this.confirmed); },
+      announce(text, error) { this.message = text; this.error = !!error; this.sync(); },
+      changed() { this.pendingTarget = null; this.announce('Cambios pendientes de guardar…'); this.schedule(); },
+      schedule() {
+        clearTimeout(this.timer);
+        if (!editable || !this.dirty() || ppsV11Busy || active !== this) return;
+        if (!navigator.onLine) { this.announce('Sin conexión: cambios pendientes de guardar. No cierre esta pantalla.', true); return; }
+        const now = this.read();
+        if (same(now.responses, this.confirmed.responses) && !(ppsMobileFirmaValida(now.signature) && !same(now.signature, this.confirmed.signature))) return;
+        this.timer = setTimeout(() => {
+          if (active !== this || ppsV11Busy || !this.dirty()) return;
+          panel.ppsMobileAutomatic = true;
+          try { ppsEvalGuardar(false); }
+          finally { panel.ppsMobileAutomatic = false; }
+        }, 2000);
+      },
+      sync() {
+        if (active !== this) return;
+        const dialog = panel.querySelector('.pps-step-dialog');
+        if (!dialog) return;
+        // El renderizador móvil original permanece intacto. Solo se añade el puente de datos.
+        let host = panel.querySelector('[data-pps-response-bridge]');
+        if (!host) { host = document.createElement('div'); host.hidden = true; host.dataset.ppsResponseBridge = '1'; panel.append(host); }
+        panel.querySelectorAll('select[data-criterio]').forEach(select => { if (!host.contains(select)) select.remove(); });
+        if (!host.childElementCount) {
+          data.criterios.forEach((_, i) => {
+            const select = document.createElement('select'); select.dataset.criterio = String(i);
+            ['', '2', '1', '0', 'NA'].forEach(value => { const option = document.createElement('option'); option.value = value; select.append(option); });
+            host.append(select);
+          });
+        }
+        host.querySelectorAll('select').forEach(select => { select.value = answers[select.dataset.criterio] || ''; select.disabled = ppsV11Busy || !editable; });
+        const header = dialog.querySelector('.pps-step-header>div');
+        for (const id of ['ppsAutosaveStatus', 'v11EvalStatus']) {
+          if (!panel.querySelector('#' + id)) {
+            const status = document.createElement('p'); status.id = id; status.className = 'pps-save-status'; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite'); header.append(status);
+          }
+        }
+        const status = panel.querySelector('#ppsAutosaveStatus');
+        if (status.textContent !== this.message) status.textContent = this.message;
+        if (status.getAttribute('role') !== (this.error ? 'alert' : 'status')) status.setAttribute('role', this.error ? 'alert' : 'status');
+        const match = dialog.querySelector('.pps-step-kicker').textContent.match(/(\d+)\s+de\s+(\d+)/);
+        const last = match && Number(match[1]) === data.criterios.length;
+        const progressLabel = dialog.querySelector('.pps-step-progress div>span');
+        if (progressLabel && progressLabel.textContent !== 'Posición en el instrumento') progressLabel.textContent = 'Posición en el instrumento';
+        const footer = dialog.querySelector('footer');
+        footer.classList.add('pps-save-feedback-footer');
+        let feedback = footer.querySelector('#ppsSaveFeedback');
+        if (!feedback) { feedback = document.createElement('div'); feedback.id = 'ppsSaveFeedback'; feedback.setAttribute('aria-live','polite'); footer.prepend(feedback); }
+        if (feedback.textContent !== this.message) feedback.textContent = this.message;
+        feedback.setAttribute('role',this.error?'alert':'status');
+        dialog.querySelectorAll('input[name=step]').forEach(input => { input.disabled = ppsV11Busy || !editable; });
+        const next = dialog.querySelector('[data-n]');
+        if (next) next.disabled = ppsV11Busy || (last && !editable);
+        const back = dialog.querySelector('[data-p]');
+        if (back) back.disabled = ppsV11Busy || (match && Number(match[1]) === 1);
+        if (last && Number(data.numero) === 2 && editable && !dialog.querySelector('#v11FirmaHost')) {
+          const previous = ppsV11Signature ? ppsV11Signature.leer() : savedSignature;
+          const name = this.signatureHost?.querySelector('input')?.value || previous?.nombre || data.firmante || '';
+          if (ppsV11Signature) ppsV11Signature.destruir();
+          const signature = document.createElement('div'); signature.id = 'v11FirmaHost';
+          dialog.insertBefore(signature, dialog.querySelector('footer'));
+          this.signatureHost = signature;
+          ppsV11Signature = ppsV11FirmaControl(signature, name, previous);
+          signature.addEventListener('input', () => this.changed());
+          signature.addEventListener('pointerdown', () => clearTimeout(this.timer), true);
+          signature.addEventListener('pointerup', () => setTimeout(() => this.changed(), 0));
+          signature.addEventListener('pointercancel', () => setTimeout(() => this.changed(), 0));
+          signature.querySelector('button').addEventListener('click', () => this.changed());
+        }
+        if (editable && !dialog.querySelector('.pps-save-controls')) {
+          const controls = document.createElement('div'); controls.className = 'pps-save-controls';
+          if (!last) {
+            const save = document.createElement('button'); save.type = 'button'; save.className = 'btn secondary'; save.textContent = 'Guardar borrador'; save.onclick = () => ppsEvalGuardar(false); controls.append(save);
+          }
+          // Mantener las tarjetas y navegación existentes; el envío se ofrece al terminar el instrumento.
+          if (last) {
+            const final = document.createElement('button'); final.type = 'button'; final.className = 'btn primary'; final.textContent = Number(data.numero) === 2 ? 'Firmar y enviar' : 'Finalizar evaluación'; final.onclick = () => ppsEvalGuardar(true); controls.append(final);
+          }
+          dialog.append(controls);
+        }
+        dialog.querySelectorAll('.pps-save-controls button').forEach(button => { button.disabled = ppsV11Busy; });
+        const pendingButton = dialog.querySelector('[data-pps-pending]');
+        if (this.pendingTarget !== null && !pendingButton) {
+          const button = document.createElement('button'); button.type = 'button'; button.className = 'btn secondary'; button.dataset.ppsPending='1'; button.textContent = 'Ir al criterio pendiente';
+          button.onclick = () => {
+            if (ppsV11Busy) return;
+            const target = this.pendingTarget;
+            for (let attempts = 0; attempts < data.criterios.length; attempts++) {
+              const found = panel.querySelector('.pps-step-kicker').textContent.match(/(\d+)\s+de\s+(\d+)/);
+              const index = Number(found[1]) - 1;
+              if (index === target) break;
+              panel.querySelector(index > target ? '[data-p]' : '[data-n]').click();
+            }
+            this.pendingTarget = null; this.sync();
+            panel.querySelector('.pps-step-card h3').setAttribute('tabindex','-1'); panel.querySelector('.pps-step-card h3').focus();
+          };
+          dialog.querySelector('.pps-save-controls').append(button);
+        } else if (this.pendingTarget === null && pendingButton) pendingButton.remove();
+      }
+    };
+    active = state;
+    const onChange = event => {
+      const input = event.target;
+      if (!input.matches('input[name=step]') || !panel.contains(input) || !editable || ppsV11Busy) return;
+      const match = panel.querySelector('.pps-step-kicker')?.textContent.match(/(\d+)\s+de\s+(\d+)/);
+      if (!match) return;
+      answers[String(Number(match[1]) - 1)] = input.value;
+      state.changed();
+    };
+    if (panel.ppsSaveCapture) panel.removeEventListener('change', panel.ppsSaveCapture, true);
+    panel.ppsSaveCapture = onChange;
+    panel.addEventListener('change', onChange, true);
+    observer = new MutationObserver(() => state.sync());
+    observer.observe(panel, { childList: true, subtree: true });
+    panel.ppsMobileRefresh = () => state.sync();
+    state.sync();
+  };
+})();
+</script><style>
+.stage-home{max-width:760px;margin:20px auto;padding:20px;background:white;border:1px solid #c4d4c9;border-radius:18px;font:16px/1.5 Arial;color:#244334}
+.stage-home label{display:block;margin-top:10px}.stage-home input{width:100%;padding:12px;border:1px solid #9ab5a5;border-radius:8px;box-sizing:border-box}.stage-home button{min-height:48px;margin:8px 6px 8px 0;white-space:normal}.stage-banner{background:#fff3cf;color:#594000;padding:8px 14px;font:600 13px/1.4 Arial;border:1px solid #d6bd77}.stage-report{white-space:pre-wrap;overflow-wrap:anywhere;background:#f0f6f1;padding:12px;font:14px/1.5 monospace}.stage-home[hidden]{display:none}
+</style>
+<main class="stage-home">
+<h1>Prueba real de guardado PPS2026</h1>
+<p><strong>Entorno existente de pruebas. No conectado a las hojas operativas.</strong></p>
+<p>Esta página usa la interfaz actual y las funciones de guardado de la versión 28, con la corrección de autoguardado y mensajes. Solo permite guardar un estudiante ficticio en una pestaña exclusiva de la base de pruebas.</p>
+<form id="stageLogin">
+<p>Google verifica la cuenta de coordinación que abre este enlace privado. Dentro de la prueba se usa un profesor DEMO ficticio; no se cambia el usuario demo del portal oficial.</p>
+<button type="submit" class="btn primary">Ingresar como profesor DEMO de pruebas</button>
+</form>
+<p id="stageStatus" role="status" aria-live="polite"></p>
+<section id="stageActions" hidden>
+<p><strong id="stageCase"></strong></p>
+<button class="btn primary" id="stageEval1">Abrir evaluación 1</button>
+<button class="btn secondary" id="stageEval2">Abrir evaluación 2</button>
+<button class="btn secondary" id="stageCheck1">Verificar guardado real de evaluación 1</button>
+<button class="btn secondary" id="stageCheck2">Verificar guardado real de evaluación 2</button>
+<button class="btn secondary" id="stageAuto">Ejecutar pruebas automáticas con Google</button>
+<button class="btn secondary" id="stageNew">Nuevo estudiante ficticio</button>
+<p>Para comprobar autoguardado: abra una evaluación, cambie una nota y espere la confirmación. Ciérrela y vuelva a abrirla. «Verificar guardado real» vuelve a leer las respuestas desde Google Sheets.</p>
+<p>Las pruebas automáticas crean un caso ficticio nuevo y validan guardado, recuperación y finalización contra la hoja de pruebas. No modifican estudiantes reales.</p>
+</section>
+<pre id="stageReport" class="stage-report" hidden></pre>
+</main>
+<script>
+let PPS_STAGE_ID='',PPS_STAGE_RUNNING=false;
+function stageCall(name,...args){return new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[name](...args));}
+function stageStatus(text,error){const el=document.getElementById('stageStatus');el.textContent=text;el.style.color=error?'#922727':'#244334';}
+function stageBusy(b){PPS_STAGE_RUNNING=b;document.querySelectorAll('.stage-home button').forEach(x=>x.disabled=b);}
+function stageCase(value){PPS_STAGE_ID=value.idAsignacion;document.getElementById('stageCase').textContent='Caso ficticio: '+PPS_STAGE_ID;}
+async function stageOpen(n){
+ if(PPS_STAGE_RUNNING)return;
+ if(PPS_EVAL_ACTUAL){ppsEvalCerrar();if(PPS_EVAL_ACTUAL)return;}
+ stageBusy(true);stageStatus('Leyendo evaluación desde la base de pruebas…');
+ try{const data=await stageCall('apiAbrirEvaluacionPPS',TOKEN_SESION,PPS_STAGE_ID,n,'AGROECO');PPS_EVAL_ACTUAL=data;ppsEvalDibujar(data);stageStatus('Evaluación cargada. Los cambios se guardan como borrador.');}
+ catch(e){stageStatus('No se pudo abrir: '+e.message,true);}finally{stageBusy(false);}
+}
+const stageRender=window.ppsEvalDibujar;
+window.ppsEvalDibujar=function(d){stageRender(d);const banner=document.createElement('p');banner.className='stage-banner';banner.textContent='PRUEBA REAL AISLADA · Estudiante ficticio · Sin datos operativos';ppsEvalPanel().querySelector('.pps-step-dialog').prepend(banner);};
+document.getElementById('stageLogin').addEventListener('submit',async event=>{
+ event.preventDefault();stageBusy(true);stageStatus('Verificando la sesión privada de Google…');
+ try{
+  const login=await stageCall('ppsStageLogin');
+  TOKEN_SESION=login.token;stageCase(login);document.getElementById('stageLogin').hidden=true;document.getElementById('stageActions').hidden=false;stageStatus('Sesión de pruebas iniciada. Puede abrir ambas evaluaciones.');
+ }catch(e){stageStatus(e.message,true);}finally{stageBusy(false);}
+});
+for(const n of [1,2]){
+ document.getElementById('stageEval'+n).onclick=()=>stageOpen(n);
+ document.getElementById('stageCheck'+n).onclick=async()=>{
+  stageBusy(true);stageStatus('Releyendo las respuestas reales de la base de pruebas…');
+  try{
+   const result=await stageCall('ppsStageVerificar',TOKEN_SESION,n);const report=document.getElementById('stageReport');report.hidden=false;
+   report.textContent=result.existe?'LECTURA REAL DE GOOGLE SHEETS\nPestaña: '+result.pestana+'\nEvaluación: '+n+'\nEstado: '+result.estado+'\nRespuestas guardadas: '+Object.keys(result.respuestas).length+'\nFirma registrada: '+(result.firmaRegistrada?'Sí':'No')+'\nRespuestas: '+JSON.stringify(result.respuestas,null,2):'Todavía no hay una evaluación guardada para este caso ficticio.';
+   stageStatus('Verificación de lectura completada.');
+  }catch(e){stageStatus(e.message,true);}finally{stageBusy(false);}
+ };
+}
+document.getElementById('stageNew').onclick=async()=>{
+ if(!confirm('¿Crear otro caso ficticio? Los casos anteriores se conservarán en la pestaña de pruebas.'))return;
+ stageBusy(true);try{stageCase(await stageCall('ppsStageNuevoCaso',TOKEN_SESION));stageStatus('Nuevo caso ficticio listo.');}catch(e){stageStatus(e.message,true);}finally{stageBusy(false);}
+};
+document.getElementById('stageAuto').onclick=async()=>{
+ if(!confirm('¿Ejecutar pruebas que guardarán y finalizarán dos evaluaciones de un caso ficticio nuevo en la base aislada?'))return;
+ stageBusy(true);const report=document.getElementById('stageReport');report.hidden=false;report.textContent='PRUEBAS REALES CON GOOGLE SHEETS\n';
+ function assert(condition,message){if(!condition)throw new Error(message);report.textContent+='APROBADA: '+message+'\n';}
+ try{
+  stageCase(await stageCall('ppsStageNuevoCaso',TOKEN_SESION));const id=PPS_STAGE_ID;
+  const first=await stageCall('apiAbrirEvaluacionPPS',TOKEN_SESION,id,1,'AGROECO');assert(first.criterios.length===51,'Carga de los 51 criterios vigentes');
+  await stageCall('apiGuardarEvaluacionFirmadaPPS',TOKEN_SESION,id,1,'AGROECO',{'0':'2','1':'0','2':'NA'},false,null);
+  const draft1=await stageCall('apiAbrirEvaluacionPPS',TOKEN_SESION,id,1,'AGROECO');assert(draft1.estado==='Borrador'&&draft1.respuestas['1']==='0'&&draft1.respuestas['2']==='NA','Guardar y recuperar borrador 1 con cero y N/A');
+  await stageCall('apiGuardarEvaluacionFirmadaPPS',TOKEN_SESION,id,2,'AGROECO',{'0':'1'},false,null);
+  const draft2=await stageCall('apiAbrirEvaluacionPPS',TOKEN_SESION,id,2,'AGROECO');assert(draft2.respuestas['0']==='1','Guardar y recuperar borrador 2');
+  const again1=await stageCall('apiAbrirEvaluacionPPS',TOKEN_SESION,id,1,'AGROECO');assert(again1.respuestas['0']==='2','Independencia de ambas evaluaciones');
+  let rejected=false;try{await stageCall('apiGuardarEvaluacionFirmadaPPS',TOKEN_SESION,id,1,'AGROECO',{'0':'2'},true,null);}catch(e){rejected=true;}assert(rejected,'Bloqueo de finalización incompleta');
+  const complete=Object.fromEntries(first.criterios.map((_,i)=>[String(i),i===1?'0':i===2?'NA':'2']));
+  const final1=await stageCall('apiGuardarEvaluacionFirmadaPPS',TOKEN_SESION,id,1,'AGROECO',complete,true,null);assert(final1.estado==='Finalizada'&&final1.porcentajeReferencial===98,'Finalización y cálculo de evaluación 1');
+  const fakeSignature={nombre:'Firma ficticia automática',trazos:[[[.1,.1],[.2,.3],[.4,.2]]]};
+  await stageCall('apiGuardarEvaluacionFirmadaPPS',TOKEN_SESION,id,2,'AGROECO',complete,true,fakeSignature);
+  const persisted=await stageCall('ppsStageVerificar',TOKEN_SESION,2);assert(persisted.estado==='Finalizada'&&persisted.firmaRegistrada&&Object.keys(persisted.respuestas).length===51,'Firma y 51 respuestas persistidas de evaluación 2');
+  rejected=false;try{await stageCall('apiGuardarEvaluacionFirmadaPPS',TOKEN_SESION,id,2,'AGROECO',complete,false,null);}catch(e){rejected=true;}
+  assert(rejected,'Bloqueo de sobrescritura de evaluación finalizada');
+  assert((await stageCall('ppsStageVerificar',TOKEN_SESION,1)).filasDelCaso===2,'Solo dos filas para el caso, sin duplicados');
+  report.textContent+='\nPRUEBAS APROBADAS. Solo se escribieron registros ficticios en la base aislada.\nLa prueba de interfaz/autoguardado se realiza con los botones Abrir evaluación y el estado visible.';stageStatus('Pruebas reales completadas. Revise el informe.');
+ }catch(e){report.textContent+='\nFALLO: '+e.message;stageStatus('Pruebas detenidas; revise el fallo antes de publicar.',true);}finally{stageBusy(false);}
+};
+</script>
+</body>
