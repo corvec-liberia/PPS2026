@@ -46,4 +46,10 @@ with sync_playwright() as p:
  page.locator('.v11-signer').fill('Firma ficticia');canvas=page.locator('#v11FirmaHost canvas');canvas.scroll_into_view_if_needed();box=canvas.bounding_box();page.mouse.move(box['x']+10,box['y']+10);page.mouse.down();page.mouse.move(box['x']+80,box['y']+40,steps=5);page.mouse.up()
  page.clock.fast_forward(10001);page.clock.fast_forward(8001);assert page.evaluate('calls[1].args[6].trazos.length')>0
  page.clock.fast_forward(10001);page.close();print('PASS: firma y respuestas nuevas durante guardado quedan incluidas en el siguiente borrador')
+ page=setup(extra={'demo':True,'puedeGuardar':False});assert page.locator('input[name=step]').first.is_disabled();page.clock.fast_forward(60000);assert page.evaluate('calls.length')==0;page.close()
+ page=setup(extra={'estado':'Finalizada'});assert page.locator('input[name=step]').first.is_disabled();page.clock.fast_forward(60000);assert page.evaluate('calls.length')==0;page.close();print('PASS: DEMO y finalizadas permanecen sin escritura')
+ page=setup();page.context.set_offline(True);choose(page,'0');page.clock.fast_forward(20000);assert page.evaluate('calls.length')==0;assert 'Sin conexión' in page.locator('#ppsSaveFeedback').inner_text()
+ page.context.set_offline(False);page.clock.fast_forward(8001);page.clock.fast_forward(11);assert page.evaluate('records["ASG-SYNTHETIC:1"].respuestas')=={'0':'0'}
+ page.evaluate('openFixture(2,{respuestas:{"0":"NA"}})');assert page.locator('input[value="NA"]').is_checked();choose(page,'1');page.get_by_role('button',name='Guardar borrador',exact=True).click();page.clock.fast_forward(11)
+ assert page.evaluate('records["ASG-SYNTHETIC:1"].respuestas')=={'0':'0'};assert page.evaluate('records["ASG-SYNTHETIC:2"].respuestas')=={'0':'1'};page.close();print('PASS: reconexión, restauración de N/A, guardado manual e independencia de ambas evaluaciones')
  b.close()
