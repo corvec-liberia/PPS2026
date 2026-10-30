@@ -1,0 +1,11 @@
+# Borradores en segundo plano sobre producción V30
+
+El guardado previo bloqueaba todos los controles mientras esperaba Google. Este ajuste conserva el renderizador, las preguntas, las firmas, el backend y el acceso de coordinación, pero permite seguir marcando y navegar durante una petición de borrador. Solo hay una petición activa; las respuestas nuevas se conservan en memoria y se envían después. Una confirmación antigua no declara guardados cambios posteriores.
+
+Agrupación: 8 segundos después de la última edición, o hasta 15 segundos de edición continua si no hay una petición activa. Los tiempos son de programación del envío, no una garantía de respuesta de Google. Guardar borrador manualmente sigue enviando de inmediato si no hay otra petición. El envío definitivo, el cierre durante una petición y las advertencias por cambios no confirmados mantienen sus protecciones. No se almacenan datos personales en localStorage.
+
+El canvas permite dibujar mientras se guarda un borrador y conserva el bloqueo durante el envío definitivo. Los errores retienen los cambios en pantalla y permiten reintento manual, sin bucles ni envíos paralelos. Se mantienen los permisos de seguimiento, el DEMO de lectura y las dos evaluaciones independientes.
+
+Pruebas: autoguardado_segundo_plano_test.py con Chromium y reloj virtual, datos ficticios y red bloqueada; servidor simulado de 10 segundos, respuestas 0/N/A durante petición, cola única, límites de agrupación, errores/reintentos, firma y envío definitivo. Tamaños 320/360/1024 px. La navegación/entrada se ejercita mediante eventos sobre controles habilitados del formulario original. publicacion_autoguardado_test.cjs usa una CLI simulada para probar verificación, restricciones de versión/cuenta/HEAD, integridad, publicación y reversión.
+
+El publicador respalda V30 y HEAD, modifica solo Index.html y verifica la versión inmutable antes de actualizar el mismo despliegue. --publicar publica; sin esta opción solo comprueba. --verificar consulta; --revertir regresa a V30 sin alterar filas ni HEAD. No ejecuta funciones de Apps Script. Los otros 18 archivos quedan intactos. La comprobación real de latencia en Google queda pendiente de cargar el ajuste.
