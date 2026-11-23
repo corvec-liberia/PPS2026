@@ -46,6 +46,7 @@ El archivo integracion/pps-v11-whatsapp.js prepara el control de WhatsApp para i
 
 ## Verificación realizada
 
+- La batería integrada ppsV11Pruebas se ejecutó localmente sobre la exportación del servidor con una sustitución aislada para el hash de Utilities; pasó 10 de 10 comprobaciones. Cubre N/A, valores faltantes, todo N/A, nota cero, promedio 50/50, corte de aprobación, borrador pendiente y validación de firma. No abrió ni modificó hojas.
 - La revisión de código confirmó el cálculo 2/1/0/NA, el promedio 50/50, el bloqueo de sobrescritura final y el ciclo de token en la exportación.
 - Las comprobaciones locales del adaptador de WhatsApp verifican números de teléfono, validación de enlace opaco, rechazo de URL con datos adicionales y composición del enlace wa.me.
 - No se ejecutaron guardados, pruebas de enlaces ni despliegues contra Apps Script o la hoja oficial. No se modificaron calificaciones reales.
