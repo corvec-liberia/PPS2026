@@ -16,6 +16,7 @@ Alcance: revisión de GitHub, PWA, exportaciones de Apps Script y metadatos de l
 
 - En la exportación revisada ya existe una segunda evaluación externa con token aleatorio de 64 caracteres hexadecimales, hash SHA-256 almacenado, vencimiento de 7 días, revocación del enlace anterior, validación de la asignación/docente y bloqueo de evaluaciones finalizadas.
 - Las funciones servidor existentes son apiCrearEnlaceEvaluacion2PPS, apiRevocarEnlaceEvaluacion2PPS, apiAbrirEvaluacionEnlacePPS y apiEnviarEvaluacionEnlacePPS. El catálogo de criterios está en Apps Script y el instrumento se devuelve desde el servidor; la interfaz debe seguir usando esa fuente.
+- El enlace externo existente solo cubre la segunda evaluación. El flujo no permite compartir la primera evaluación por enlace sin una nueva API con permisos y estado propios.
 - La fórmula en la exportación v11 asigna 2 puntos posibles por criterio, acepta 2, 1, 0 o NA, excluye NA del máximo y redondea el porcentaje a dos decimales. El promedio final usa 50/50 entre las dos evaluaciones y requiere ambas finalizadas. La evaluación 2 se guarda en una fila separada de la evaluación 1.
 - La exportación de servidor abre explícitamente la hoja RESPALDO Sistema de Gestion PPS2026. La hoja oficial visible se llama Sistema de Gestion PPS2026; la copia de código, por tanto, no demuestra que el despliegue activo escriba en la hoja oficial. La hoja aislada PPS2026 BASE PRUEBAS AISLADAS no tiene las pestañas de evaluaciones v11 y no está enlazada a un despliegue de Apps Script de prueba.
 - Las hojas disponibles distinguen EVALUACIONES_EMPRESA de EVALUACIONES_DOCENTES_2026. El módulo v11 utiliza esta última en la hoja a la que apunta ssDocPPS_(). Antes de habilitar nuevas evaluaciones se debe confirmar cuál es la tabla institucional vigente y migrar/adaptar el destino solo en un entorno de pruebas.
@@ -36,7 +37,7 @@ Alcance: revisión de GitHub, PWA, exportaciones de Apps Script y metadatos de l
 4. Antes de desplegar, fijar el destino de prueba en una copia aislada, crear allí las pestañas v11 necesarias y añadir recibo idempotente/auditoría de borradores. Probar primero criterios, cálculo, reintentos y separación entre evaluación 1 y evaluación 2.
 5. Confirmar si el instrumento oficial requiere guardar el cargo y si requiere un PDF individual. Solo entonces adaptar columnas y formato.
 
-El archivo integracion/pps-v11-whatsapp.js prepara el control de WhatsApp para integrarlo después del módulo v11 en Index.html. Valida el dominio/ruta del enlace y el formato del token, normaliza números locales de Costa Rica y no persiste el teléfono. Está desacoplado del backend porque la exportación revisada apunta a la hoja de respaldo.
+El archivo integracion/pps-v11-whatsapp.js prepara el control de WhatsApp para integrarlo después del módulo v11 en Index.html. Valida el dominio/ruta del enlace y el formato del token, normaliza números locales de Costa Rica y no persiste el teléfono. El campo es manual; aún no consulta CONTACTOS_EMPRESARIALES. Está desacoplado del backend porque la exportación revisada apunta a la hoja de respaldo.
 
 ## Casos prioritarios y límites de esta rama
 
