@@ -7,6 +7,7 @@
   const $ = id => document.getElementById(id);
   let session = '';
   let dashboardData = null;
+  let adminLockTimer = 0;
 
   function key() {
     if (crypto && typeof crypto.randomUUID === 'function') return crypto.randomUUID();
@@ -141,6 +142,14 @@
     $('updatedAt').textContent = 'Datos actualizados: ' + data.generatedAt;
     renderMetrics(data.stats); populateFilters(); renderBreakdown();
   }
+  function lockAdminPanel(messageText) {
+    if (adminLockTimer) clearTimeout(adminLockTimer);
+    adminLockTimer = 0; session = ''; dashboardData = null;
+    $('dashboard').hidden = true; $('loginCard').hidden = false; $('adminCode').value = '';
+    ['metricCards', 'specialtyChart', 'specialtyResults', 'companyChart', 'companyResults', 'reasonResults', 'responseResults', 'pendingResults', 'linkResults'].forEach(id => $(id).replaceChildren());
+    $('updatedAt').textContent = '';
+    message('loginMessage', messageText || 'La sesión administrativa se cerró.', '');
+  }
   async function loadAdminData() {
     const refresh = $('refreshButton'); if (refresh) refresh.disabled = true;
     message('dashboardMessage', 'Cargando los indicadores privados…');
@@ -158,12 +167,13 @@
     try {
       const result = await post({ action: 'adminLogin', adminCode: $('adminCode').value });
       session = result.session;
+      adminLockTimer = setTimeout(() => lockAdminPanel('Sesión cerrada por seguridad. Ingrese de nuevo para consultar los datos.'), 25 * 60 * 1000);
       $('adminCode').value = '';
       await loadAdminData();
     } catch (error) { message('loginMessage', error.message, 'error'); }
     finally { button.disabled = false; button.textContent = 'Entrar al panel'; }
   });
-  $('logoutButton').addEventListener('click', () => { session = ''; dashboardData = null; $('dashboard').hidden = true; $('loginCard').hidden = false; $('adminCode').value = ''; message('loginMessage', 'Sesión cerrada.'); });
+  $('logoutButton').addEventListener('click', () => lockAdminPanel('Sesión cerrada.'));
   $('refreshButton').addEventListener('click', () => loadAdminData().catch(error => message('dashboardMessage', error.message, 'error')));
   $('filterSpecialty').addEventListener('change', renderBreakdown);
   $('filterCompany').addEventListener('change', renderBreakdown);

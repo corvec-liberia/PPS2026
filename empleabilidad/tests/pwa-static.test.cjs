@@ -28,6 +28,8 @@ assert.ok(app.includes('Sin conexión'));
 assert.ok(app.includes("action: 'identify'"));
 assert.ok(admin.includes("action: 'adminLogin'"));
 assert.ok(admin.includes('accessLinks'));
+assert.ok(admin.includes('25 * 60 * 1000'));
+assert.ok(admin.includes('function lockAdminPanel'));
 assert.ok(adminPage.includes('id="refreshButton"'));
 assert.ok(adminPage.includes('id="specialtyChart"'));
 assert.ok(adminPage.includes('id="companyChart"'));

@@ -154,8 +154,9 @@ function auditEmpleabilidad2026() {
 }
 
 function runIsolatedIntegrationTests2026(testSpreadsheetId) {
-  if (!testSpreadsheetId) throw new Error('Indique el ID de la hoja de cálculo temporal de pruebas, nunca el ID de la base PPS.');
-  const tempBook = SpreadsheetApp.openById(String(testSpreadsheetId));
+  const testId = String(testSpreadsheetId || PropertiesService.getScriptProperties().getProperty('TEST_BOOK_ID') || '');
+  if (!testId) throw new Error('Indique el ID de la hoja temporal de pruebas, nunca el ID de la base PPS.');
+  const tempBook = SpreadsheetApp.openById(testId);
   if (tempBook.getName() !== 'TEMP PRUEBAS PPS EMPLEABILIDAD 2026') throw new Error('La prueba solo corre en la hoja temporal nombrada para este fin.');
   tempBook.setSpreadsheetTimeZone(CFG.TIME_ZONE);
   const report = [];
@@ -211,6 +212,10 @@ function runIsolatedIntegrationTests2026(testSpreadsheetId) {
   const result = { ok: failed.length === 0, tests: report, temporarySpreadsheetId: tempBook.getId(), cleanup: 'Envíe a la papelera este archivo TEMP después de revisar el informe.' };
   Logger.log(JSON.stringify(result));
   return result;
+}
+
+function runTemporaryIntegrationTests2026() {
+  return runIsolatedIntegrationTests2026();
 }
 
 function runPureTests_() {
