@@ -1,34 +1,34 @@
 # Matriz de pruebas — Encuesta de Empleabilidad 2026
 
-Las pruebas de lógica local usan datos inventados `FIX-*` y no escriben en Google Sheets. Las pruebas de persistencia se ejecutan en un libro temporal separado con el nombre exacto `TEMP PRUEBAS PPS EMPLEABILIDAD 2026`; nunca se usan filas ficticias en el libro PPS.
+Las pruebas de lógica local usan datos ficticios FIX-* y no escriben en Google Sheets. Las pruebas de persistencia se ejecutaron en un libro temporal separado llamado TEMP PRUEBAS PPS EMPLEABILIDAD 2026; no se usaron filas ficticias en el libro PPS.
 
 | N.º | Requisito | Método de verificación | Resultado observado |
 |---:|---|---|---|
-| 1 | Carga de especialidades reales | Catálogo activo leído del libro PPS; cotejo con auditoría | Prueba local aprobada; GET público de salud devuelve 404 genérico en sesión normal e incógnito, antes de ejecutar el script |
-| 2 | Filtrado de estudiantes | Código opaco devuelve solo el estudiante asociado y valida especialidad | Integración temporal aprobada; no se pudo probar la lectura pública por 404 antes de `doGet` |
-| 3 | Empresa automática | Empresa e ID proceden de la asignación elegible más reciente | Apps Script leyó el padrón real; lógica aprobada |
-| 4 | Reubicaciones | Asignación cancelada, reubicación válida y cancelación más reciente | Prueba unitaria aprobada |
-| 5 | Fecha y hora de Costa Rica | Zona del libro/proyecto y valor `Date` en libro temporal | Integración aprobada; libro oficial en `America/Costa_Rica` |
-| 6 | Cinco opciones laborales | Persistencia de cada estado permitido | Integración aprobada |
-| 7 | Motivo condicional | Rechazo requiere uno de cinco motivos; otras opciones los prohíben | Integración y validación del servidor aprobadas |
-| 8 | Actualización de respuesta | Actualiza la pestaña vigente y agrega un movimiento al historial | Integración aprobada |
-| 9 | Prevención de duplicados | Reintento con la misma clave idempotente y `LockService` | Integración aprobada; una sola fila vigente y un solo movimiento por reintento |
-| 10 | Conservación de historial | Actualización posterior conserva el evento anterior y resiste un reintento tardío | Integración aprobada |
-| 11 | Almacenamiento en Google Sheets | Lectura de vuelta de recibo, respuesta vigente e historial tras `flush()` | Integración aprobada en libro temporal; libro oficial verificado con cero respuestas ficticias |
-| 12 | Pérdida de conexión | La PWA no confirma sin recibo; reintento conserva idempotencia | Comprobación estática aprobada; simulación de red en navegador pendiente |
-| 13 | Privacidad | Identidad con código opaco; sin cédulas, teléfonos ni correos en salida pública | Prueba unitaria aprobada; revisión de archivos públicos aprobada |
-| 14 | Vista móvil | Ventana estrecha y controles táctiles | Pendiente prueba visual en navegador móvil |
-| 15 | Sesión no autenticada | Web App público sin sesión de Google; consulta individual requiere código | FALLÓ: el GET de salud devuelve 404 genérico de Google Drive tanto en sesión normal como en incógnito; no hay ejecución `doGet` en el registro. Incógnito comprobado por el usuario con captura. Coincide con reporte reciente de fallos de despliegues `Anyone` (Issue Tracker 574946511), sin causa confirmada |
-| 16 | Instalación PWA | Manifest, íconos, service worker e instalación del navegador | Verificación estática aprobada; GitHub Pages pendiente |
-| 17 | Indicadores administrativos | Cinco estados, actualización y tasas con denominadores distintos | Integración aprobada en libro temporal |
-| 18 | PPS sin perjuicio | Auditoría de filas y destinos de escritura | Auditoría Apps Script: 144 elegibles, 0 respuestas vigentes, 0 movimientos; tablas base solo lectura |
+| 1 | Carga de especialidades reales | Solicitud pública JSONP desde GitHub Pages | APROBADA: carga anónima de 10 especialidades reales |
+| 2 | Filtrado de estudiantes | Pruebas aisladas de código opaco y validación de especialidad; rechazo público de código inválido | APROBADA en integración; el endpoint anónimo rechazó el código ficticio y no reveló nombres. No se probó un código real para no exponer datos |
+| 3 | Empresa automática | Asignación vigente/final válida más reciente en el padrón | APROBADA: lectura del padrón real y pruebas con reubicación |
+| 4 | Reubicaciones | Asignación cancelada, válida posterior y cancelación final | APROBADA: pruebas unitarias |
+| 5 | Fecha y hora de Costa Rica | Zona del libro/proyecto y valor Date del libro temporal | APROBADA: America/Costa_Rica |
+| 6 | Cinco opciones laborales | Persistencia de cada estado permitido | APROBADA: integración aislada |
+| 7 | Motivo condicional | Motivo obligatorio al rechazar y prohibido en otros estados | APROBADA: integración y validación del servidor |
+| 8 | Actualización de respuesta | Reemplazo de respuesta vigente y nuevo evento | APROBADA: integración aislada |
+| 9 | Prevención de duplicados | Reintento con la misma clave e invocaciones concurrentes bajo LockService | APROBADA: integración aislada, sin fila ni evento duplicados |
+| 10 | Conservación del historial | Actualización y reintento tardío | APROBADA: integración aislada |
+| 11 | Almacenamiento en Sheets | Escritura, lectura de vuelta y flush en libro temporal; revisión del libro oficial | APROBADA en libro temporal; las celdas A2 de respuesta e historial oficiales siguen vacías |
+| 12 | Pérdida de conexión | Estados sin conexión, reintento e idempotencia | Parcial: comprobación estática aprobada; falta simular pérdida real de red |
+| 13 | Privacidad | Archivos públicos sin PII; identificación con token opaco | APROBADA: revisión de archivos y pruebas unitarias; el código inválido no mostró nombres |
+| 14 | Vista móvil | Ventana de 390 px y controles táctiles | APROBADA en emulación: no hubo desplazamiento horizontal y el botón de verificación mide 52 px |
+| 15 | Sesión no autenticada | PWA/Apps Script en navegador limpio sin sesión Google | APROBADA: cargó el catálogo; código inválido fue rechazado. El perfil conectado con varias cuentas puede mostrar el 404 de Google |
+| 16 | Instalación PWA | Manifest, íconos, service worker y estado de instalación del navegador | APROBADA estáticamente; el navegador mostró la opción de agregar a inicio. No se instaló en un teléfono real |
+| 17 | Indicadores administrativos | Estados, participación, tasas con denominadores separados | APROBADA: integración aislada |
+| 18 | PPS sin perjuicio | Comparación de la publicación raíz y el commit aislado | APROBADA: PPS 2026 continúa cargando; solo se agregó empleabilidad/pwa/** |
 
 ## Resultados ejecutados — 24/11/2026
 
-- 13/13 pruebas unitarias aprobadas; incluyen reubicaciones, exclusiones, validación de las cinco situaciones, denominadores separados y ausencia de PII.
-- 8/8 pruebas de integración Apps Script aprobadas con cinco estudiantes ficticios en un libro temporal aislado; una primera corrida detectó dos expectativas erróneas del test, se corrigieron y la repetición pasó completa.
-- La integración comprobó escritura real, lectura posterior, clave idempotente, actualización, historial, fechas CR, razones de rechazo e indicadores.
-- El libro oficial conserva 144 elegibles, 0 respuestas vigentes y 0 movimientos de historial. El libro temporal ficticio fue enviado a la papelera.
-- Pendientes: resolver el 404 de publicación de Apps Script; después configurar GitHub Pages y completar las pruebas públicas, de red, vista móvil e instalación. No publicar hasta validar el endpoint.
-
-No se deben marcar como aprobadas las pruebas marcadas pendientes hasta ejecutarlas contra la implementación real.
+- 13/13 pruebas unitarias de backend aprobadas.
+- 8/8 pruebas de integración Apps Script aprobadas con cinco estudiantes ficticios en un libro temporal aislado.
+- La integración comprobó escritura real, lectura posterior, clave idempotente, actualización, historial, fecha CR, motivos de rechazo e indicadores.
+- La PWA pública abrió sin iniciar sesión y cargó 10 especialidades. El servidor rechazó un código ficticio inválido sin divulgar datos.
+- El libro oficial conserva 144 elegibles, 0 respuestas y 0 movimientos de historial; las celdas A2 de respuestas e historial siguen vacías.
+- GitHub Pages muestra PPS 2026 en la raíz y la encuesta en su ruta independiente.
+- Pendiente: simulación real de desconexión y prueba de instalación en teléfono. No se registró una respuesta ficticia en el libro oficial.
