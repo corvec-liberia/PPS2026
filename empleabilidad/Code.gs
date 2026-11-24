@@ -173,27 +173,35 @@ function runIsolatedIntegrationTests2026(testSpreadsheetId) {
   const access = tempBook.getSheetByName(CFG.ACCESS) || tempBook.insertSheet(CFG.ACCESS);
   access.clearContents();
   access.getRange(1, 1, 1, CFG.ACCESS_HEADERS.length).setValues([CFG.ACCESS_HEADERS]);
-
-    const fakeRoster = ['GPC', 'CCI', 'ALD', 'PAP', 'ECSC'].map((specialty, i) => ({
-      id: 'TEST-00' + (i + 1), name: 'Estudiante Prueba ' + (i + 1), specialty,
-      company: 'Empresa Ficticia ' + (i + 1), companyId: 'TEST-EMP-' + (i + 1)
-    }));
-    const choices = [
-      { status: 'accepted', reason: '' },
-      { status: 'declined', reason: CFG.REASONS[0] },
-      { status: 'future', reason: '' },
-      { status: 'none', reason: '' },
-      { status: 'undecided', reason: '' }
-    ];
-    const first = writeTestResponse_(tempBook, fakeRoster[0], choices[0], 'TEST-IDEMPOTENCY-001');
-    const duplicate = writeTestResponse_(tempBook, fakeRoster[0], choices[0], 'TEST-IDEMPOTENCY-001');
-    const records = choices.slice(1).map((choice, i) => writeTestResponse_(tempBook, fakeRoster[i + 1], choice, 'TEST-IDEMPOTENCY-00' + (i + 2)));
-    const update = writeTestResponse_(tempBook, fakeRoster[4], { status: 'accepted', reason: '' }, 'TEST-IDEMPOTENCY-006');
+  setupTestRoster_(tempBook);
+  const fakeRoster = getEligibleRoster_(tempBook);
+  const testTokens = fakeRoster.map((student, i) => ({
+    token: String(i + 1).padStart(64, 'a'), id: student.id, name: student.name,
+    specialty: student.specialty, company: student.company, companyId: student.companyId
+  }));
+  access.getRange(2, 1, testTokens.length, CFG.ACCESS_HEADERS.length).setValues(testTokens.map(x => [x.token, x.id, x.name, x.specialty, x.company, x.companyId, 'ACTIVO', new Date()]));
+  const identities = testTokens.map(x => identify_(x.token, '', tempBook));
+  const wrongSpecialtyRejected = (() => { try { identify_(testTokens[0].token, 'WRONG', tempBook); return false; } catch (_) { return true; } })();
+  const choices = [
+    { status: 'accepted', reason: '' },
+    { status: 'declined', reason: CFG.REASONS[0] },
+    { status: 'future', reason: '' },
+    { status: 'none', reason: '' },
+    { status: 'undecided', reason: '' }
+  ];
+  const makePayload = (i, choice, idem) => ({ session: identities[i].session, state: choice.status, reason: choice.reason, idem });
+  const first = submit_(makePayload(0, choices[0], 'TEST-IDEMPOTENCY-0001'), tempBook);
+  const duplicate = submit_(makePayload(0, choices[0], 'TEST-IDEMPOTENCY-0001'), tempBook);
+  const records = choices.slice(1).map((choice, i) => submit_(makePayload(i + 1, choice, 'TEST-IDEMPOTENCY-000' + (i + 2)), tempBook));
+  const invalidReasonRejected = (() => { try { submit_(makePayload(0, { status: 'declined', reason: '' }, 'TEST-IDEMPOTENCY-0007'), tempBook); return false; } catch (_) { return true; } })();
+  const update = submit_(makePayload(4, { status: 'accepted', reason: '' }, 'TEST-IDEMPOTENCY-0006'), tempBook);
     SpreadsheetApp.flush();
     const cur = readObjects_(current);
     const hist = readObjects_(history);
     const dash = dashboardSnapshot_(fakeRoster, cur);
-    report.push({ test: 'idempotencia y recibo almacenado', ok: first.ok && duplicate.duplicate && hist.length === 1 && cur.length === 1 });
+    report.push({ test: 'código opaco devuelve una sola identidad y valida especialidad', ok: identities.every((x, i) => x.student.name === fakeRoster[i].name && x.student.code === fakeRoster[i].specialtyCode && Object.keys(x.student).sort().join(',') === 'code,name,specialty') && wrongSpecialtyRejected });
+    report.push({ test: 'idempotencia, LockService y recibo almacenado', ok: first.stored && duplicate.duplicate && hist.length === 1 && cur.length === 1 });
+    report.push({ test: 'servidor rechaza el rechazo sin motivo obligatorio', ok: invalidReasonRejected && cur.length === 5 && hist.length === 6 });
     report.push({ test: 'actualización de última respuesta y conservación del historial', ok: update.ok && cur.length === 5 && hist.length === 6 && cur.find(x => x.ID_ESTUDIANTE === 'TEST-005').SITUACION_LABORAL === CFG.STATES.accepted });
     report.push({ test: 'fecha y hora con zona Costa Rica', ok: cur.every(x => x.FECHA_HORA_CR instanceof Date) && tempBook.getSpreadsheetTimeZone() === CFG.TIME_ZONE });
     report.push({ test: 'cinco opciones laborales registradas y actualizadas', ok: records.every(x => x.ok) && cur.length === 5 && cur.some(x => x.SITUACION_LABORAL === CFG.STATES.future) && cur.some(x => x.SITUACION_LABORAL === CFG.STATES.none) && cur.filter(x => x.SITUACION_LABORAL === CFG.STATES.accepted).length === 2 });
@@ -251,58 +259,49 @@ function runPureTests_() {
   ];
 }
 
-function writeTestResponse_(book, identity, choice, idem) {
-  const validated = validateChoice_(choice.status, choice.reason || '');
-  const now = new Date();
-  const current = book.getSheetByName(CFG.CURRENT);
-  const history = book.getSheetByName(CFG.HISTORY);
-  const old = readObjects_(history).find(x => x.IDEMPOTENCY_KEY === idem && x.ID_ESTUDIANTE === identity.id);
-  if (old) {
-    upsertCurrent_(current, CFG.CURRENT_HEADERS, old);
-    return { ok: true, duplicate: true, receipt: old.ID_RESPUESTA };
-  }
-  const currentRecord = readObjects_(current).find(x => x.ID_ESTUDIANTE === identity.id);
-  const responseId = Utilities.getUuid();
-  const movement = currentRecord ? 'ACTUALIZACION' : 'NUEVA';
-  const full = {
-    ID_RESPUESTA: responseId,
-    ID_ESTUDIANTE: identity.id,
-    NOMBRE_COMPLETO: identity.name,
-    ESPECIALIDAD: identity.specialty,
-    EMPRESA: identity.company,
-    ID_EMPRESA: identity.companyId,
-    SITUACION_LABORAL: CFG.STATES[validated.status],
-    MOTIVO_RECHAZO: validated.reason,
-    FECHA_HORA_CR: now,
-    IDEMPOTENCY_KEY: idem,
-    TIPO_MOVIMIENTO: movement
-  };
-  history.appendRow(CFG.HISTORY_HEADERS.map(h => full[h]));
-  upsertCurrent_(current, CFG.CURRENT_HEADERS, full);
-  SpreadsheetApp.flush();
-  return { ok: true, duplicate: false, receipt: responseId };
+function setupTestRoster_(book) {
+  const specs = [
+    ['CODIGO_ESPECIALIDAD', 'NOMBRE_ESPECIALIDAD', 'ESTADO'],
+    ['GPC', 'Especialidad prueba GPC', 'Activa'], ['CCI', 'Especialidad prueba CCI', 'Activa'],
+    ['ALD', 'Especialidad prueba ALD', 'Activa'], ['PAP', 'Especialidad prueba PAP', 'Activa'],
+    ['ECSC', 'Especialidad prueba ECSC', 'Activa']
+  ];
+  const students = [['ID_ESTUDIANTE', 'NOMBRE_COMPLETO', 'ESPECIALIDAD', 'CODIGO_ESPECIALIDAD', 'ESTADO_ESTUDIANTE']];
+  const assignments = [['ID_ASIGNACION', 'ID_ESTUDIANTE', 'CODIGO_ESPECIALIDAD', 'EMPRESA', 'ID_EMPRESA', 'FECHA_INICIO', 'ESTADO_ASIGNACION', 'OBSERVACIONES']];
+  const companies = [['ID_EMPRESA', 'NOMBRE_EMPRESA']];
+  ['GPC', 'CCI', 'ALD', 'PAP', 'ECSC'].forEach((code, i) => {
+    const id = 'TEST-00' + (i + 1), companyId = 'TEST-EMP-' + (i + 1), companyName = 'Empresa Ficticia ' + (i + 1);
+    students.push([id, 'Estudiante Prueba ' + (i + 1), 'Especialidad prueba ' + code, code, 'Cumplido']);
+    assignments.push(['TEST-ASIG-' + (i + 1), id, code, companyName, companyId, '05/10/2026', 'Cumplido', '']);
+    companies.push([companyId, companyName]);
+  });
+  [["ESTUDIANTES", students], ["ASIGNACIONES", assignments], ["ESPECIALIDADES", specs], ["EMPRESAS", companies]].forEach(([name, rows]) => {
+    const sheet = book.getSheetByName(name) || book.insertSheet(name);
+    sheet.clearContents(); sheet.getRange(1, 1, rows.length, rows[0].length).setValues(rows);
+  });
+  book.setSpreadsheetTimeZone(CFG.TIME_ZONE);
 }
 
-function submit_(p) {
+function submit_(p, targetBook) {
   const session = readSession_(p.session, 'student');
   const idem = safeKey_(p.idem);
   const state = String(p.state || '');
   const reason = String(p.reason || '').trim();
   if (!idem) throw new Error('Respuesta inválida.');
   const choice = validateChoice_(state, reason);
-  const currentIdentity = getEligibleRoster_().find(x => x.id === session.id);
+  const book = targetBook || book_();
+  const currentIdentity = getEligibleRoster_(book).find(x => x.id === session.id);
   if (!currentIdentity) throw new Error('El acceso dejó de estar habilitado para este registro.');
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
-    const book = book_();
     const historySheet = book.getSheetByName(CFG.HISTORY);
     const previous = readObjects_(historySheet).find(x => x.IDEMPOTENCY_KEY === idem && x.ID_ESTUDIANTE === currentIdentity.id);
     if (previous) {
       upsertCurrent_(book.getSheetByName(CFG.CURRENT), CFG.CURRENT_HEADERS, previous);
       SpreadsheetApp.flush();
       verifyStored_(book, previous.ID_RESPUESTA, currentIdentity.id, idem);
-      refreshDashboard_(book, getEligibleRoster_());
+      refreshDashboard_(book, getEligibleRoster_(book));
       return { ok: true, stored: true, duplicate: true, receipt: previous.ID_RESPUESTA };
     }
     const currentSheet = book.getSheetByName(CFG.CURRENT);
@@ -328,20 +327,20 @@ function submit_(p) {
     upsertCurrent_(currentSheet, CFG.CURRENT_HEADERS, record);
     SpreadsheetApp.flush();
     verifyCurrent_(currentSheet, responseId, currentIdentity.id, idem);
-    try { refreshDashboard_(book, getEligibleRoster_()); } catch (dashboardError) { console.error('No se pudo refrescar el dashboard:', dashboardError); }
+    try { refreshDashboard_(book, getEligibleRoster_(book)); } catch (dashboardError) { console.error('No se pudo refrescar el dashboard:', dashboardError); }
     return { ok: true, stored: true, duplicate: false, receipt: responseId };
   } finally {
     lock.releaseLock();
   }
 }
 
-function identify_(code, specialtyCode) {
+function identify_(code, specialtyCode, sourceBook) {
   const token = String(code || '').trim();
   if (!/^[a-f0-9-]{32,80}$/i.test(token)) throw new Error('Código inválido.');
-  const book = book_();
+  const book = sourceBook || book_();
   const access = readObjects_(book.getSheetByName(CFG.ACCESS)).find(x => x.TOKEN_OPACO === token && x.ESTADO_ACCESO === 'ACTIVO');
   if (!access) throw new Error('Código inválido o desactivado. Solicite ayuda a la coordinación.');
-  const identity = getEligibleRoster_().find(x => x.id === access.ID_ESTUDIANTE);
+  const identity = getEligibleRoster_(book).find(x => x.id === access.ID_ESTUDIANTE);
   if (!identity) throw new Error('El acceso no está habilitado para una práctica elegible.');
   if (specialtyCode && String(specialtyCode) !== identity.specialtyCode) throw new Error('La especialidad seleccionada no coincide con el código personal.');
   const session = randomSecret_();
@@ -368,7 +367,7 @@ function adminData_(session) {
   const book = book_();
   const roster = getEligibleRoster_();
   const latest = readObjects_(book.getSheetByName(CFG.CURRENT));
-  const metrics = dashboardSnapshot_(roster, latest, getSpecialties_());
+  const metrics = dashboardSnapshot_(roster, latest, getSpecialties_(book));
   const eligibleIds = new Set(roster.map(x => x.id));
   const eligibleLatest = latest.filter(x => eligibleIds.has(String(x.ID_ESTUDIANTE)));
   const activeTokens = readObjects_(book.getSheetByName(CFG.ACCESS)).filter(x => x.ESTADO_ACCESO === 'ACTIVO' && eligibleIds.has(String(x.ID_ESTUDIANTE)));
@@ -454,7 +453,7 @@ function refreshDashboard_(book, roster) {
   const sheet = book.getSheetByName(CFG.DASHBOARD);
   if (!sheet) throw new Error('No existe la hoja del dashboard.');
   const current = readObjects_(book.getSheetByName(CFG.CURRENT));
-  const model = dashboardSnapshot_(roster, current, getSpecialties_());
+  const model = dashboardSnapshot_(roster, current, getSpecialties_(book));
   const rows = [CFG.DASH_HEADERS];
   const add = (section, label, eligible, responded, values) => {
     const s = countStates_(eligible, values);
@@ -473,12 +472,13 @@ function refreshDashboard_(book, roster) {
   return model;
 }
 
-function getEligibleRoster_() {
-  const students = readObjects_(book_().getSheetByName('ESTUDIANTES'));
-  const assignments = readObjects_(book_().getSheetByName('ASIGNACIONES'));
-  const specializations = readObjects_(book_().getSheetByName('ESPECIALIDADES'));
-  const companies = readObjects_(book_().getSheetByName('EMPRESAS'));
-  const exclusions = readObjects_(book_().getSheetByName(CFG.EXCLUSIONS));
+function getEligibleRoster_(sourceBook) {
+  const book = sourceBook || book_();
+  const students = readObjects_(book.getSheetByName('ESTUDIANTES'));
+  const assignments = readObjects_(book.getSheetByName('ASIGNACIONES'));
+  const specializations = readObjects_(book.getSheetByName('ESPECIALIDADES'));
+  const companies = readObjects_(book.getSheetByName('EMPRESAS'));
+  const exclusions = readObjects_(book.getSheetByName(CFG.EXCLUSIONS));
   return buildRoster_(students, assignments, specializations, companies, exclusions);
 }
 
@@ -555,8 +555,8 @@ function isExplicitNonParticipation_(text) {
   return /(desert|deserc|abandono|abandona|no se present[oó]|no asist[ií]|inasist|cancelad[oa]|anulad[oa]|no realiz[oó].{0,28}pr[aá]ctica|no efectu[oó]|reprobad[oa]|renunci[oó]|no complet[oó].{0,24}pr[aá]ctica)/i.test(String(text || ''));
 }
 
-function getSpecialties_() {
-  const rows = readObjects_(book_().getSheetByName('ESPECIALIDADES'));
+function getSpecialties_(sourceBook) {
+  const rows = readObjects_((sourceBook || book_()).getSheetByName('ESPECIALIDADES'));
   return rows.filter(x => normalize_(x.ESTADO) === 'activa' && x.NOMBRE_ESPECIALIDAD).map(x => ({
     code: String(x.CODIGO_ESPECIALIDAD || ''), name: String(x.NOMBRE_ESPECIALIDAD || '')
   })).sort((a, b) => a.name.localeCompare(b.name, 'es'));
