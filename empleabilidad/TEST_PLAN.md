@@ -4,8 +4,8 @@ Las pruebas de lógica local usan datos inventados `FIX-*` y no escriben en Goog
 
 | N.º | Requisito | Método de verificación | Resultado observado |
 |---:|---|---|---|
-| 1 | Carga de especialidades reales | Catálogo activo leído del libro PPS; cotejo con auditoría | Prueba local y Apps Script aprobadas; endpoint público pendiente de despliegue |
-| 2 | Filtrado de estudiantes | Código opaco devuelve solo el estudiante asociado y valida especialidad | Integración temporal aprobada; endpoint público pendiente de despliegue |
+| 1 | Carga de especialidades reales | Catálogo activo leído del libro PPS; cotejo con auditoría | Prueba local aprobada; endpoint creado, pero su solicitud devuelve 404 en sesión múltiple antes de ejecutar el script |
+| 2 | Filtrado de estudiantes | Código opaco devuelve solo el estudiante asociado y valida especialidad | Integración temporal aprobada; respuesta del endpoint público pendiente de validación |
 | 3 | Empresa automática | Empresa e ID proceden de la asignación elegible más reciente | Apps Script leyó el padrón real; lógica aprobada |
 | 4 | Reubicaciones | Asignación cancelada, reubicación válida y cancelación más reciente | Prueba unitaria aprobada |
 | 5 | Fecha y hora de Costa Rica | Zona del libro/proyecto y valor `Date` en libro temporal | Integración aprobada; libro oficial en `America/Costa_Rica` |
@@ -18,7 +18,7 @@ Las pruebas de lógica local usan datos inventados `FIX-*` y no escriben en Goog
 | 12 | Pérdida de conexión | La PWA no confirma sin recibo; reintento conserva idempotencia | Comprobación estática aprobada; simulación de red en navegador pendiente |
 | 13 | Privacidad | Identidad con código opaco; sin cédulas, teléfonos ni correos en salida pública | Prueba unitaria aprobada; revisión de archivos públicos aprobada |
 | 14 | Vista móvil | Ventana estrecha y controles táctiles | Pendiente prueba visual en navegador móvil |
-| 15 | Sesión no autenticada | Web App público sin sesión de Google; consulta individual requiere código | Pendiente despliegue público |
+| 15 | Sesión no autenticada | Web App público sin sesión de Google; consulta individual requiere código | Despliegue creado (`Anyone`, ejecuta como cuenta institucional); acceso aún no validado: Chrome con varias cuentas recibe 404 antes de ejecutar `doGet`; pendiente prueba de incógnito |
 | 16 | Instalación PWA | Manifest, íconos, service worker e instalación del navegador | Verificación estática aprobada; GitHub Pages pendiente |
 | 17 | Indicadores administrativos | Cinco estados, actualización y tasas con denominadores distintos | Integración aprobada en libro temporal |
 | 18 | PPS sin perjuicio | Auditoría de filas y destinos de escritura | Auditoría Apps Script: 144 elegibles, 0 respuestas vigentes, 0 movimientos; tablas base solo lectura |
@@ -29,6 +29,6 @@ Las pruebas de lógica local usan datos inventados `FIX-*` y no escriben en Goog
 - 8/8 pruebas de integración Apps Script aprobadas con cinco estudiantes ficticios en un libro temporal aislado; una primera corrida detectó dos expectativas erróneas del test, se corrigieron y la repetición pasó completa.
 - La integración comprobó escritura real, lectura posterior, clave idempotente, actualización, historial, fechas CR, razones de rechazo e indicadores.
 - El libro oficial conserva 144 elegibles, 0 respuestas vigentes y 0 movimientos de historial. El libro temporal ficticio fue enviado a la papelera.
-- Pendientes: despliegue anónimo de Apps Script, configuración final de GitHub Pages, prueba de navegador sin autenticar, modo sin conexión y validación visual móvil/instalable.
+- Pendientes: verificar el acceso anónimo al despliegue de Apps Script (el navegador multicuenta recibe 404 antes de `doGet`), configuración final de GitHub Pages, prueba de navegador sin autenticar, modo sin conexión y validación visual móvil/instalable.
 
 No se deben marcar como aprobadas las pruebas marcadas pendientes hasta ejecutarlas contra la implementación real.
