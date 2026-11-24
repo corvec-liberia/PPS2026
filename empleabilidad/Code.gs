@@ -191,9 +191,12 @@ function runIsolatedIntegrationTests2026(testSpreadsheetId) {
   ];
   const makePayload = (i, choice, idem) => ({ session: identities[i].session, state: choice.status, reason: choice.reason, idem });
   const first = submit_(makePayload(0, choices[0], 'TEST-IDEMPOTENCY-0001'), tempBook);
+  const afterFirst = { current: readObjects_(current).length, history: readObjects_(history).length };
   const duplicate = submit_(makePayload(0, choices[0], 'TEST-IDEMPOTENCY-0001'), tempBook);
+  const afterDuplicate = { current: readObjects_(current).length, history: readObjects_(history).length };
   const records = choices.slice(1).map((choice, i) => submit_(makePayload(i + 1, choice, 'TEST-IDEMPOTENCY-000' + (i + 2)), tempBook));
   const invalidReasonRejected = (() => { try { submit_(makePayload(0, { status: 'declined', reason: '' }, 'TEST-IDEMPOTENCY-0007'), tempBook); return false; } catch (_) { return true; } })();
+  const updateTargetId = testTokens[4].id;
   const update = submit_(makePayload(4, { status: 'accepted', reason: '' }, 'TEST-IDEMPOTENCY-0006'), tempBook);
   const lateDuplicate = submit_(makePayload(4, choices[4], 'TEST-IDEMPOTENCY-0005'), tempBook);
     SpreadsheetApp.flush();
@@ -201,9 +204,9 @@ function runIsolatedIntegrationTests2026(testSpreadsheetId) {
     const hist = readObjects_(history);
     const dash = dashboardSnapshot_(fakeRoster, cur);
     report.push({ test: 'código opaco devuelve una sola identidad y valida especialidad', ok: identities.every((x, i) => x.student.name === fakeRoster[i].name && x.student.code === fakeRoster[i].specialtyCode && Object.keys(x.student).sort().join(',') === 'code,name,specialty') && wrongSpecialtyRejected });
-    report.push({ test: 'idempotencia, LockService y recibo almacenado', ok: first.stored && duplicate.duplicate && hist.length === 1 && cur.length === 1 });
+  report.push({ test: 'idempotencia, LockService y recibo almacenado', ok: first.stored && !first.duplicate && duplicate.duplicate && duplicate.receipt === first.receipt && afterFirst.current === 1 && afterFirst.history === 1 && afterDuplicate.current === 1 && afterDuplicate.history === 1 });
     report.push({ test: 'servidor rechaza el rechazo sin motivo obligatorio', ok: invalidReasonRejected && cur.length === 5 && hist.length === 6 });
-    report.push({ test: 'actualización e historial conservan el dato más reciente ante reintento tardío', ok: update.ok && lateDuplicate.duplicate && cur.length === 5 && hist.length === 6 && cur.find(x => x.ID_ESTUDIANTE === 'TEST-005').SITUACION_LABORAL === CFG.STATES.accepted });
+  report.push({ test: 'actualización e historial conservan el dato más reciente ante reintento tardío', ok: update.ok && lateDuplicate.duplicate && cur.length === 5 && hist.length === 6 && cur.find(x => x.ID_ESTUDIANTE === updateTargetId).SITUACION_LABORAL === CFG.STATES.accepted });
     report.push({ test: 'fecha y hora con zona Costa Rica', ok: cur.every(x => x.FECHA_HORA_CR instanceof Date) && tempBook.getSpreadsheetTimeZone() === CFG.TIME_ZONE });
     report.push({ test: 'cinco opciones laborales registradas y actualizadas', ok: records.every(x => x.ok) && cur.length === 5 && cur.some(x => x.SITUACION_LABORAL === CFG.STATES.future) && cur.some(x => x.SITUACION_LABORAL === CFG.STATES.none) && cur.filter(x => x.SITUACION_LABORAL === CFG.STATES.accepted).length === 2 });
     report.push({ test: 'indicadores con denominadores correctos', ok: dash.stats.totalEligible === 5 && dash.stats.responded === 5 && dash.stats.offers === 3 && dash.stats.accepted === 2 && dash.stats.declined === 1 && dash.stats.undecided === 0 && dash.stats.future === 1 && dash.stats.none === 1 });
