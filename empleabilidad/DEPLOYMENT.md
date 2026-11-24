@@ -10,17 +10,19 @@
 
 ## Despliegue del backend
 
-1. Crear un proyecto independiente desde Apps Script con la cuenta institucional `cordiempresactpl@gmail.com`.
-2. Copiar `Code.gs` y `appsscript.json` a ese proyecto. El identificador del libro no está en el repositorio; guardar el ID institucional únicamente como propiedad de secuencia de comandos `BOOK_ID`.
-3. Ejecutar `setupEmpleabilidad2026`. Autorizar únicamente las operaciones de Hojas de cálculo solicitadas por Google. La función crea las pestañas requeridas, genera códigos individuales en una pestaña privada, aplica exclusiones aprobadas sin modificar las tablas base, actualiza el resumen y crea el código de administración en Propiedades del script. Si es la primera ejecución, `ADMIN_KEY` se muestra una vez en el registro privado de esa ejecución.
-4. Crear una implementación nueva como Aplicación web, ejecutar como la cuenta que implementa y permitir acceso anónimo. El acceso anónimo solo permite usar un código personal; no permite leer el padrón o las respuestas.
-5. Copiar el URL de implementación terminado en `/exec` a `pwa/config.js`, en `apiUrl`. No incluir el URL de ensayo `/dev`.
-6. `setupEmpleabilidad2026` fija automáticamente `SURVEY_URL` al URL previsto de GitHub Pages; si la ruta publicada cambia, actualizar la propiedad desde Apps Script para que el panel genere enlaces individuales completos.
-7. Ejecutar `auditEmpleabilidad2026` y revisar el registro. Después, abrir la URL desde una sesión no autenticada, verificar salud y carga de especialidades, y probar con un código ficticio aislado antes de compartir códigos reales.
+1. Proyecto independiente creado en Apps Script con la cuenta institucional. Código y manifiesto cargados en ese proyecto.
+2. `BOOK_ID` y `TEST_BOOK_ID` están en Propiedades del script; ninguno aparece en el repositorio. El libro oficial conserva sus cuatro tablas base sin modificaciones.
+3. `setupEmpleabilidad2026` ejecutado y verificado: creó las cinco pestañas de empleabilidad, generó los accesos opacos y actualizó el dashboard. El proyecto/libro usan `America/Costa_Rica`.
+4. Apps Script fue autorizado por la cuenta institucional. La autorización de Google mostró la advertencia estándar para proyectos no verificados; el propietario aprobó el acceso solicitado.
+5. Pruebas temporales y auditoría de solo lectura aprobadas; el libro de prueba ficticio fue enviado a la papelera.
+6. **Pendiente:** crear la implementación como Aplicación web, ejecutar como la cuenta institucional y permitir acceso anónimo para que el estudiante use su código. El acceso anónimo no permite listar el padrón ni consultar respuestas de otras personas; el panel administrativo exige el código privado.
+7. Al crear el despliegue, copiar el URL terminado en `/exec` a `pwa/config.js`. No usar el URL de prueba `/dev` ni publicar claves.
+8. `setupEmpleabilidad2026` fijó `SURVEY_URL` al URL previsto de GitHub Pages; ajustar esta propiedad solo si cambia la ruta.
+9. Pendientes luego del despliegue: probar salud/especialidades desde sesión no autenticada, completar smoke tests móviles/offline/PWA y confirmar las métricas en producción sin insertar respuestas ficticias.
 
 ## Publicación estática
 
-Publicar `pwa/` desde una fuente de GitHub Pages aislada, o servirla bajo la ruta `empleabilidad/pwa/` del repositorio. El URL de `pwa/config.js` debe ser el Web App de Apps Script real. GitHub Pages y el repositorio no reciben ni almacenan la lista de estudiantes.
+La PWA está aislada bajo `empleabilidad/pwa/` en la rama `feature/empleabilidad-2026`. El repositorio principal continúa con su aplicación PPS existente. **Pendiente:** actualizar `pwa/config.js` con el URL real de Apps Script y fusionar únicamente esa carpeta a `main` para publicarla en GitHub Pages. El repositorio nunca recibe ni almacena la lista de estudiantes.
 
 ## Protección de datos
 
