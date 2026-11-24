@@ -11,14 +11,14 @@
 ## Despliegue del backend
 
 1. Proyecto independiente creado en Apps Script con la cuenta institucional. Código y manifiesto cargados en ese proyecto.
-2. `BOOK_ID` y `TEST_BOOK_ID` están en Propiedades del script; ninguno aparece en el repositorio. El libro oficial conserva sus cuatro tablas base sin modificaciones.
+2. `BOOK_ID`, `SURVEY_URL`, `ADMIN_KEY` y la referencia del libro de prueba están en Propiedades del script; ninguna aparece en el repositorio. El libro oficial conserva sus cuatro tablas base sin modificaciones. El libro ficticio ya fue enviado a la papelera.
 3. `setupEmpleabilidad2026` ejecutado y verificado: creó las cinco pestañas de empleabilidad, generó los accesos opacos y actualizó el dashboard. El proyecto/libro usan `America/Costa_Rica`.
 4. Apps Script fue autorizado por la cuenta institucional. La autorización de Google mostró la advertencia estándar para proyectos no verificados; el propietario aprobó el acceso solicitado.
 5. Pruebas temporales y auditoría de solo lectura aprobadas; el libro de prueba ficticio fue enviado a la papelera.
-6. **Pendiente:** crear la implementación como Aplicación web, ejecutar como la cuenta institucional y permitir acceso anónimo para que el estudiante use su código. El acceso anónimo no permite listar el padrón ni consultar respuestas de otras personas; el panel administrativo exige el código privado.
-7. Al crear el despliegue, copiar el URL terminado en `/exec` a `pwa/config.js`. No usar el URL de prueba `/dev` ni publicar claves.
+6. La implementación Web App versión 1 ya fue creada para ejecutarse como la cuenta institucional con acceso `Anyone` (incluye usuarios sin sesión). Sin embargo, la URL devuelve la página genérica de Drive 404 en el navegador institucional con varias cuentas iniciadas, antes de que se ejecute `doGet`. Se está comprobando desde incógnito según la recomendación oficial de Apps Script; mantener el lanzamiento bloqueado hasta verificar.
+7. Cuando el endpoint responda correctamente fuera de la sesión múltiple, copiar el URL terminado en `/exec` a `pwa/config.js`. No usar el URL de prueba `/dev` ni publicar claves.
 8. `setupEmpleabilidad2026` fijó `SURVEY_URL` al URL previsto de GitHub Pages; ajustar esta propiedad solo si cambia la ruta.
-9. Pendientes luego del despliegue: probar salud/especialidades desde sesión no autenticada, completar smoke tests móviles/offline/PWA y confirmar las métricas en producción sin insertar respuestas ficticias.
+9. Pendiente: confirmar endpoint anónimo y salud/especialidades; luego completar smoke tests móviles/offline/PWA y confirmar las métricas en producción sin insertar respuestas ficticias.
 
 ## Publicación estática
 
@@ -38,4 +38,4 @@ La PWA está aislada bajo `empleabilidad/pwa/` en la rama `feature/empleabilidad
 
 ## Limitación antes de activar
 
-La rama de desarrollo no tiene permiso de publicación de GitHub Pages por sí sola. El sitio público requiere habilitar GitHub Pages para la carpeta indicada o incorporar la ruta a la fuente de Pages configurada. Apps Script también requiere terminar la autenticación y aprobar la implementación pública como Web App.
+La PWA está en la rama aislada y no se ha publicado en Pages porque `config.js` aún contiene el marcador del endpoint. El despliegue de Apps Script está creado y autorizado; el bloqueo observado es la respuesta 404 genérica en la sesión de Chrome con múltiples cuentas. Google indica que el multi-login no está soportado por Apps Script; confirmar en una ventana de incógnito antes de activar el enlace para estudiantes.
