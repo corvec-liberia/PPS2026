@@ -1,4 +1,7 @@
-const CACHE_NAME = 'pps-empleabilidad-2026-v1';
+// Increment this whenever the public app or its API configuration changes.
+// Activation removes the previous cache so installed PWAs stop using stale
+// copies of config.js / app.js after a deployment update.
+const CACHE_NAME = 'pps-empleabilidad-2026-v2';
 const APP_SHELL = [
   './', './index.html', './styles.css', './config.js', './app.js',
   './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'
