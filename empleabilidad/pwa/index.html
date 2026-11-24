@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#12345b">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="Encuesta de Empleabilidad 2026 del CTP Liberia.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self' https://script.google.com https://*.googleusercontent.com; img-src 'self' data:; connect-src 'self'; frame-src https://script.google.com https://*.googleusercontent.com; form-action 'self' https://script.google.com https://*.googleusercontent.com; base-uri 'self'; object-src 'none'">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <title>Encuesta de Empleabilidad 2026 · CTP Liberia</title>
+</head>
+<body>
+  <header class="hero">
+    <div class="brand-lockup" aria-hidden="true"><span class="brand-mark"><svg viewBox="0 0 48 48"><path d="M8 17.5 24 9l16 8.5v20H8z"/><path d="M16 38V24h16v14M12 20h24M20 29h8"/></svg></span><span>CTP LIBERIA</span></div>
+    <p class="eyebrow">Coordinación con la Empresa</p>
+    <h1>Encuesta de<br>Empleabilidad 2026</h1>
+    <p class="hero-subtitle">Práctica Profesional Supervisada</p>
+  </header>
+
+  <main class="page-shell">
+    <section class="intro-card card">
+      <p>Estimado(a) estudiante:</p>
+      <p>Esperamos que su experiencia durante la práctica profesional haya sido agradable y que le haya permitido adquirir nuevos conocimientos técnicos, fortalecer sus habilidades blandas y desarrollar competencias para la empleabilidad.</p>
+      <p>A continuación, le solicitamos indicar su situación laboral con respecto a la empresa donde realizó su práctica profesional.</p>
+    </section>
+
+    <section id="connectionNotice" class="notice notice-info" role="status" aria-live="polite" hidden></section>
+
+    <section id="identityCard" class="card form-card">
+      <div class="section-heading">
+        <span class="step-number">01</span>
+        <div><h2>Identificación</h2><p>El código personal permite mostrar solo sus datos.</p></div>
+      </div>
+      <label for="specialty">Especialidad técnica</label>
+      <select id="specialty" required disabled>
+        <option value="">Cargando especialidades…</option>
+      </select>
+      <label for="accessCode">Código personal</label>
+      <div class="input-row">
+        <input id="accessCode" type="password" inputmode="text" autocomplete="one-time-code" autocapitalize="off" spellcheck="false" placeholder="Ingrese su código personal" aria-describedby="codeHelp">
+        <button id="identifyButton" class="button button-secondary" type="button" disabled>Verificar</button>
+      </div>
+      <p id="codeHelp" class="helper-text">Si recibió un enlace personal, el código se cargará automáticamente. Si no lo tiene, solicítelo a su profesor(a) o a Coordinación con la Empresa.</p>
+      <p id="identityMessage" class="message" role="status" aria-live="polite"></p>
+      <div id="studentField" hidden>
+        <label for="student">Nombre completo</label>
+        <select id="student" disabled><option value="">Verifique su código personal</option></select>
+      </div>
+    </section>
+
+    <form id="surveyForm" class="card form-card" hidden>
+      <div class="section-heading">
+        <span class="step-number">02</span>
+        <div><h2>Situación laboral</h2><p>Seleccione la opción que corresponde a su experiencia.</p></div>
+      </div>
+      <fieldset id="statusChoices" class="choice-list">
+        <legend>Después de realizar su práctica profesional, indique cuál es su situación laboral:</legend>
+        <label class="choice-card"><input type="radio" name="status" value="accepted" required><span class="radio-ui" aria-hidden="true"></span><span>La empresa me ofreció un contrato laboral y acepté.</span></label>
+        <label class="choice-card"><input type="radio" name="status" value="declined"><span class="radio-ui" aria-hidden="true"></span><span>La empresa me ofreció un contrato laboral, pero no acepté.</span></label>
+        <label class="choice-card"><input type="radio" name="status" value="future"><span class="radio-ui" aria-hidden="true"></span><span>La empresa no me ha ofrecido un contrato laboral, pero me indicó que me tomará en cuenta para futuras contrataciones.</span></label>
+        <label class="choice-card"><input type="radio" name="status" value="none"><span class="radio-ui" aria-hidden="true"></span><span>La empresa no me ha ofrecido un contrato laboral.</span></label>
+        <label class="choice-card"><input type="radio" name="status" value="undecided"><span class="radio-ui" aria-hidden="true"></span><span>Recibí una oferta laboral y todavía no he tomado una decisión.</span></label>
+      </fieldset>
+
+      <div id="reasonBox" class="conditional-field" hidden>
+        <label for="reason">¿Cuál fue el motivo para no aceptar la oferta?</label>
+        <select id="reason">
+          <option value="">Seleccione el motivo</option>
+          <option>Continuación de estudios</option>
+          <option>Otra oportunidad laboral</option>
+          <option>Motivos personales</option>
+          <option>Condiciones laborales</option>
+          <option>Otro motivo</option>
+        </select>
+      </div>
+
+      <div class="notice notice-warm">
+        <p>Si posteriormente recibe una oferta laboral de la empresa donde realizó su práctica profesional, le solicitamos ingresar nuevamente a este enlace y actualizar su información.</p>
+        <p>Sus respuestas son muy importantes para nuestro estudio de empleabilidad 2026.</p>
+      </div>
+      <button id="submitButton" class="button button-primary" type="submit">Guardar respuesta</button>
+      <p id="saveMessage" class="message" role="status" aria-live="polite"></p>
+    </form>
+
+    <div class="install-row">
+      <button id="installButton" class="button button-quiet" type="button" hidden>Agregar a pantalla de inicio</button>
+      <p id="iosInstall" class="helper-text" hidden>Para instalar en iPhone: toque <strong>Compartir</strong> y luego <strong>Agregar a pantalla de inicio</strong>.</p>
+    </div>
+
+    <footer class="signature">
+      <p class="signature-name">Máster Óscar Campos Rodríguez</p>
+      <p>Coordinador con la Empresa<br>Colegio Técnico Profesional de Liberia</p>
+      <p class="footer-note">Sus datos se utilizan para el estudio institucional de empleabilidad 2026.</p>
+    </footer>
+  </main>
+  <iframe id="gasTransport" name="gasTransport" title="Comunicación segura con el servicio institucional" hidden></iframe>
+  <script src="./config.js"></script>
+  <script src="./app.js" defer></script>
+</body>
+</html>

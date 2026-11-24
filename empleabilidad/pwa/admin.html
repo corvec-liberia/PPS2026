@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#12345b">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self' https://script.google.com https://*.googleusercontent.com; img-src 'self' data:; connect-src 'self'; frame-src https://script.google.com https://*.googleusercontent.com; form-action 'self' https://script.google.com https://*.googleusercontent.com; base-uri 'self'; object-src 'none'">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./admin.css">
+  <title>Panel privado · Empleabilidad 2026</title>
+</head>
+<body>
+  <header class="hero admin-hero">
+    <div class="brand-lockup"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M8 17.5 24 9l16 8.5v20H8z"/><path d="M16 38V24h16v14M12 20h24M20 29h8"/></svg></span><span>CTP LIBERIA</span></div>
+    <p class="eyebrow">Coordinación con la Empresa · 2026</p>
+    <h1>Panel de empleabilidad</h1>
+    <p class="hero-subtitle">Acceso privado para uso administrativo</p>
+  </header>
+  <main class="page-shell admin-shell">
+    <section id="loginCard" class="card admin-card">
+      <div class="section-heading"><span class="step-number">🔒</span><div><h2>Acceso administrativo</h2><p>Ingrese el código de administración.</p></div></div>
+      <form id="loginForm">
+        <label for="adminCode">Código de administración</label>
+        <input id="adminCode" type="password" autocomplete="current-password" spellcheck="false" required>
+        <button id="loginButton" class="button button-primary" type="submit">Entrar al panel</button>
+        <p id="loginMessage" class="message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section id="dashboard" hidden>
+      <div class="dashboard-toolbar"><div><p id="updatedAt" class="updated-at"></p><p class="privacy-note">Los listados de estudiantes se consultan desde Apps Script después de validar el código.</p></div><button id="logoutButton" class="button button-quiet" type="button">Cerrar sesión</button></div>
+      <div id="metricCards" class="metric-grid"></div>
+
+      <section class="card admin-card filter-card">
+        <div class="section-heading"><span class="step-number">⌕</span><div><h2>Filtros de resultados</h2><p>Los indicadores generales se muestran completos.</p></div></div>
+        <div class="filter-grid"><div><label for="filterSpecialty">Especialidad</label><select id="filterSpecialty"><option value="">Todas</option></select></div><div><label for="filterCompany">Empresa</label><select id="filterCompany"><option value="">Todas</option></select></div></div>
+      </section>
+
+      <section class="card admin-card">
+        <div class="section-heading"><span class="step-number">A</span><div><h2>Resultados por especialidad</h2><p>Participación, ofertas y contrataciones.</p></div></div>
+        <h3 class="chart-heading">Participación por especialidad</h3><div id="specialtyChart" class="bar-list" role="list" aria-label="Participación por especialidad"></div>
+        <div id="specialtyResults" class="table-scroll"></div>
+      </section>
+      <section class="card admin-card">
+        <div class="section-heading"><span class="step-number">B</span><div><h2>Resultados por empresa</h2><p>Información agregada de la práctica.</p></div></div>
+        <h3 class="chart-heading">Participación por empresa</h3><div id="companyChart" class="bar-list" role="list" aria-label="Participación por empresa"></div>
+        <div id="companyResults" class="table-scroll"></div>
+      </section>
+      <section class="card admin-card">
+        <div class="section-heading"><span class="step-number">C</span><div><h2>Motivos de rechazo</h2><p>Solo se cuentan respuestas de oferta rechazada.</p></div></div>
+        <div id="reasonResults" class="bar-list"></div>
+      </section>
+      <section class="card admin-card">
+        <div class="section-heading"><span class="step-number">D</span><div><h2>Respuestas recibidas</h2><p>Listado administrativo, con fecha de actualización.</p></div></div>
+        <div id="responseResults" class="table-scroll"></div>
+      </section>
+      <section class="card admin-card">
+        <div class="section-heading"><span class="step-number">E</span><div><h2>Estudiantes pendientes</h2><p>Elegibles sin una respuesta vigente.</p></div></div>
+        <div id="pendingResults" class="table-scroll"></div>
+      </section>
+      <section class="card admin-card">
+        <div class="section-heading"><span class="step-number">F</span><div><h2>Enlaces y códigos individuales</h2><p>Compártalos únicamente con el estudiante correspondiente.</p></div></div>
+        <label for="linkSearch">Buscar estudiante</label><input id="linkSearch" type="search" placeholder="Nombre, especialidad o empresa">
+        <div id="linkResults" class="table-scroll"></div>
+      </section>
+      <p id="dashboardMessage" class="message" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+  <iframe id="adminTransport" name="adminTransport" title="Comunicación segura con el panel" hidden></iframe>
+  <script src="./config.js"></script>
+  <script src="./admin.js" defer></script>
+</body>
+</html>
