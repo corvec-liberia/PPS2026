@@ -15,6 +15,7 @@ const workbook = { getSheetByName: name => name === 'ESPECIALIDADES' ? specialty
 const context = {
   console,
   SpreadsheetApp: { openById: () => workbook },
+  PropertiesService: { getScriptProperties: () => ({ getProperty: () => 'LOCAL-TEST-SPREADSHEET-ID-000000000000' }) },
   Logger: { log: () => {} }
 };
 vm.createContext(context);

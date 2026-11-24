@@ -142,10 +142,13 @@
     renderMetrics(data.stats); populateFilters(); renderBreakdown();
   }
   async function loadAdminData() {
+    const refresh = $('refreshButton'); if (refresh) refresh.disabled = true;
     message('dashboardMessage', 'Cargando los indicadores privados…');
-    const result = await post({ action: 'adminData', session });
-    displayData(result);
-    message('dashboardMessage', 'Panel actualizado desde Google Sheets.', 'success');
+    try {
+      const result = await post({ action: 'adminData', session });
+      displayData(result);
+      message('dashboardMessage', 'Panel actualizado desde Google Sheets.', 'success');
+    } finally { if (refresh) refresh.disabled = false; }
   }
   $('loginForm').addEventListener('submit', async event => {
     event.preventDefault();
@@ -161,6 +164,7 @@
     finally { button.disabled = false; button.textContent = 'Entrar al panel'; }
   });
   $('logoutButton').addEventListener('click', () => { session = ''; dashboardData = null; $('dashboard').hidden = true; $('loginCard').hidden = false; $('adminCode').value = ''; message('loginMessage', 'Sesión cerrada.'); });
+  $('refreshButton').addEventListener('click', () => loadAdminData().catch(error => message('dashboardMessage', error.message, 'error')));
   $('filterSpecialty').addEventListener('change', renderBreakdown);
   $('filterCompany').addEventListener('change', renderBreakdown);
   $('linkSearch').addEventListener('input', renderLinks);

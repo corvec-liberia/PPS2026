@@ -7,7 +7,6 @@
  */
 
 const CFG = Object.freeze({
-  BOOK_ID: '1EPIG9JGXwVdq-Jrki8_5eiraqGsOVUhpXvs1r5Gx6i4',
   TIME_ZONE: 'America/Costa_Rica',
   SURVEY_URL: 'https://corvec-liberia.github.io/PPS2026/empleabilidad/pwa/',
   CURRENT: 'EMPLEABILIDAD_2026',
@@ -195,6 +194,7 @@ function runIsolatedIntegrationTests2026(testSpreadsheetId) {
   const records = choices.slice(1).map((choice, i) => submit_(makePayload(i + 1, choice, 'TEST-IDEMPOTENCY-000' + (i + 2)), tempBook));
   const invalidReasonRejected = (() => { try { submit_(makePayload(0, { status: 'declined', reason: '' }, 'TEST-IDEMPOTENCY-0007'), tempBook); return false; } catch (_) { return true; } })();
   const update = submit_(makePayload(4, { status: 'accepted', reason: '' }, 'TEST-IDEMPOTENCY-0006'), tempBook);
+  const lateDuplicate = submit_(makePayload(4, choices[4], 'TEST-IDEMPOTENCY-0005'), tempBook);
     SpreadsheetApp.flush();
     const cur = readObjects_(current);
     const hist = readObjects_(history);
@@ -202,7 +202,7 @@ function runIsolatedIntegrationTests2026(testSpreadsheetId) {
     report.push({ test: 'código opaco devuelve una sola identidad y valida especialidad', ok: identities.every((x, i) => x.student.name === fakeRoster[i].name && x.student.code === fakeRoster[i].specialtyCode && Object.keys(x.student).sort().join(',') === 'code,name,specialty') && wrongSpecialtyRejected });
     report.push({ test: 'idempotencia, LockService y recibo almacenado', ok: first.stored && duplicate.duplicate && hist.length === 1 && cur.length === 1 });
     report.push({ test: 'servidor rechaza el rechazo sin motivo obligatorio', ok: invalidReasonRejected && cur.length === 5 && hist.length === 6 });
-    report.push({ test: 'actualización de última respuesta y conservación del historial', ok: update.ok && cur.length === 5 && hist.length === 6 && cur.find(x => x.ID_ESTUDIANTE === 'TEST-005').SITUACION_LABORAL === CFG.STATES.accepted });
+    report.push({ test: 'actualización e historial conservan el dato más reciente ante reintento tardío', ok: update.ok && lateDuplicate.duplicate && cur.length === 5 && hist.length === 6 && cur.find(x => x.ID_ESTUDIANTE === 'TEST-005').SITUACION_LABORAL === CFG.STATES.accepted });
     report.push({ test: 'fecha y hora con zona Costa Rica', ok: cur.every(x => x.FECHA_HORA_CR instanceof Date) && tempBook.getSpreadsheetTimeZone() === CFG.TIME_ZONE });
     report.push({ test: 'cinco opciones laborales registradas y actualizadas', ok: records.every(x => x.ok) && cur.length === 5 && cur.some(x => x.SITUACION_LABORAL === CFG.STATES.future) && cur.some(x => x.SITUACION_LABORAL === CFG.STATES.none) && cur.filter(x => x.SITUACION_LABORAL === CFG.STATES.accepted).length === 2 });
     report.push({ test: 'indicadores con denominadores correctos', ok: dash.stats.totalEligible === 5 && dash.stats.responded === 5 && dash.stats.offers === 3 && dash.stats.accepted === 2 && dash.stats.declined === 1 && dash.stats.undecided === 0 && dash.stats.future === 1 && dash.stats.none === 1 });
@@ -298,7 +298,12 @@ function submit_(p, targetBook) {
     const historySheet = book.getSheetByName(CFG.HISTORY);
     const previous = readObjects_(historySheet).find(x => x.IDEMPOTENCY_KEY === idem && x.ID_ESTUDIANTE === currentIdentity.id);
     if (previous) {
-      upsertCurrent_(book.getSheetByName(CFG.CURRENT), CFG.CURRENT_HEADERS, previous);
+      const currentSheet = book.getSheetByName(CFG.CURRENT);
+      const currentForStudent = readObjects_(currentSheet).find(x => x.ID_ESTUDIANTE === currentIdentity.id);
+      const latestForStudent = readObjects_(historySheet).filter(x => x.ID_ESTUDIANTE === currentIdentity.id).slice(-1)[0];
+      if (latestForStudent && (!currentForStudent || currentForStudent.ID_RESPUESTA !== latestForStudent.ID_RESPUESTA)) {
+        upsertCurrent_(currentSheet, CFG.CURRENT_HEADERS, latestForStudent);
+      }
       SpreadsheetApp.flush();
       verifyStored_(book, previous.ID_RESPUESTA, currentIdentity.id, idem);
       refreshDashboard_(book, getEligibleRoster_(book));
@@ -604,8 +609,8 @@ function upsertCurrent_(sheet, headers, record) {
     if (String(values[i][idCol]) === String(record.ID_ESTUDIANTE)) { targetRow = i + 1; break; }
   }
   if (targetRow > 0) sheet.getRange(targetRow, 1, 1, headers.length).setValues([rowValues]);
-  else sheet.appendRow(rowValues);
-  sheet.getRange('I:I').setNumberFormat('dd/MM/yyyy HH:mm:ss');
+  else { sheet.appendRow(rowValues); targetRow = sheet.getLastRow(); }
+  sheet.getRange(targetRow, 9).setNumberFormat('dd/MM/yyyy HH:mm:ss');
 }
 
 function verifyStored_(book, responseId, studentId, idem) {
@@ -652,7 +657,11 @@ function readObjects_(sheet) {
   });
 }
 
-function book_() { return SpreadsheetApp.openById(CFG.BOOK_ID); }
+function book_() {
+  const id = String(PropertiesService.getScriptProperties().getProperty('BOOK_ID') || '');
+  if (!/^[A-Za-z0-9_-]{25,}$/.test(id)) throw new Error('Falta la propiedad privada BOOK_ID del libro institucional.');
+  return SpreadsheetApp.openById(id);
+}
 
 function readSession_(value, kind) {
   const token = safeKey_(value);
