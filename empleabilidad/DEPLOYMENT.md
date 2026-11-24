@@ -1,41 +1,42 @@
 # Implementación de Encuesta de Empleabilidad 2026
 
-## Arquitectura
+## Arquitectura y aislamiento
 
-- `Code.gs` es un proyecto independiente de Google Apps Script y recibe formularios `POST` de la PWA. Los datos de cada respuesta viajan en el cuerpo del formulario, no en la URL.
-- Las lecturas de especialidades y los recibos se devuelven por JSONP para evitar los preflight y las restricciones CORS de Apps Script.
-- `pwa/` contiene el sitio estático instalable de GitHub Pages. No incorpora padrones, cédulas, contactos, respuestas ni claves.
-- El libro PPS oficial conserva sin cambios sus cuatro tablas base. El script escribe únicamente en las pestañas nuevas de empleabilidad.
-- `ACCESOS_EMPLEABILIDAD_2026` conserva códigos opacos individuales y `EXCLUSIONES_EMPLEABILIDAD_2026` aplica depuraciones administrativas privadas; ambas pestañas permanecen ocultas en el libro. La consulta pública devuelve únicamente los datos del código utilizado.
+- Backend independiente en Google Apps Script. Recibe los formularios por POST; las respuestas viajan en el cuerpo, no en la URL.
+- Las lecturas de especialidades y los recibos usan JSONP para trabajar desde GitHub Pages sin depender de CORS.
+- La PWA está en empleabilidad/pwa/. No contiene padrones, cédulas, contactos, respuestas, códigos de estudiante ni claves.
+- El script escribe únicamente en las cinco pestañas de empleabilidad. Las cuatro tablas base de PPS son solo lectura.
+- El panel administrativo valida ADMIN_KEY en el servidor; la clave permanece en las propiedades del proyecto.
+- La carpeta pública de encuesta se agregó a main como ruta aislada. El commit 2632439596425aac1a95bf36487fe42d5083db84 añadió únicamente empleabilidad/pwa/**; no cambió los archivos PPS de la raíz.
 
-## Despliegue del backend
+## Enlaces y estado actual — 24/11/2026
 
-1. Proyecto independiente creado en Apps Script con la cuenta institucional. Código y manifiesto cargados en ese proyecto.
-2. `BOOK_ID`, `SURVEY_URL`, `ADMIN_KEY` y la referencia del libro de prueba están en Propiedades del script; ninguna aparece en el repositorio. El libro oficial conserva sus cuatro tablas base sin modificaciones. El libro ficticio ya fue enviado a la papelera.
-3. `setupEmpleabilidad2026` ejecutado y verificado: creó las cinco pestañas de empleabilidad, generó los accesos opacos y actualizó el dashboard. El proyecto/libro usan `America/Costa_Rica`.
-4. Apps Script fue autorizado por la cuenta institucional. La autorización de Google mostró la advertencia estándar para proyectos no verificados; el propietario aprobó el acceso solicitado.
-5. Pruebas temporales y auditoría de solo lectura aprobadas; el libro de prueba ficticio fue enviado a la papelera.
-6. La implementación Web App versión 1 fue creada para ejecutarse como la cuenta institucional con acceso `Anyone` (incluye usuarios sin sesión). La URL de salud devuelve la página genérica de Drive 404 tanto en Chrome multicuenta como en incógnito, antes de que se ejecute `doGet`; no aparece una ejecución Web App en el registro. El resultado coincide con reportes recientes de fallos de capa de publicación de Apps Script para implementaciones anónimas nuevas (Google Issue Tracker 574946511), pero la causa exacta no está confirmada. Mantener el lanzamiento bloqueado.
-7. Cuando el endpoint responda correctamente fuera de la sesión múltiple, copiar el URL terminado en `/exec` a `pwa/config.js`. No usar el URL de prueba `/dev` ni publicar claves.
-8. `setupEmpleabilidad2026` fijó `SURVEY_URL` al URL previsto de GitHub Pages; ajustar esta propiedad solo si cambia la ruta.
-9. Pendiente: confirmar endpoint anónimo y salud/especialidades; luego completar smoke tests móviles/offline/PWA y confirmar las métricas en producción sin insertar respuestas ficticias.
+- Encuesta pública: https://corvec-liberia.github.io/PPS2026/empleabilidad/pwa/
+- Panel administrativo: https://corvec-liberia.github.io/PPS2026/empleabilidad/pwa/admin.html
+- Web App activa de Apps Script (versión 2): https://script.google.com/macros/s/AKfycbxlWdGtSR-nXDK6s5Bc-NghaErFb2AZx8DcVDIrW7z48Bq65SrQQgmW0gh9xYzE15Kk/exec
+- El URL de Web App termina en /exec; no usar el URL de biblioteca /macros/library/... ni el URL de prueba /dev.
+- La implementación ejecuta como cordiempresactpl@gmail.com y permite acceso anónimo (Anyone). La configuración de la PWA apunta al URL activo.
+- En un navegador limpio, sin sesión Google, la PWA cargó las 10 especialidades reales por el endpoint público. Un código ficticio inválido fue rechazado sin revelar nombres. En la hoja oficial, la fila 2 de respuestas e historial sigue vacía.
+- La comprobación de salud de Apps Script devuelve JSON. En un perfil con varias cuentas Google, Apps Script puede redirigir a una ruta /macros/u/2/ que presenta el 404 genérico de Drive. La prueba limpia sin iniciar sesión sí cargó la encuesta; para compartir, usar siempre el enlace de GitHub Pages, no el endpoint del backend.
+- La página PPS en la raíz de GitHub Pages sigue mostrando “PPS 2026 · CTP Liberia”. La prueba confirmó que PPS continúa disponible después de agregar la ruta aislada.
 
-## Publicación estática
+## Inicialización y datos
 
-La PWA está aislada bajo `empleabilidad/pwa/` en la rama `feature/empleabilidad-2026`. El repositorio principal continúa con su aplicación PPS existente. **Pendiente:** actualizar `pwa/config.js` con el URL real de Apps Script y fusionar únicamente esa carpeta a `main` para publicarla en GitHub Pages. El repositorio nunca recibe ni almacena la lista de estudiantes.
+1. setupEmpleabilidad2026() creó las pestañas de respuestas, historial, dashboard, accesos y exclusiones.
+2. La auditoría de solo lectura encontró 144 estudiantes elegibles, 0 respuestas y 0 eventos de historial.
+3. Las pruebas de escritura usaron cinco estudiantes ficticios en el libro temporal TEMP PRUEBAS PPS EMPLEABILIDAD 2026; las 8 pruebas pasaron y el libro temporal fue enviado a la papelera.
+4. El catálogo público actual contiene 10 especialidades; los tokens opacos individuales no se publicaron en GitHub.
+5. SURVEY_URL apunta a la página pública de la PWA. BOOK_ID, ADMIN_KEY y los accesos individuales se mantienen solo en Apps Script/Sheets.
 
-## Protección de datos
+## Privacidad
 
-- No poner códigos individuales, enlaces con `#c=`, registros del padrón ni credenciales en GitHub.
-- El enlace individual es un secreto de acceso tipo portador: entregarlo solo al estudiante correspondiente. El token viaja en el fragmento de URL y el navegador lo envía al backend en el cuerpo de un POST.
-- El ID de la base y el código administrador se guardan en Propiedades del script; el código no se publica en GitHub. No publicarlo, enviarlo a grupos ni almacenarlo en `config.js`.
-- Si un estudiante deja de ser elegible, el siguiente `setupEmpleabilidad2026` desactiva su código; el backend también vuelve a comprobar la asignación vigente al autenticar y guardar.
-- Un guardado solo se confirma después de verificar el recibo y la respuesta en las pestañas de respuestas e historial.
+- Los estudiantes ingresan mediante código opaco individual. El servidor confirma elegibilidad y resuelve su empresa desde la asignación válida más reciente.
+- No se publica ningún catálogo de nombres ni información de contacto.
+- Un guardado solo se confirma después de verificar el recibo, la respuesta vigente y el historial.
+- El enlace personal contiene un código de acceso en el fragmento #c=; compartirlo únicamente con el estudiante correspondiente.
+- No se usaron respuestas ficticias en el libro oficial. No se envió una respuesta válida de producción para evitar alterar las estadísticas reales.
 
-## Pruebas aisladas
+## Pendiente
 
-`runPureTests_` revisa el catálogo, asignaciones canceladas, reubicaciones, estados no aplicables, abandono documentado, denominadores de contratación y exclusión de campos confidenciales. `runIsolatedIntegrationTests2026(testSpreadsheetId)` prueba idempotencia, actualizaciones, historial, fecha/hora y dashboard en un libro separado llamado exactamente `TEMP PRUEBAS PPS EMPLEABILIDAD 2026`. Crear ese libro separado antes de ejecutarla y enviarlo a la papelera al terminar. Nunca pasar el ID del libro PPS oficial.
-
-## Limitación antes de activar
-
-La PWA está en la rama aislada y no se ha publicado en Pages porque `config.js` aún contiene el marcador del endpoint. El despliegue de Apps Script está creado y autorizado; el bloqueo observado es el 404 genérico tanto en la sesión con varias cuentas como en incógnito; el usuario confirmó y aportó captura de la prueba privada. No se ha podido validar el servicio público. Un reporte reciente de Apps Script describe el mismo síntoma para despliegues `Anyone` creados recientemente, incluso fuera de sesiones multicuenta; es una coincidencia diagnóstica, no una confirmación de causa. No distribuir hasta que Google permita validar el endpoint o exista una vía compatible sin modificar PPS.
+- Completar una prueba visual en un teléfono Android/iPhone real y una simulación de pérdida de conexión.
+- No se creó una respuesta válida de estudiante en el libro oficial; la persistencia, idempotencia, actualización e historial ya pasaron en el libro de pruebas aislado.
