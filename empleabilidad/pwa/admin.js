@@ -14,20 +14,6 @@
     const a = new Uint8Array(16); crypto.getRandomValues(a); return Array.from(a, x => x.toString(16).padStart(2, '0')).join('');
   }
   function message(id, text, kind) { const n = $(id); n.textContent = text || ''; n.className = 'message' + (kind ? ' ' + kind : ''); }
-  function jsonp(action, params) {
-    if (!apiReady) return Promise.reject(new Error('El servicio institucional todavía no está configurado.'));
-    return new Promise((resolve, reject) => {
-      const callback = '__ppsAdmin' + key().replace(/-/g, '');
-      const script = document.createElement('script');
-      const query = new URLSearchParams(Object.assign({ action, callback }, params || {}));
-      const timer = setTimeout(() => done(new Error('El servicio no respondió.')), 20000);
-      function done(error, value) { clearTimeout(timer); try { delete window[callback]; } catch (_) {} script.remove(); error ? reject(error) : resolve(value); }
-      window[callback] = value => done(null, value);
-      script.onerror = () => done(new Error('No fue posible conectar con Apps Script.'));
-      script.src = apiUrl + '?' + query.toString();
-      document.head.appendChild(script);
-    });
-  }
   function post(payload) {
     if (!apiReady) return Promise.reject(new Error('El servicio institucional todavía no está configurado.'));
     if (!navigator.onLine) return Promise.reject(new Error('No hay conexión a Internet.'));
@@ -36,17 +22,19 @@
     const form = document.createElement('form'); form.method = 'POST'; form.action = apiUrl; form.target = frameName;
     const values = Object.assign({}, payload, { rid });
     Object.keys(values).forEach(name => { const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = String(values[name] == null ? '' : values[name]); form.appendChild(input); });
-    document.body.append(frame, form); form.submit();
-    const deadline = Date.now() + 60000;
     return new Promise((resolve, reject) => {
-      const cleanup = () => { form.remove(); frame.remove(); };
-      const poll = () => jsonp('result', { rid }).then(result => {
-        if (result && result.pending) {
-          if (Date.now() >= deadline) { cleanup(); reject(new Error('La solicitud venció. Vuelva a iniciar sesión.')); }
-          else setTimeout(poll, 1200);
-        } else { cleanup(); result && result.ok ? resolve(result) : reject(new Error((result && result.message) || 'No se pudo validar el acceso.')); }
-      }).catch(error => { if (Date.now() < deadline && navigator.onLine) setTimeout(poll, 1600); else { cleanup(); reject(error); } });
-      setTimeout(poll, 350);
+      const cleanup = () => { clearTimeout(timer); window.removeEventListener('message', onMessage); form.remove(); frame.remove(); };
+      const timer = setTimeout(() => { cleanup(); reject(new Error(navigator.onLine ? 'Apps Script no confirmó el acceso. Inténtelo de nuevo.' : 'No hay conexión a Internet.')); }, 55000);
+      const onMessage = event => {
+        if (!['https://script.google.com', 'https://script.googleusercontent.com'].includes(event.origin)) return;
+        const result = event.data;
+        if (!result || result.source !== 'pps-empleabilidad-2026' || result.rid !== rid) return;
+        cleanup();
+        result.result && result.result.ok ? resolve(result.result) : reject(new Error((result.result && result.result.message) || 'No se pudo validar el acceso.'));
+      };
+      window.addEventListener('message', onMessage);
+      document.body.append(frame, form);
+      try { form.submit(); } catch (error) { cleanup(); reject(error); }
     });
   }
   function cell(row, text, className) { const td = document.createElement('td'); td.textContent = text == null ? '' : String(text); if (className) td.className = className; row.appendChild(td); return td; }
