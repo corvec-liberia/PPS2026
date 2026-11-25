@@ -60,9 +60,15 @@
         <div id="pendingResults" class="table-scroll"></div>
       </section>
       <section class="card admin-card">
-        <div class="section-heading"><span class="step-number">F</span><div><h2>Enlaces y códigos individuales</h2><p>Compártalos únicamente con el estudiante correspondiente.</p></div></div>
-        <label for="linkSearch">Buscar estudiante</label><input id="linkSearch" type="search" placeholder="Nombre, especialidad o empresa">
-        <div id="linkResults" class="table-scroll"></div>
+        <div class="section-heading"><span class="step-number">F</span><div><h2>Mensajes personales por WhatsApp</h2><p>Seleccione la especialidad y abra cada chat. El mensaje lleva el enlace que identifica al estudiante automáticamente.</p></div></div>
+        <p class="privacy-note">WhatsApp abrirá el chat con el número y el texto preparados. Revise el destinatario y presione Enviar dentro de WhatsApp.</p>
+        <div class="link-filters">
+          <div><label for="linkSpecialty">Especialidad</label><select id="linkSpecialty"><option value="">Todas</option></select></div>
+          <div><label for="linkStatus">Respuesta</label><select id="linkStatus"><option value="all">Todos</option><option value="pending">Pendientes</option><option value="responded">Ya respondieron</option></select></div>
+          <div><label for="linkSearch">Buscar estudiante</label><input id="linkSearch" type="search" placeholder="Nombre o empresa"></div>
+        </div>
+        <p id="linkSummary" class="link-summary" role="status" aria-live="polite"></p>
+        <div id="linkResults" class="link-groups"></div>
       </section>
       <p id="dashboardMessage" class="message" role="status" aria-live="polite"></p>
     </section>
