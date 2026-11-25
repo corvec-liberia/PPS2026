@@ -64,7 +64,12 @@
     });
     return new Promise((resolve, reject) => {
       let finished = false;
-      const cleanup = () => { window.clearTimeout(timer); window.removeEventListener('message', onMessage); postForm.remove(); frame.remove(); };
+      const cleanup = () => {
+        window.clearTimeout(timer);
+        window.removeEventListener('message', onMessage);
+        frame.removeEventListener('load', onFrameLoad);
+        postForm.remove(); frame.remove();
+      };
       const finish = (error, value) => {
         if (finished) return;
         finished = true;
@@ -76,6 +81,25 @@
           ? 'Apps Script no confirmó la respuesta. No se mostrará como guardada; vuelva a intentarlo.'
           : 'Se perdió la conexión. La respuesta no se confirmó; revise Internet y vuelva a enviar.'));
       }, 45000);
+      const acceptEnvelope = message => {
+        if (!message || message.source !== 'pps-empleabilidad-2026' || message.rid !== rid) return false;
+        if (!message.result || !message.result.ok) {
+          finish(new Error((message.result && message.result.message) || 'No se pudo completar la solicitud.'));
+          return true;
+        }
+        finish(null, message.result);
+        return true;
+      };
+      const onFrameLoad = () => {
+        if (finished) return;
+        try {
+          const returned = frame.contentWindow;
+          if (returned.location.origin !== window.location.origin || !returned.location.hash) return;
+          const message = JSON.parse(decodeURIComponent(returned.location.hash.slice(1)));
+          returned.history.replaceState(null, document.title, returned.location.pathname + returned.location.search);
+          acceptEnvelope(message);
+        } catch (_) { /* Before the same-origin receipt loads, the iframe is cross-origin. */ }
+      };
       const onMessage = event => {
         let trustedOrigin = event.origin === 'https://script.google.com';
         // HtmlService can deliver the response from an opaque sandbox origin
@@ -87,15 +111,10 @@
           trustedOrigin = trustedOrigin || host === 'script.googleusercontent.com' || host.endsWith('.script.googleusercontent.com');
         } catch (_) {}
         if (!trustedOrigin) return;
-        const message = event.data;
-        if (!message || message.source !== 'pps-empleabilidad-2026' || message.rid !== rid) return;
-        if (!message.result || !message.result.ok) {
-          finish(new Error((message.result && message.result.message) || 'No se pudo completar la solicitud.'));
-          return;
-        }
-        finish(null, message.result);
+        acceptEnvelope(event.data);
       };
       window.addEventListener('message', onMessage);
+      frame.addEventListener('load', onFrameLoad);
       document.body.append(frame, postForm);
       try { postForm.submit(); } catch (err) { finish(err); }
     });

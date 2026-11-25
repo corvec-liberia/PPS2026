@@ -1,9 +1,9 @@
 // Increment this whenever the public app or its API configuration changes.
 // Activation removes the previous cache so installed PWAs stop using stale
 // copies of config.js / app.js after a deployment update.
-const CACHE_NAME = 'pps-empleabilidad-2026-v10';
+const CACHE_NAME = 'pps-empleabilidad-2026-v11';
 const APP_SHELL = [
-  './', './index.html', './styles.css', './config.js?v=20261125-bridge4', './app.js?v=20261125-bridge4',
+  './', './index.html', './styles.css', './config.js?v=20261125-bridge5', './app.js?v=20261125-bridge5',
   './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'
 ];
 self.addEventListener('install', event => {

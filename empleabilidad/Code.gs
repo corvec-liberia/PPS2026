@@ -744,10 +744,12 @@ function postMessageOutput_(rid, data) {
   const origin = 'https://corvec-liberia.github.io';
   const envelope = JSON.stringify({ source: 'pps-empleabilidad-2026', rid: String(rid || ''), result: data })
     .replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
+  const returnUrl = origin + '/PPS2026/empleabilidad/pwa/bridge-return.html#' + encodeURIComponent(envelope);
   const html = '<!doctype html><html><head><meta charset="utf-8"></head><body><script>' +
     '(function(){var message=' + envelope + ';var target=' + JSON.stringify(origin) + ';var current=window;' +
     'for(var i=0;i<8;i++){var parent;try{parent=current.parent;}catch(e){break;}if(!parent||parent===current)break;' +
     'try{parent.postMessage(message,target);}catch(e){}current=parent;}' +
+    'window.location.replace(' + JSON.stringify(returnUrl) + ');' +
     '})();' +
     '</script></body></html>';
   return HtmlService.createHtmlOutput(html)

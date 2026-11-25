@@ -33,6 +33,8 @@ const bridge = context.postMessageOutput_('TEST-RID-1234567890', { ok: true, mar
 assert.equal(bridge.mode, 'ALLOWALL');
 assert.ok(bridge.html.includes('parent.postMessage'));
 assert.ok(bridge.html.includes('for(var i=0;i<8;i++)'));
+assert.ok(bridge.html.includes('window.location.replace'));
+assert.ok(bridge.html.includes('bridge-return.html#'));
 assert.ok(bridge.html.includes('TEST-RID-1234567890'));
 assert.ok(!bridge.html.includes('</script><img>'));
 assert.ok(bridge.html.includes('https://corvec-liberia.github.io'));

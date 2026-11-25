@@ -25,9 +25,24 @@
     Object.keys(values).forEach(name => { const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = String(values[name] == null ? '' : values[name]); form.appendChild(input); });
     return new Promise((resolve, reject) => {
       let finished = false;
-      const cleanup = () => { clearTimeout(timer); window.removeEventListener('message', onMessage); form.remove(); frame.remove(); };
+      const cleanup = () => { clearTimeout(timer); window.removeEventListener('message', onMessage); frame.removeEventListener('load', onFrameLoad); form.remove(); frame.remove(); };
       const finish = (error, value) => { if (finished) return; finished = true; cleanup(); error ? reject(error) : resolve(value); };
       const timer = setTimeout(() => finish(new Error(navigator.onLine ? 'Apps Script no confirmó el acceso. Inténtelo de nuevo.' : 'No hay conexión a Internet.')), 45000);
+      const acceptEnvelope = value => {
+        if (!value || value.source !== 'pps-empleabilidad-2026' || value.rid !== rid) return false;
+        value.result && value.result.ok ? finish(null, value.result) : finish(new Error((value.result && value.result.message) || 'No se pudo validar el acceso.'));
+        return true;
+      };
+      const onFrameLoad = () => {
+        if (finished) return;
+        try {
+          const returned = frame.contentWindow;
+          if (returned.location.origin !== window.location.origin || !returned.location.hash) return;
+          const value = JSON.parse(decodeURIComponent(returned.location.hash.slice(1)));
+          returned.history.replaceState(null, document.title, returned.location.pathname + returned.location.search);
+          acceptEnvelope(value);
+        } catch (_) { /* Before the same-origin receipt loads, the iframe is cross-origin. */ }
+      };
       const onMessage = event => {
         let trustedOrigin = event.origin === 'https://script.google.com';
         if (event.origin === 'null') trustedOrigin = true;
@@ -36,11 +51,10 @@
           trustedOrigin = trustedOrigin || host === 'script.googleusercontent.com' || host.endsWith('.script.googleusercontent.com');
         } catch (_) {}
         if (!trustedOrigin) return;
-        const result = event.data;
-        if (!result || result.source !== 'pps-empleabilidad-2026' || result.rid !== rid) return;
-        result.result && result.result.ok ? finish(null, result.result) : finish(new Error((result.result && result.result.message) || 'No se pudo validar el acceso.'));
+        acceptEnvelope(event.data);
       };
       window.addEventListener('message', onMessage);
+      frame.addEventListener('load', onFrameLoad);
       document.body.append(frame, form);
       try { form.submit(); } catch (error) { finish(error); }
     });
