@@ -23,10 +23,13 @@ Las pruebas de lógica local usan datos ficticios FIX-* y no escriben en Google 
 | 17 | Indicadores administrativos | Estados, participación, tasas con denominadores separados | APROBADA: integración aislada |
 | 18 | PPS sin perjuicio | Comparación de la publicación raíz y el commit aislado | APROBADA: PPS 2026 continúa cargando; solo se modificó empleabilidad/pwa/** |
 | 19 | Código no editable | Inspección de HTML y lógica de inicio | APROBADA estáticamente: se quitó el campo manual; enlace personal identifica automáticamente y nombre/especialidad son solo lectura |
+| 20 | WhatsApp individual | Pruebas locales de normalización y unión por cédula, filtros y URL de WhatsApp Web | APROBADA en código y pruebas locales. Falta publicar el nuevo Code.gs en Apps Script para que el panel autenticado reciba los teléfonos |
 
 ## Resultados ejecutados — 24/11/2026
 
-- 13/13 pruebas unitarias de backend aprobadas.
+- 14/14 pruebas unitarias de backend aprobadas después de añadir el enlace privado de teléfonos de WhatsApp.
+- La prueba de teléfonos usa datos ficticios: valida formato `+506`, asociación por cédula y exclusión de números inválidos; no imprime teléfonos reales en los resultados.
+- La PWA estática comprueba filtros, mensaje por estudiante, apertura de WhatsApp Web, ausencia de `localStorage` y que los números/códigos no estén en archivos públicos.
 - 8/8 pruebas de integración Apps Script aprobadas con cinco estudiantes ficticios en un libro temporal aislado.
 - La integración comprobó escritura real, lectura posterior, clave idempotente, actualización, historial, fecha CR, motivos de rechazo e indicadores.
 - El usuario reportó que su navegador mostraba un error de conexión con Apps Script. La PWA fue actualizada para validar directamente el enlace personal, sin descargar el catálogo antes, y para retirar el campo manual del código.

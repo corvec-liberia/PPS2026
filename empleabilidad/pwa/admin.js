@@ -119,22 +119,64 @@
     const companies = [...new Set(dashboardData.byCompany.map(x => x.name))].sort((a, b) => a.localeCompare(b, 'es'));
     const s = $('filterSpecialty'), c = $('filterCompany'); s.replaceChildren(new Option('Todas', '')); c.replaceChildren(new Option('Todas', ''));
     specs.forEach(name => s.add(new Option(name, name))); companies.forEach(name => c.add(new Option(name, name)));
+    const linkSpecialty = $('linkSpecialty'); linkSpecialty.replaceChildren(new Option('Todas', ''));
+    specs.forEach(name => linkSpecialty.add(new Option(name, name)));
+  }
+  function whatsappMessage(item) {
+    return 'Buenos días, ' + item.name + '. Le comparto su enlace personal para completar la Encuesta de Empleabilidad 2026 sobre su Práctica Profesional Supervisada en el CTP Liberia:\n\n' + item.url + '\n\nAl abrirlo, su nombre y especialidad aparecerán automáticamente; no debe escribir código ni cédula. Seleccione su situación laboral y envíe la respuesta. Si ya completó la encuesta, puede usar este mismo enlace para actualizarla.\n\nMuchas gracias.\nMáster Óscar Campos Rodríguez\nCoordinador con la Empresa';
+  }
+  function whatsappReady(phone) { return /^506[2-8]\d{7}$/.test(String(phone || '')); }
+  async function copyText(text, button, successLabel) {
+    try {
+      await navigator.clipboard.writeText(text);
+      const original = button.textContent; button.textContent = successLabel;
+      setTimeout(() => { button.textContent = original; }, 1800);
+    } catch (_) {
+      window.prompt('Copie el mensaje personal:', text);
+    }
   }
   function renderLinks() {
     const host = $('linkResults'), query = $('linkSearch').value.trim().toLocaleLowerCase('es'); host.replaceChildren();
-    const links = dashboardData.accessLinks.filter(x => !query || (x.name + ' ' + x.specialty + ' ' + x.company).toLocaleLowerCase('es').includes(query));
-    if (!links.length) { const p = document.createElement('p'); p.className = 'empty-state'; p.textContent = 'No hay enlaces para ese filtro.'; host.appendChild(p); return; }
-    const table = document.createElement('table'), body = document.createElement('tbody');
-    links.forEach(item => {
-      const tr = document.createElement('tr');
-      cell(tr, item.name); cell(tr, item.specialty); cell(tr, item.company);
-      const action = document.createElement('td');
-      const button = document.createElement('button'); button.type = 'button'; button.className = 'copy-button'; button.textContent = 'Copiar enlace individual';
-      const url = item.url || (surveyUrl.replace(/#.*$/, '').replace(/\/$/, '/') + '#c=' + encodeURIComponent(item.code));
-      button.addEventListener('click', async () => { try { await navigator.clipboard.writeText(url); button.textContent = 'Enlace copiado'; setTimeout(() => { button.textContent = 'Copiar enlace individual'; }, 1800); } catch (_) { window.prompt('Copie este enlace individual y compártalo solo con el estudiante correspondiente:', url); } });
-      action.appendChild(button); const code = document.createElement('span'); code.className = 'code-note'; code.textContent = 'Código personal: ' + item.code; action.appendChild(code); tr.appendChild(action); body.appendChild(tr);
+    if (!dashboardData.whatsappContactsReady) {
+      const p = document.createElement('p'); p.className = 'empty-state'; p.textContent = 'Falta actualizar Apps Script para cargar teléfonos institucionales de forma privada. Cuando se publique esa versión, aparecerán aquí los chats listos para WhatsApp.'; host.appendChild(p); $('linkSummary').textContent = ''; return;
+    }
+    const selectedSpecialty = $('linkSpecialty').value, selectedStatus = $('linkStatus').value;
+    const links = dashboardData.accessLinks.filter(x => (!selectedSpecialty || x.specialty === selectedSpecialty) && (selectedStatus === 'all' || (selectedStatus === 'responded') === Boolean(x.responded)) && (!query || (x.name + ' ' + x.specialty + ' ' + x.company).toLocaleLowerCase('es').includes(query))).sort((a, b) => a.specialty.localeCompare(b.specialty, 'es') || a.name.localeCompare(b.name, 'es'));
+    const ready = links.filter(x => whatsappReady(x.phone)).length;
+    $('linkSummary').textContent = links.length + ' estudiantes en la lista · ' + ready + ' números listos para WhatsApp · ' + (links.length - ready) + ' requieren revisar el teléfono.';
+    if (!links.length) { const p = document.createElement('p'); p.className = 'empty-state'; p.textContent = 'No hay estudiantes para esos filtros.'; host.appendChild(p); return; }
+    const groups = new Map();
+    links.forEach(item => { if (!groups.has(item.specialty)) groups.set(item.specialty, []); groups.get(item.specialty).push(item); });
+    groups.forEach((students, specialty) => {
+      const group = document.createElement('section'); group.className = 'link-group';
+      const heading = document.createElement('h3'); heading.textContent = specialty + ' · ' + students.length; group.appendChild(heading);
+      const wrap = document.createElement('div'); wrap.className = 'table-scroll';
+      const table = document.createElement('table'), thead = document.createElement('thead'), head = document.createElement('tr');
+      ['Estudiante', 'Empresa', 'WhatsApp', 'Encuesta', 'Acción'].forEach(label => { const th = document.createElement('th'); th.textContent = label; head.appendChild(th); });
+      thead.appendChild(head); table.appendChild(thead);
+      const body = document.createElement('tbody');
+      students.forEach(item => {
+        const tr = document.createElement('tr');
+        cell(tr, item.name); cell(tr, item.company);
+        const phoneCell = document.createElement('td');
+        if (whatsappReady(item.phone)) { const suffix = document.createElement('span'); suffix.className = 'phone-mask'; suffix.textContent = '+506 •••• ' + item.phone.slice(-4); phoneCell.appendChild(suffix); }
+        else { const missing = document.createElement('span'); missing.className = 'missing-phone'; missing.textContent = 'Sin número válido'; phoneCell.appendChild(missing); }
+        tr.appendChild(phoneCell);
+        const status = document.createElement('td'), badge = document.createElement('span'); badge.className = 'state-badge'; badge.textContent = item.responded ? 'Respondió' : 'Pendiente'; status.appendChild(badge); tr.appendChild(status);
+        const action = document.createElement('td'), buttons = document.createElement('div'); buttons.className = 'link-actions';
+        if (whatsappReady(item.phone)) {
+          const chat = document.createElement('button'); chat.type = 'button'; chat.className = 'copy-button whatsapp-button'; chat.textContent = 'Abrir chat con mensaje';
+          chat.addEventListener('click', () => { const target = 'https://web.whatsapp.com/send?phone=' + encodeURIComponent(item.phone) + '&text=' + encodeURIComponent(whatsappMessage(item)); window.open(target, '_blank', 'noopener,noreferrer'); });
+          buttons.appendChild(chat);
+        } else {
+          const unavailable = document.createElement('button'); unavailable.type = 'button'; unavailable.className = 'copy-button'; unavailable.textContent = 'Falta teléfono'; unavailable.disabled = true; buttons.appendChild(unavailable);
+        }
+        const copy = document.createElement('button'); copy.type = 'button'; copy.className = 'copy-button'; copy.textContent = 'Copiar mensaje';
+        copy.addEventListener('click', () => copyText(whatsappMessage(item), copy, 'Mensaje copiado'));
+        buttons.appendChild(copy); action.appendChild(buttons); tr.appendChild(action); body.appendChild(tr);
+      });
+      table.appendChild(body); wrap.appendChild(table); group.appendChild(wrap); host.appendChild(group);
     });
-    table.appendChild(body); host.appendChild(table);
   }
   function displayData(data) {
     dashboardData = data;
@@ -147,6 +189,7 @@
     adminLockTimer = 0; session = ''; dashboardData = null;
     $('dashboard').hidden = true; $('loginCard').hidden = false; $('adminCode').value = '';
     ['metricCards', 'specialtyChart', 'specialtyResults', 'companyChart', 'companyResults', 'reasonResults', 'responseResults', 'pendingResults', 'linkResults'].forEach(id => $(id).replaceChildren());
+    $('linkSummary').textContent = '';
     $('updatedAt').textContent = '';
     message('loginMessage', messageText || 'La sesión administrativa se cerró.', '');
   }
@@ -156,7 +199,7 @@
     try {
       const result = await post({ action: 'adminData', session });
       displayData(result);
-      message('dashboardMessage', 'Panel actualizado desde Google Sheets.', 'success');
+      message('dashboardMessage', result.whatsappContactsReady ? 'Panel actualizado desde Google Sheets.' : 'Indicadores actualizados. Falta publicar la versión de Apps Script que entrega teléfonos solo al panel autorizado.', result.whatsappContactsReady ? 'success' : '');
     } finally { if (refresh) refresh.disabled = false; }
   }
   $('loginForm').addEventListener('submit', async event => {
@@ -178,5 +221,7 @@
   $('filterSpecialty').addEventListener('change', renderBreakdown);
   $('filterCompany').addEventListener('change', renderBreakdown);
   $('linkSearch').addEventListener('input', renderLinks);
+  $('linkSpecialty').addEventListener('change', renderLinks);
+  $('linkStatus').addEventListener('change', renderLinks);
   if (!apiReady) message('loginMessage', 'El panel está preparado, pero espera la URL definitiva de Apps Script.', 'error');
 })();

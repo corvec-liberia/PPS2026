@@ -250,6 +250,11 @@ function runPureTests_() {
     { ID_ESTUDIANTE: 'FIX-D', SITUACION_LABORAL: 'future' }
   ];
   const dash = dashboardSnapshot_(r, rows);
+  const phones = phoneLookup_(
+    [{ ID_ESTUDIANTE: 'FIX-A', CEDULA: '1-2345-6789' }, { ID_ESTUDIANTE: 'FIX-B', CEDULA: '2-3456-7890' }],
+    [{ CEDULA: '123456789', TELEFONO_PERSONAL: '+506 8888-1234' }, { CEDULA: '234567890', TELEFONO_PERSONAL: '1234' }],
+    ['FIX-A', 'FIX-B']
+  );
   return [
     { test: 'catálogo de especialidades con datos oficiales', ok: getSpecialties_().length > 0 },
     { test: 'exclusión de asignación cancelada', ok: !r.some(x => x.id === 'FIX-A') },
@@ -263,6 +268,7 @@ function runPureTests_() {
     { test: 'tasa de contratación sobre elegibles', ok: dash.stats.contractRateEligible === 0.5 },
     { test: 'pregunta condicional: motivo obligatorio solo al rechazar', ok: CFG.REASONS.every(reason => validateChoice_('declined', reason).reason === reason) && (() => { try { validateChoice_('declined', ''); return false; } catch (_) { return true; } })() && (() => { try { validateChoice_('accepted', CFG.REASONS[0]); return false; } catch (_) { return true; } })() },
     { test: 'validación de las cinco situaciones permitidas', ok: Object.keys(CFG.STATES).every(state => { try { validateChoice_(state, state === 'declined' ? CFG.REASONS[0] : ''); return true; } catch (_) { return false; } }) },
+    { test: 'contacto de WhatsApp unido por cédula solo para IDs elegibles', ok: phones.size === 1 && phones.get('FIX-A') === '50688881234' && !phones.has('FIX-B') && normalizeWhatsAppPhone_('+506 1234') === '' },
     { test: 'no hay cédulas, teléfonos ni correos en el padrón servido', ok: r.every(x => !('CEDULA' in x) && !('TELEFONO' in x) && !('CORREO' in x)) }
   ];
 }
@@ -386,10 +392,12 @@ function adminData_(session) {
   const activeTokens = readObjects_(book.getSheetByName(CFG.ACCESS)).filter(x => x.ESTADO_ACCESO === 'ACTIVO' && eligibleIds.has(String(x.ID_ESTUDIANTE)));
   const respondedIds = new Set(eligibleLatest.map(x => x.ID_ESTUDIANTE));
   const surveyLinkBase = String(PropertiesService.getScriptProperties().getProperty('SURVEY_URL') || '');
+  const phoneByStudent = eligiblePhoneMap_(book, roster);
   return {
     ok: true,
     generatedAt: Utilities.formatDate(new Date(), CFG.TIME_ZONE, "yyyy-MM-dd'T'HH:mm:ssXXX"),
     stats: metrics.stats,
+    whatsappContactsReady: true,
     bySpecialty: metrics.bySpecialty,
     byCompany: metrics.byCompany,
     reasons: metrics.reasons,
@@ -401,10 +409,59 @@ function adminData_(session) {
     pending: roster.filter(x => !respondedIds.has(x.id)).map(x => ({ name: x.name, specialty: x.specialty, company: x.company })).sort((a, b) => a.name.localeCompare(b.name, 'es')),
     accessLinks: activeTokens.map(x => ({
       name: x.NOMBRE_COMPLETO, specialty: x.ESPECIALIDAD, company: x.EMPRESA,
-      code: x.TOKEN_OPACO,
-      url: surveyLinkBase ? surveyLinkBase.replace(/#.*$/, '') + '#c=' + encodeURIComponent(x.TOKEN_OPACO) : ''
+      phone: phoneByStudent.get(String(x.ID_ESTUDIANTE)) || '',
+      responded: respondedIds.has(String(x.ID_ESTUDIANTE)),
+      url: (surveyLinkBase || CFG.SURVEY_URL).replace(/#.*$/, '') + '#c=' + encodeURIComponent(x.TOKEN_OPACO)
     })).sort((a, b) => a.name.localeCompare(b.name, 'es'))
   };
+}
+
+function eligiblePhoneMap_(book, roster) {
+  const students = readObjectsDisplayed_(book.getSheetByName('ESTUDIANTES'));
+  const contacts = readObjectsDisplayed_(book.getSheetByName('DATOS_CONTACTO_ESTUDIANTES'));
+  return phoneLookup_(students, contacts, roster.map(x => x.id));
+}
+
+function phoneLookup_(students, contacts, eligibleIds) {
+  const eligible = new Set((eligibleIds || []).map(String));
+  const cedulaById = new Map((students || []).map(x => [String(x.ID_ESTUDIANTE || '').trim(), normalizeCedula_(x.CEDULA)]));
+  const phoneByCedula = new Map();
+  (contacts || []).forEach(x => {
+    const cedula = normalizeCedula_(x.CEDULA);
+    const phone = normalizeWhatsAppPhone_(x.TELEFONO_PERSONAL);
+    if (cedula && phone) phoneByCedula.set(cedula, phone);
+  });
+  const result = new Map();
+  cedulaById.forEach((cedula, id) => {
+    const phone = phoneByCedula.get(cedula);
+    if (eligible.has(id) && phone) result.set(id, phone);
+  });
+  return result;
+}
+
+function readObjectsDisplayed_(sheet) {
+  if (!sheet) return [];
+  const range = sheet.getDataRange();
+  const values = typeof range.getDisplayValues === 'function' ? range.getDisplayValues() : range.getValues();
+  if (values.length < 2) return [];
+  const headers = values[0].map(x => String(x || '').trim());
+  return values.slice(1).filter(row => row.some(x => x !== '' && x !== null)).map(row => {
+    const obj = {};
+    headers.forEach((key, i) => { if (key) obj[key] = row[i]; });
+    return obj;
+  });
+}
+
+function normalizeCedula_(value) {
+  return String(value == null ? '' : value).replace(/\D/g, '');
+}
+
+function normalizeWhatsAppPhone_(value) {
+  let digits = String(value == null ? '' : value).replace(/\D/g, '');
+  if (digits.startsWith('00')) digits = digits.slice(2);
+  if (digits.startsWith('506') && digits.length === 11) digits = digits.slice(3);
+  if (!/^\d{8}$/.test(digits) || !/^[2-8]/.test(digits)) return '';
+  return '506' + digits;
 }
 
 function dashboardSnapshot_(roster, currentRows, specialties) {
