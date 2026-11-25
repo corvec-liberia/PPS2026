@@ -5,19 +5,18 @@
   const apiUrl = String(config.apiUrl || '');
   const apiReady = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(apiUrl);
   const $ = id => document.getElementById(id);
-  const specialty = $('specialty');
-  const student = $('student');
+  const verifiedSpecialty = $('verifiedSpecialty');
+  const verifiedStudent = $('verifiedStudent');
   const identityCard = $('identityCard');
   const form = $('surveyForm');
-  const codeInput = $('accessCode');
-  const identifyButton = $('identifyButton');
+  const retryIdentityButton = $('retryIdentityButton');
   const submitButton = $('submitButton');
   const reasonBox = $('reasonBox');
   const reasonSelect = $('reason');
   const connectionNotice = $('connectionNotice');
   const gasFrame = $('gasTransport');
-  let availableSpecialties = [];
   let identity = null;
+  let personalCode = '';
   let installPrompt = null;
   let pendingIdempotency = '';
 
@@ -118,32 +117,6 @@
     });
   }
 
-  function loadSpecialties() {
-    if (!apiReady) {
-      specialty.replaceChildren(new Option('Servicio pendiente de configuración', ''));
-      specialty.disabled = true;
-      identifyButton.disabled = true;
-      setNotice('La encuesta aún no está conectada al servicio institucional de Apps Script.', 'notice-info');
-      return Promise.resolve(false);
-    }
-    return jsonp('specialties').then(data => {
-      if (!data || !data.ok || !Array.isArray(data.specialties)) throw new Error('No se pudo cargar el catálogo de especialidades.');
-      availableSpecialties = data.specialties;
-      specialty.replaceChildren(new Option('Seleccione su especialidad', ''));
-      availableSpecialties.forEach(item => specialty.add(new Option(item.name, item.code)));
-      specialty.disabled = false;
-      identifyButton.disabled = false;
-      setNotice('', 'notice-info');
-      return true;
-    }).catch(error => {
-      specialty.replaceChildren(new Option('No disponible', ''));
-      specialty.disabled = true;
-      identifyButton.disabled = true;
-      setNotice(error.message + ' Verifique su conexión y vuelva a cargar la página.', 'notice-info');
-      return false;
-    });
-  }
-
   function getShareCode() {
     if (!window.location.hash) return '';
     const params = new URLSearchParams(window.location.hash.slice(1));
@@ -152,31 +125,27 @@
     return code;
   }
 
-  function verifyCode(code, chosenSpecialty) {
+  function verifyCode(code) {
     if (!code) {
-      setMessage($('identityMessage'), 'Ingrese el código personal que recibió.', 'error');
+      setMessage($('identityMessage'), 'Abra el enlace personal que recibió para identificar su registro.', 'error');
       return Promise.resolve(false);
     }
-    if (!chosenSpecialty && !availableSpecialties.length) {
-      setMessage($('identityMessage'), 'Primero cargue el catálogo de especialidades.', 'error');
-      return Promise.resolve(false);
-    }
-    identifyButton.disabled = true;
-    identifyButton.textContent = 'Verificando…';
-    setMessage($('identityMessage'), 'Verificando su código…', '');
-    return postAndVerify({ action: 'identify', code: code.trim(), specialtyCode: chosenSpecialty || '' })
+    personalCode = code.trim();
+    retryIdentityButton.hidden = true;
+    retryIdentityButton.disabled = true;
+    setMessage($('identityMessage'), 'Validando su enlace personal…', '');
+    return postAndVerify({ action: 'identify', code: personalCode, specialtyCode: '' })
       .then(data => {
         if (!data.student || !data.session) throw new Error('No se pudo validar su identidad.');
         identity = data;
-        specialty.value = data.student.code;
-        specialty.disabled = true;
-        student.replaceChildren(new Option(data.student.name, data.student.code));
-        student.disabled = true;
+        verifiedSpecialty.value = data.student.specialty;
+        verifiedStudent.value = data.student.name;
         $('studentField').hidden = false;
+        $('identityHelp').hidden = true;
         identityCard.classList.add('verified-card');
         form.hidden = false;
-        codeInput.value = '';
-        setMessage($('identityMessage'), 'Identidad verificada. Solo se consultó su registro.', 'success');
+        personalCode = '';
+        setMessage($('identityMessage'), 'Identidad verificada.', 'success');
         if (data.previous && data.previous.state) {
           const previous = Array.from(form.querySelectorAll('input[name="status"]')).find(input => input.value === data.previous.state);
           if (previous) previous.checked = true;
@@ -191,11 +160,11 @@
       })
       .catch(error => {
         setMessage($('identityMessage'), error.message, 'error');
+        retryIdentityButton.hidden = false;
         return false;
       })
       .finally(() => {
-        identifyButton.disabled = !navigator.onLine;
-        identifyButton.textContent = 'Verificar';
+        retryIdentityButton.disabled = !navigator.onLine;
       });
   }
 
@@ -210,7 +179,7 @@
   function submitSurvey(event) {
     event.preventDefault();
     if (!identity || !identity.session) {
-      setMessage($('saveMessage'), 'Verifique primero su código personal.', 'error');
+      setMessage($('saveMessage'), 'Abra su enlace personal para identificar el registro.', 'error');
       return;
     }
     if (!navigator.onLine) {
@@ -243,16 +212,13 @@
 
   function updateNetworkStatus() {
     const online = navigator.onLine;
-    identifyButton.disabled = !online || !apiReady || !availableSpecialties.length;
+    retryIdentityButton.disabled = !online;
     if (identity) submitButton.disabled = !online;
     if (!online) setNotice('Está sin conexión. No se enviarán respuestas hasta recuperar Internet.', 'notice-info');
-    else if (apiReady && availableSpecialties.length) setNotice('', 'notice-info');
+    else setNotice('', 'notice-info');
   }
 
-  identifyButton.addEventListener('click', () => {
-    const code = codeInput.value || getShareCode();
-    verifyCode(code, specialty.value);
-  });
+  retryIdentityButton.addEventListener('click', () => verifyCode(personalCode));
 
   form.addEventListener('change', event => {
     if (event.target && event.target.name === 'status') { toggleReason(); pendingIdempotency = ''; }
@@ -279,10 +245,7 @@
     window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
   }
 
-  loadSpecialties().then(loaded => {
-    if (!loaded) return;
-    const code = getShareCode();
-    if (code) verifyCode(code, '');
-  });
+  personalCode = getShareCode();
+  if (personalCode) verifyCode(personalCode);
   updateNetworkStatus();
 })();
