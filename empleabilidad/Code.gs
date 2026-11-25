@@ -15,7 +15,6 @@ const CFG = Object.freeze({
   ACCESS: 'ACCESOS_EMPLEABILIDAD_2026',
   EXCLUSIONS: 'EXCLUSIONES_EMPLEABILIDAD_2026',
   TOKENS_TTL: 1800,
-  RESULT_TTL: 600,
   CURRENT_HEADERS: [
     'ID_RESPUESTA', 'ID_ESTUDIANTE', 'NOMBRE_COMPLETO', 'ESPECIALIDAD',
     'EMPRESA', 'ID_EMPRESA', 'SITUACION_LABORAL', 'MOTIVO_RECHAZO',
@@ -59,9 +58,6 @@ function doGet(e) {
     data = { ok: true, service: 'Encuesta Empleabilidad 2026', timezone: CFG.TIME_ZONE };
   } else if (action === 'specialties') {
     data = { ok: true, specialties: getSpecialties_() };
-  } else if (action === 'result') {
-    const key = safeKey_(p.rid);
-    data = key ? readResult_(key) : { ok: false, pending: false, message: 'Solicitud inválida.' };
   } else {
     data = { ok: false, message: 'Acción no disponible.' };
   }
@@ -89,10 +85,8 @@ function doPost(e) {
   } catch (err) {
     result = { ok: false, message: publicError_(err) };
   }
-  if (rid) saveResult_(rid, result);
-  // Entrega el resultado por el mismo POST. Apps Script puede fallar en GET
-  // cuando Chrome mantiene varias cuentas Google abiertas; no se depende de un
-  // sondeo posterior para que el estudiante vea una confirmación real.
+  // El recibo se devuelve solo a la ventana que inició este POST. No se expone
+  // por JSONP/GET, porque la respuesta contiene datos personales.
   return postMessageOutput_(rid, result);
 }
 
@@ -738,23 +732,6 @@ function readSession_(value, kind) {
   return kind === 'student' ? JSON.parse(stored) : true;
 }
 
-function saveResult_(rid, data) {
-  try {
-    const value = JSON.stringify(data);
-    // Script Cache limits individual entries. The current POST response carries
-    // large private dashboard payloads directly, so a cache limit must never
-    // prevent the response from reaching its authorized page.
-    if (value.length <= 90000) CacheService.getScriptCache().put('result:' + rid, value, CFG.RESULT_TTL);
-  } catch (err) {
-    console.warn('No se pudo guardar el recibo temporal de la solicitud:', err);
-  }
-}
-
-function readResult_(rid) {
-  const value = CacheService.getScriptCache().get('result:' + rid);
-  return value ? JSON.parse(value) : { ok: false, pending: true };
-}
-
 function output_(value, callback) {
   const json = JSON.stringify(value).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
   if (callback && /^[A-Za-z_$][A-Za-z0-9_$\.]{0,80}$/.test(callback)) {
@@ -768,7 +745,10 @@ function postMessageOutput_(rid, data) {
   const envelope = JSON.stringify({ source: 'pps-empleabilidad-2026', rid: String(rid || ''), result: data })
     .replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
   const html = '<!doctype html><html><head><meta charset="utf-8"></head><body><script>' +
-    'window.top.postMessage(' + envelope + ',' + JSON.stringify(origin) + ');' +
+    '(function(){var message=' + envelope + ';var target=' + JSON.stringify(origin) + ';var current=window;' +
+    'for(var i=0;i<8;i++){var parent;try{parent=current.parent;}catch(e){break;}if(!parent||parent===current)break;' +
+    'try{parent.postMessage(message,target);}catch(e){}current=parent;}' +
+    '})();' +
     '</script></body></html>';
   return HtmlService.createHtmlOutput(html)
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);

@@ -14,24 +14,6 @@
     const a = new Uint8Array(16); crypto.getRandomValues(a); return Array.from(a, x => x.toString(16).padStart(2, '0')).join('');
   }
   function message(id, text, kind) { const n = $(id); n.textContent = text || ''; n.className = 'message' + (kind ? ' ' + kind : ''); }
-  function readReceipt(rid) {
-    return new Promise((resolve, reject) => {
-      const callback = '__ppsAdminReceipt' + key().replace(/-/g, '');
-      const script = document.createElement('script');
-      const query = new URLSearchParams({ action: 'result', rid, callback });
-      const timer = window.setTimeout(() => finish(new Error('El servicio no respondió a tiempo.')), 18000);
-      function finish(error, value) {
-        window.clearTimeout(timer);
-        try { delete window[callback]; } catch (_) { window[callback] = undefined; }
-        script.remove();
-        if (error) reject(error); else resolve(value);
-      }
-      window[callback] = value => finish(null, value);
-      script.onerror = () => finish(new Error('No se pudo consultar la confirmación institucional.'));
-      script.src = apiUrl + '?' + query.toString();
-      document.head.appendChild(script);
-    });
-  }
   function post(payload) {
     if (!apiReady) return Promise.reject(new Error('El servicio institucional todavía no está configurado.'));
     if (!navigator.onLine) return Promise.reject(new Error('No hay conexión a Internet.'));
@@ -42,28 +24,13 @@
     const values = Object.assign({}, payload, { rid });
     Object.keys(values).forEach(name => { const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = String(values[name] == null ? '' : values[name]); form.appendChild(input); });
     return new Promise((resolve, reject) => {
-      let finished = false, pollTimer = 0, lastPollError = '';
-      const cleanup = () => { clearTimeout(timer); clearTimeout(pollTimer); window.removeEventListener('message', onMessage); form.remove(); frame.remove(); };
+      let finished = false;
+      const cleanup = () => { clearTimeout(timer); window.removeEventListener('message', onMessage); form.remove(); frame.remove(); };
       const finish = (error, value) => { if (finished) return; finished = true; cleanup(); error ? reject(error) : resolve(value); };
-      const timer = setTimeout(() => {
-        const text = navigator.onLine ? 'Apps Script no confirmó el acceso. Inténtelo de nuevo.' : 'No hay conexión a Internet.';
-        finish(new Error(text + (lastPollError ? ' (' + lastPollError + ')' : '')));
-      }, 35000);
-      const pollReceipt = () => {
-        if (finished) return;
-        readReceipt(rid).then(value => {
-          if (finished) return;
-          if (value && value.pending) pollTimer = setTimeout(pollReceipt, 1200);
-          else if (value && value.ok) finish(null, value);
-          else finish(new Error((value && value.message) || 'No se pudo completar la solicitud.'));
-        }).catch(error => {
-          if (finished) return;
-          lastPollError = error && error.message ? error.message : 'sin respuesta de lectura';
-          pollTimer = setTimeout(pollReceipt, 2200);
-        });
-      };
+      const timer = setTimeout(() => finish(new Error(navigator.onLine ? 'Apps Script no confirmó el acceso. Inténtelo de nuevo.' : 'No hay conexión a Internet.')), 45000);
       const onMessage = event => {
         let trustedOrigin = event.origin === 'https://script.google.com';
+        if (event.origin === 'null') trustedOrigin = true;
         try {
           const host = new URL(event.origin).hostname;
           trustedOrigin = trustedOrigin || host === 'script.googleusercontent.com' || host.endsWith('.script.googleusercontent.com');
@@ -75,7 +42,7 @@
       };
       window.addEventListener('message', onMessage);
       document.body.append(frame, form);
-      try { form.submit(); pollTimer = setTimeout(pollReceipt, 700); } catch (error) { finish(error); }
+      try { form.submit(); } catch (error) { finish(error); }
     });
   }
   function cell(row, text, className) { const td = document.createElement('td'); td.textContent = text == null ? '' : String(text); if (className) td.className = className; row.appendChild(td); return td; }

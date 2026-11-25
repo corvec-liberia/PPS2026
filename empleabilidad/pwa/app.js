@@ -37,27 +37,6 @@
     connectionNotice.hidden = !text;
   }
 
-  function jsonp(action, params) {
-    if (!apiReady) return Promise.reject(new Error('El servicio institucional todavía no está configurado.'));
-    if (!navigator.onLine) return Promise.reject(new Error('Sin conexión a Internet.'));
-    return new Promise((resolve, reject) => {
-      const callback = '__ppsCallback' + newKey().replace(/-/g, '');
-      const script = document.createElement('script');
-      const query = new URLSearchParams(Object.assign({ action, callback }, params || {}));
-      const timeout = window.setTimeout(() => finish(new Error('El servicio no respondió a tiempo.')), 18000);
-      function finish(error, value) {
-        window.clearTimeout(timeout);
-        try { delete window[callback]; } catch (_) { window[callback] = undefined; }
-        script.remove();
-        if (error) reject(error); else resolve(value);
-      }
-      window[callback] = data => finish(null, data);
-      script.onerror = () => finish(new Error('No fue posible conectar con el servicio institucional.'));
-      script.src = apiUrl + '?' + query.toString();
-      document.head.appendChild(script);
-    });
-  }
-
   function postAndVerify(payload) {
     if (!apiReady) return Promise.reject(new Error('El servicio institucional todavía no está configurado.'));
     if (!navigator.onLine) return Promise.reject(new Error('Sin conexión. La respuesta no se registró; vuelva a intentarlo cuando recupere Internet.'));
@@ -85,14 +64,7 @@
     });
     return new Promise((resolve, reject) => {
       let finished = false;
-      let pollTimer = 0;
-      let lastPollError = '';
-      const cleanup = () => {
-        window.clearTimeout(timer);
-        window.clearTimeout(pollTimer);
-        window.removeEventListener('message', onMessage);
-        postForm.remove(); frame.remove();
-      };
+      const cleanup = () => { window.clearTimeout(timer); window.removeEventListener('message', onMessage); postForm.remove(); frame.remove(); };
       const finish = (error, value) => {
         if (finished) return;
         finished = true;
@@ -100,30 +72,16 @@
         if (error) reject(error); else resolve(value);
       };
       const timer = window.setTimeout(() => {
-        const message = !navigator.onLine
-          ? 'Se perdió la conexión. La respuesta no se confirmó; revise Internet y vuelva a enviar.'
-          : 'No se pudo verificar la respuesta con Apps Script. No se mostrará como guardada; vuelva a intentarlo.';
-        finish(new Error(message + (lastPollError ? ' (' + lastPollError + ')' : '')));
-      }, 35000);
-      const pollReceipt = () => {
-        if (finished) return;
-        jsonp('result', { rid }).then(result => {
-          if (finished) return;
-          if (result && result.pending) {
-            pollTimer = window.setTimeout(pollReceipt, 1200);
-          } else if (result && result.ok) {
-            finish(null, result);
-          } else {
-            finish(new Error((result && result.message) || 'No se pudo completar la solicitud.'));
-          }
-        }).catch(error => {
-          if (finished) return;
-          lastPollError = error && error.message ? error.message : 'sin respuesta de lectura';
-          pollTimer = window.setTimeout(pollReceipt, 2200);
-        });
-      };
+        finish(new Error(navigator.onLine
+          ? 'Apps Script no confirmó la respuesta. No se mostrará como guardada; vuelva a intentarlo.'
+          : 'Se perdió la conexión. La respuesta no se confirmó; revise Internet y vuelva a enviar.'));
+      }, 45000);
       const onMessage = event => {
         let trustedOrigin = event.origin === 'https://script.google.com';
+        // HtmlService can deliver the response from an opaque sandbox origin
+        // (reported as "null"). The 128-bit request ID binds that message to
+        // this one POST; no JSONP endpoint returns student data.
+        if (event.origin === 'null') trustedOrigin = true;
         try {
           const host = new URL(event.origin).hostname;
           trustedOrigin = trustedOrigin || host === 'script.googleusercontent.com' || host.endsWith('.script.googleusercontent.com');
@@ -139,13 +97,7 @@
       };
       window.addEventListener('message', onMessage);
       document.body.append(frame, postForm);
-      try {
-        postForm.submit();
-        // Google may wrap or redirect the POST response so postMessage never
-        // reaches this page. The opaque request ID lets us retrieve the exact
-        // server-side receipt without putting student data in a URL.
-        pollTimer = window.setTimeout(pollReceipt, 700);
-      } catch (err) { finish(err); }
+      try { postForm.submit(); } catch (err) { finish(err); }
     });
   }
 
