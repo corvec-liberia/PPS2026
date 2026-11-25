@@ -14,7 +14,6 @@
   const reasonBox = $('reasonBox');
   const reasonSelect = $('reason');
   const connectionNotice = $('connectionNotice');
-  const gasFrame = $('gasTransport');
   let identity = null;
   let personalCode = '';
   let installPrompt = null;
@@ -68,6 +67,9 @@
     frame.name = frameName;
     frame.title = 'Transmisión de respuesta';
     frame.hidden = true;
+    // A public endpoint should not inherit Chrome's signed-in Google account
+    // selection. Credentialless frames avoid the wrong /u/<account>/ route.
+    if ('credentialless' in frame) frame.credentialless = true;
     const postForm = document.createElement('form');
     postForm.method = 'POST';
     postForm.action = apiUrl;
@@ -95,7 +97,12 @@
           : 'Se perdió la conexión. La respuesta no se confirmó; revise Internet y vuelva a enviar.'));
       }, deadline - Date.now());
       const onMessage = event => {
-        if (!['https://script.google.com', 'https://script.googleusercontent.com'].includes(event.origin)) return;
+        let trustedOrigin = event.origin === 'https://script.google.com';
+        try {
+          const host = new URL(event.origin).hostname;
+          trustedOrigin = trustedOrigin || host === 'script.googleusercontent.com' || host.endsWith('.script.googleusercontent.com');
+        } catch (_) {}
+        if (!trustedOrigin || event.source !== frame.contentWindow) return;
         const message = event.data;
         if (!message || message.source !== 'pps-empleabilidad-2026' || message.rid !== rid) return;
         cleanup();

@@ -19,6 +19,7 @@
     if (!navigator.onLine) return Promise.reject(new Error('No hay conexión a Internet.'));
     const rid = key(), frameName = 'admin_' + rid.replace(/-/g, '');
     const frame = document.createElement('iframe'); frame.name = frameName; frame.hidden = true;
+    if ('credentialless' in frame) frame.credentialless = true;
     const form = document.createElement('form'); form.method = 'POST'; form.action = apiUrl; form.target = frameName;
     const values = Object.assign({}, payload, { rid });
     Object.keys(values).forEach(name => { const input = document.createElement('input'); input.type = 'hidden'; input.name = name; input.value = String(values[name] == null ? '' : values[name]); form.appendChild(input); });
@@ -26,7 +27,12 @@
       const cleanup = () => { clearTimeout(timer); window.removeEventListener('message', onMessage); form.remove(); frame.remove(); };
       const timer = setTimeout(() => { cleanup(); reject(new Error(navigator.onLine ? 'Apps Script no confirmó el acceso. Inténtelo de nuevo.' : 'No hay conexión a Internet.')); }, 55000);
       const onMessage = event => {
-        if (!['https://script.google.com', 'https://script.googleusercontent.com'].includes(event.origin)) return;
+        let trustedOrigin = event.origin === 'https://script.google.com';
+        try {
+          const host = new URL(event.origin).hostname;
+          trustedOrigin = trustedOrigin || host === 'script.googleusercontent.com' || host.endsWith('.script.googleusercontent.com');
+        } catch (_) {}
+        if (!trustedOrigin || event.source !== frame.contentWindow) return;
         const result = event.data;
         if (!result || result.source !== 'pps-empleabilidad-2026' || result.rid !== rid) return;
         cleanup();
