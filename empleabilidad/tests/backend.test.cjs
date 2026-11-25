@@ -16,6 +16,10 @@ const context = {
   console,
   SpreadsheetApp: { openById: () => workbook },
   PropertiesService: { getScriptProperties: () => ({ getProperty: () => 'LOCAL-TEST-SPREADSHEET-ID-000000000000' }) },
+  HtmlService: {
+    XFrameOptionsMode: { ALLOWALL: 'ALLOWALL' },
+    createHtmlOutput: html => ({ html, setXFrameOptionsMode(mode) { this.mode = mode; return this; } })
+  },
   Logger: { log: () => {} }
 };
 vm.createContext(context);
@@ -25,4 +29,11 @@ for (const result of results) {
   console.log((result.ok ? 'PASS' : 'FAIL') + ' ' + result.test);
   assert.equal(result.ok, true, result.test);
 }
+const bridge = context.postMessageOutput_('TEST-RID-1234567890', { ok: true, marker: '</script><img>' });
+assert.equal(bridge.mode, 'ALLOWALL');
+assert.ok(bridge.html.includes('window.top.postMessage'));
+assert.ok(bridge.html.includes('TEST-RID-1234567890'));
+assert.ok(!bridge.html.includes('</script><img>'));
+assert.ok(bridge.html.includes('https://corvec-liberia.github.io'));
+console.log('PASS respuesta HTML segura para confirmar el POST por postMessage.');
 console.log(`Passed ${results.length} backend logic tests.`);
