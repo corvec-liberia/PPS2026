@@ -81,39 +81,34 @@
       field.value = String(values[key] == null ? '' : values[key]);
       postForm.appendChild(field);
     });
-    document.body.append(frame, postForm);
-    try { postForm.submit(); } catch (err) { postForm.remove(); frame.remove(); return Promise.reject(err); }
-    const deadline = Date.now() + 55000;
     return new Promise((resolve, reject) => {
-      const cleanup = () => { postForm.remove(); frame.remove(); };
-      const poll = () => {
-        if (!navigator.onLine) {
-          cleanup();
-          reject(new Error('Se perdió la conexión. No se mostró confirmación; revise Internet y vuelva a enviar.'));
+      const deadline = Date.now() + 55000;
+      const cleanup = () => {
+        window.clearTimeout(timer);
+        window.removeEventListener('message', onMessage);
+        postForm.remove(); frame.remove();
+      };
+      const timer = window.setTimeout(() => {
+        cleanup();
+        reject(new Error(navigator.onLine
+          ? 'Apps Script no confirmó el resultado. No se mostrará como guardado; vuelva a intentarlo.'
+          : 'Se perdió la conexión. La respuesta no se confirmó; revise Internet y vuelva a enviar.'));
+      }, deadline - Date.now());
+      const onMessage = event => {
+        if (!['https://script.google.com', 'https://script.googleusercontent.com'].includes(event.origin)) return;
+        const message = event.data;
+        if (!message || message.source !== 'pps-empleabilidad-2026' || message.rid !== rid) return;
+        cleanup();
+        if (!message.result || !message.result.ok) {
+          reject(new Error((message.result && message.result.message) || 'No se pudo completar la solicitud.'));
           return;
         }
-        jsonp('result', { rid }).then(result => {
-          if (result && result.pending) {
-            if (Date.now() >= deadline) {
-              cleanup();
-              reject(new Error('No se pudo verificar el guardado. Vuelva a intentarlo; el sistema evita duplicar reintentos.'));
-              return;
-            }
-            window.setTimeout(poll, 1200);
-            return;
-          }
-          cleanup();
-          if (!result || !result.ok) {
-            reject(new Error((result && result.message) || 'No se pudo completar la solicitud.'));
-            return;
-          }
-          resolve(result);
-        }).catch(error => {
-          if (Date.now() < deadline && navigator.onLine) window.setTimeout(poll, 1600);
-          else { cleanup(); reject(error); }
-        });
+        resolve(message.result);
       };
-      window.setTimeout(poll, 350);
+      window.addEventListener('message', onMessage);
+      document.body.append(frame, postForm);
+      try { postForm.submit(); }
+      catch (err) { cleanup(); reject(err); }
     });
   }
 
