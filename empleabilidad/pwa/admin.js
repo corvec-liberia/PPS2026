@@ -32,7 +32,7 @@
           const host = new URL(event.origin).hostname;
           trustedOrigin = trustedOrigin || host === 'script.googleusercontent.com' || host.endsWith('.script.googleusercontent.com');
         } catch (_) {}
-        if (!trustedOrigin || event.source !== frame.contentWindow) return;
+        if (!trustedOrigin) return;
         const result = event.data;
         if (!result || result.source !== 'pps-empleabilidad-2026' || result.rid !== rid) return;
         cleanup();

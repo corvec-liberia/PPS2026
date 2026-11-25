@@ -102,7 +102,7 @@
           const host = new URL(event.origin).hostname;
           trustedOrigin = trustedOrigin || host === 'script.googleusercontent.com' || host.endsWith('.script.googleusercontent.com');
         } catch (_) {}
-        if (!trustedOrigin || event.source !== frame.contentWindow) return;
+        if (!trustedOrigin) return;
         const message = event.data;
         if (!message || message.source !== 'pps-empleabilidad-2026' || message.rid !== rid) return;
         cleanup();
