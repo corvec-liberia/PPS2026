@@ -72,9 +72,9 @@ function doPost(e) {
   const p = (e && e.parameter) || {};
   const action = String(p.action || '');
   const rid = safeKey_(p.rid);
+  let result;
   try {
     if (!rid) throw new Error('Solicitud inválida.');
-    let result;
     if (action === 'identify') {
       result = identify_(p.code, p.specialtyCode);
     } else if (action === 'submit') {
@@ -86,13 +86,14 @@ function doPost(e) {
     } else {
       throw new Error('Acción no disponible.');
     }
-    saveResult_(rid, result);
   } catch (err) {
-    saveResult_(rid, { ok: false, message: publicError_(err) });
+    result = { ok: false, message: publicError_(err) };
   }
-  // El contenido de esta respuesta no se usa como confirmación. La PWA consulta
-  // doGet?action=result y solo confirma cuando encuentra el recibo almacenado.
-  return ContentService.createTextOutput('recibido').setMimeType(ContentService.MimeType.TEXT);
+  if (rid) saveResult_(rid, result);
+  // Entrega el resultado por el mismo POST. Apps Script puede fallar en GET
+  // cuando Chrome mantiene varias cuentas Google abiertas; no se depende de un
+  // sondeo posterior para que el estudiante vea una confirmación real.
+  return postMessageOutput_(rid, result);
 }
 
 function setupEmpleabilidad2026() {
@@ -738,7 +739,15 @@ function readSession_(value, kind) {
 }
 
 function saveResult_(rid, data) {
-  CacheService.getScriptCache().put('result:' + rid, JSON.stringify(data), CFG.RESULT_TTL);
+  try {
+    const value = JSON.stringify(data);
+    // Script Cache limits individual entries. The current POST response carries
+    // large private dashboard payloads directly, so a cache limit must never
+    // prevent the response from reaching its authorized page.
+    if (value.length <= 90000) CacheService.getScriptCache().put('result:' + rid, value, CFG.RESULT_TTL);
+  } catch (err) {
+    console.warn('No se pudo guardar el recibo temporal de la solicitud:', err);
+  }
 }
 
 function readResult_(rid) {
@@ -752,6 +761,17 @@ function output_(value, callback) {
     return ContentService.createTextOutput(callback + '(' + json + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
   return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+
+function postMessageOutput_(rid, data) {
+  const origin = 'https://corvec-liberia.github.io';
+  const envelope = JSON.stringify({ source: 'pps-empleabilidad-2026', rid: String(rid || ''), result: data })
+    .replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
+  const html = '<!doctype html><html><head><meta charset="utf-8"></head><body><script>' +
+    'window.top.postMessage(' + envelope + ',' + JSON.stringify(origin) + ');' +
+    '</script></body></html>';
+  return HtmlService.createHtmlOutput(html)
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 function safeKey_(value) {
