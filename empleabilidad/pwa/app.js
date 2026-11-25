@@ -101,15 +101,12 @@
         } catch (_) { /* Before the same-origin receipt loads, the iframe is cross-origin. */ }
       };
       const onMessage = event => {
-        let trustedOrigin = event.origin === 'https://script.google.com';
-        // HtmlService can deliver the response from an opaque sandbox origin
-        // (reported as "null"). The 128-bit request ID binds that message to
-        // this one POST; no JSONP endpoint returns student data.
-        if (event.origin === 'null') trustedOrigin = true;
-        try {
-          const host = new URL(event.origin).hostname;
-          trustedOrigin = trustedOrigin || host === 'script.googleusercontent.com' || host.endsWith('.script.googleusercontent.com');
-        } catch (_) {}
+        // Apps Script serves HtmlService from hosts such as n-…-script.googleusercontent.com.
+        // An opaque sandbox may also report "null". The receipt still has to match this POST's rid.
+        const trustedOrigin = event.origin === 'https://script.google.com' ||
+          event.origin === 'null' ||
+          /^https:\/\/(?:[a-z0-9-]+\.)*script\.googleusercontent\.com$/.test(event.origin) ||
+          /^https:\/\/[a-z0-9-]+-script\.googleusercontent\.com$/.test(event.origin);
         if (!trustedOrigin) return;
         acceptEnvelope(event.data);
       };
