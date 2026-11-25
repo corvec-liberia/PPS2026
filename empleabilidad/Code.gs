@@ -744,18 +744,17 @@ function postMessageOutput_(rid, data) {
   const origin = 'https://corvec-liberia.github.io';
   const envelope = JSON.stringify({ source: 'pps-empleabilidad-2026', rid: String(rid || ''), result: data })
     .replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
-  const returnUrl = origin + '/PPS2026/empleabilidad/pwa/bridge-return.html#' + encodeURIComponent(envelope);
+  // HtmlService runs inside a sandbox. Send the receipt directly to the
+  // GitHub Pages window; sandboxed top-level navigation cannot be relied on.
   const html = '<!doctype html><html><head><meta charset="utf-8"></head><body><script>' +
-    '(function(){var message=' + envelope + ';var target=' + JSON.stringify(origin) + ';var current=window;' +
-    'for(var i=0;i<8;i++){var parent;try{parent=current.parent;}catch(e){break;}if(!parent||parent===current)break;' +
-    'try{parent.postMessage(message,target);}catch(e){}current=parent;}' +
-    'window.location.replace(' + JSON.stringify(returnUrl) + ');' +
+    '(function(){var message=' + envelope + ';var target=' + JSON.stringify(origin) + ';' +
+    'try{window.top.postMessage(message,target);}catch(e){}' +
+    'try{if(window.parent&&window.parent!==window.top)window.parent.postMessage(message,target);}catch(e){}' +
     '})();' +
     '</script></body></html>';
   return HtmlService.createHtmlOutput(html)
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
-
 function safeKey_(value) {
   const key = String(value || '');
   return /^[A-Za-z0-9_-]{20,100}$/.test(key) ? key : '';
