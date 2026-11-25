@@ -32,22 +32,16 @@
     <section id="identityCard" class="card form-card">
       <div class="section-heading">
         <span class="step-number">01</span>
-        <div><h2>Identificación</h2><p>El código personal permite mostrar solo sus datos.</p></div>
+        <div><h2>Identificación</h2><p>Sus datos aparecerán al abrir su enlace personal.</p></div>
       </div>
-      <label for="specialty">Especialidad técnica</label>
-      <select id="specialty" required disabled>
-        <option value="">Cargando especialidades…</option>
-      </select>
-      <label for="accessCode">Código personal</label>
-      <div class="input-row">
-        <input id="accessCode" type="password" inputmode="text" autocomplete="one-time-code" autocapitalize="off" spellcheck="false" placeholder="Ingrese su código personal" aria-describedby="codeHelp">
-        <button id="identifyButton" class="button button-secondary" type="button" disabled>Verificar</button>
-      </div>
-      <p id="codeHelp" class="helper-text">Si recibió un enlace personal, el código se cargará automáticamente. Si no lo tiene, solicítelo a su profesor(a) o a Coordinación con la Empresa.</p>
+      <p id="identityHelp" class="helper-text">Abra el enlace personal que recibió por WhatsApp. Si no lo tiene, solicítelo a su profesor(a) o a Coordinación con la Empresa.</p>
       <p id="identityMessage" class="message" role="status" aria-live="polite"></p>
+      <button id="retryIdentityButton" class="button button-secondary" type="button" hidden>Intentar de nuevo</button>
       <div id="studentField" hidden>
-        <label for="student">Nombre completo</label>
-        <select id="student" disabled><option value="">Verifique su código personal</option></select>
+        <label for="verifiedSpecialty">Especialidad técnica</label>
+        <input id="verifiedSpecialty" class="readonly-field" type="text" readonly aria-readonly="true">
+        <label for="verifiedStudent">Nombre completo</label>
+        <input id="verifiedStudent" class="readonly-field" type="text" readonly aria-readonly="true">
       </div>
     </section>
 
