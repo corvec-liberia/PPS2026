@@ -84,18 +84,44 @@
       postForm.appendChild(field);
     });
     return new Promise((resolve, reject) => {
-      const deadline = Date.now() + 55000;
+      let finished = false;
+      let pollTimer = 0;
+      let lastPollError = '';
       const cleanup = () => {
         window.clearTimeout(timer);
+        window.clearTimeout(pollTimer);
         window.removeEventListener('message', onMessage);
         postForm.remove(); frame.remove();
       };
-      const timer = window.setTimeout(() => {
+      const finish = (error, value) => {
+        if (finished) return;
+        finished = true;
         cleanup();
-        reject(new Error(navigator.onLine
-          ? 'Apps Script no confirmó el resultado. No se mostrará como guardado; vuelva a intentarlo.'
-          : 'Se perdió la conexión. La respuesta no se confirmó; revise Internet y vuelva a enviar.'));
-      }, deadline - Date.now());
+        if (error) reject(error); else resolve(value);
+      };
+      const timer = window.setTimeout(() => {
+        const message = !navigator.onLine
+          ? 'Se perdió la conexión. La respuesta no se confirmó; revise Internet y vuelva a enviar.'
+          : 'No se pudo verificar la respuesta con Apps Script. No se mostrará como guardada; vuelva a intentarlo.';
+        finish(new Error(message + (lastPollError ? ' (' + lastPollError + ')' : '')));
+      }, 35000);
+      const pollReceipt = () => {
+        if (finished) return;
+        jsonp('result', { rid }).then(result => {
+          if (finished) return;
+          if (result && result.pending) {
+            pollTimer = window.setTimeout(pollReceipt, 1200);
+          } else if (result && result.ok) {
+            finish(null, result);
+          } else {
+            finish(new Error((result && result.message) || 'No se pudo completar la solicitud.'));
+          }
+        }).catch(error => {
+          if (finished) return;
+          lastPollError = error && error.message ? error.message : 'sin respuesta de lectura';
+          pollTimer = window.setTimeout(pollReceipt, 2200);
+        });
+      };
       const onMessage = event => {
         let trustedOrigin = event.origin === 'https://script.google.com';
         try {
@@ -105,17 +131,21 @@
         if (!trustedOrigin) return;
         const message = event.data;
         if (!message || message.source !== 'pps-empleabilidad-2026' || message.rid !== rid) return;
-        cleanup();
         if (!message.result || !message.result.ok) {
-          reject(new Error((message.result && message.result.message) || 'No se pudo completar la solicitud.'));
+          finish(new Error((message.result && message.result.message) || 'No se pudo completar la solicitud.'));
           return;
         }
-        resolve(message.result);
+        finish(null, message.result);
       };
       window.addEventListener('message', onMessage);
       document.body.append(frame, postForm);
-      try { postForm.submit(); }
-      catch (err) { cleanup(); reject(err); }
+      try {
+        postForm.submit();
+        // Google may wrap or redirect the POST response so postMessage never
+        // reaches this page. The opaque request ID lets us retrieve the exact
+        // server-side receipt without putting student data in a URL.
+        pollTimer = window.setTimeout(pollReceipt, 700);
+      } catch (err) { finish(err); }
     });
   }
 
